@@ -1,5 +1,6 @@
 """Unit tests that need neither Defects4J nor a model:  python -m unittest -v"""
 
+import random
 import unittest
 
 from vlayer import audit as A
@@ -79,7 +80,7 @@ def make_audit(fails, n=6):
 
 
 SETTINGS = {"seed": 1, "runner": {"cost_unit": "cpu"},
-            "arc": {"w_name": 20, "w_package": 3, "w_other": 1}}
+            "arc": {"shares": {"name": 0.60, "package": 0.25, "other": 0.15}}}
 
 
 class OrderingTest(unittest.TestCase):
@@ -92,8 +93,8 @@ class OrderingTest(unittest.TestCase):
         orc = A.charge(a, A.oracle_order(a))
         self.assertAlmostEqual(orc["tests"]["cpu"], 2.0)
 
-    def test_arc_prefers_named_class_then_learns(self):
-        o = O.make("arc", make_info(), SETTINGS)
+    def test_arc_mean_prefers_named_class_then_learns(self):
+        o = O.make("arc-mean", make_info(), SETTINGS)
         order, _ = o.order()
         self.assertEqual(order[0], "p.T3Test")          # named after the modified class
         o.observe([("p.T3Test", False, 4.0)] * 5 + [("p.T0Test", True, 1.0)] * 3)
@@ -103,6 +104,37 @@ class OrderingTest(unittest.TestCase):
         o = O.make("arc", make_info(), SETTINGS)
         o.n["p.T1Test"], o.k["p.T1Test"], o.s["p.T1Test"] = 10, 8, 0.4
         self.assertAlmostEqual(o.K("p.T1Test"), (o.pi["p.T1Test"] + 8) / 11)
+
+    def test_location_prior_shares(self):
+        suite = ["a.b.FooTest", "a.b.FooBarTest", "a.b.BazTest", "x.y.QuxTest", "x.y.ZedTest"]
+        pi = O.location_prior(suite, "a.b.Foo", SETTINGS["arc"]["shares"])
+        self.assertAlmostEqual(sum(pi.values()), 1.0)
+        self.assertAlmostEqual(pi["a.b.FooTest"], 0.30)        # 0.60 over two named classes
+        self.assertAlmostEqual(pi["a.b.BazTest"], 0.25)
+        self.assertAlmostEqual(pi["x.y.QuxTest"], 0.075)
+        # an empty group gives its share to the others
+        pi = O.location_prior(["a.b.FooTest", "a.b.BazTest"], "a.b.Foo", SETTINGS["arc"]["shares"])
+        self.assertAlmostEqual(pi["a.b.FooTest"], 0.60 / 0.85)
+        # no-name: named classes become package classes
+        pi = O.location_prior(suite, "a.b.Foo", SETTINGS["arc"]["shares"], merge_name=True)
+        self.assertAlmostEqual(pi["a.b.FooTest"], pi["a.b.BazTest"])
+        self.assertAlmostEqual(pi["a.b.FooTest"], 0.85 / 3)
+
+    def test_arc_thompson_is_reproducible_per_candidate(self):
+        a = O.make("arc", make_info(), SETTINGS, random.Random(7))
+        b = O.make("arc", make_info(), SETTINGS, random.Random(7))
+        self.assertEqual(a.order(key="cand-1"), b.order(key="cand-1"))
+        orders = {tuple(a.order(key=f"cand-{i}")[0]) for i in range(30)}
+        self.assertGreater(len(orders), 1)                 # draws differ between candidates
+
+    def test_arc_thompson_explores_mostly_near_the_change(self):
+        suite = ["p.T3Test"] + [f"p.P{i}Test" for i in range(5)] + [f"q.O{i}Test" for i in range(54)]
+        info = {"suite": suite, "modified_class": "p.T3",
+                "ci": {c: {"cpu": 1.0, "wall": 1.0} for c in suite}}
+        o = O.make("arc", info, SETTINGS, random.Random(3))
+        firsts = [o.order(key=i)[0][0] for i in range(400)]
+        self.assertGreater(firsts.count("p.T3Test") / 400, 0.6)
+        self.assertLess(sum(f.startswith("q.") for f in firsts) / 400, 0.2)
 
     def test_frtp_and_trigger_prefix(self):
         info = make_info()
@@ -156,3 +188,21 @@ class BudgetGuardTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class DevRuleTest(unittest.TestCase):
+    def test_guard_suggestion(self):
+        from vlayer.analysis import guard_suggestion
+        settings = {"budget_guard": {"budget_unit": "seconds"}, "live": {"rounds": 20}}
+
+        def rd(v, sig, sec):
+            return {"cost": {"seconds": sec, "tokens": 0, "usd": 0.0}, "signature": list(sig),
+                    "repeat": False, "verdict": v, "val": {"cpu": 0.0, "wall": sec}}
+        # plausible in round 4 after two rounds that fail the same way (no progress)
+        s1 = {"plausible": True, "plausible_round": 4,
+              "rounds": [rd("rejected", ("a",), 10), rd("rejected", ("a",), 10),
+                         rd("rejected", ("a",), 10), rd("plausible", ("p",), 10)]}
+        s2 = {"plausible": True, "plausible_round": 1, "rounds": [rd("plausible", ("p",), 30)]}
+        r, budget = guard_suggestion([s1, s2], settings)
+        self.assertEqual(r, 3)              # r = 1 or 2 would cut s1 before its patch
+        self.assertGreaterEqual(budget, 30)

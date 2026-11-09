@@ -15,6 +15,7 @@ from scipy.stats import wilcoxon
 
 from . import config as C
 from .budget_guard import replay
+from .orderings import GROUPS, location_group
 
 UNITS = ("seconds", "cpu", "tokens", "usd")
 
@@ -323,6 +324,56 @@ def section_e3(bugs, settings, margin_pp):
 
 # ---------------------------------------------------------------- dev checks
 
+def prior_shares(bugs):
+    """ARC prior shares from the development audits: for every wrong patch in
+    the modified class (E1 groups S1 and S2, rejected E2 candidates), the
+    share of its failing classes in each location group, averaged over
+    patches. Returns ({group: share}, number of patches)."""
+    acc, n = {g: 0.0 for g in GROUPS}, 0
+    for b in bugs:
+        info = C.read_json(C.DATA / "bugs" / b / "info.json")
+        if info is None:
+            continue
+        mut = C.read_json(C.DATA / "bugs" / b / "mutants.json", {})
+        keys = {m["key"] for g in ("S1", "S2") for m in mut.get("groups", {}).get(g, {}).get("chosen", [])}
+        for sessions in load_live("e2", [b]).values():
+            for s in sessions:
+                keys |= {r["extra"].get("audit_key") for r in s["rounds"]
+                         if r["verdict"] == "rejected" and not r["repeat"] and r["extra"].get("audit_key")}
+        for k in sorted(keys):
+            a = C.read_json(C.CACHE / "audit" / b / f"{k}.json")
+            if not a or not a.get("compiled"):
+                continue
+            failing = [c for c in info["suite"] if a["classes"].get(c, {}).get("status", "pass") != "pass"]
+            if not failing:
+                continue
+            for c in failing:
+                acc[location_group(c, info["modified_class"])] += 1 / len(failing)
+            n += 1
+    return ({g: acc[g] / n for g in GROUPS} if n else None), n
+
+
+def guard_suggestion(sessions, settings, max_lost=0.05, pct=0.9):
+    """The development-set rules for the Budget Guard: the smallest r whose
+    replay (no budget) loses at most `max_lost` of the plausible sessions, and
+    the `pct` quantile of the session time to a plausible patch."""
+    b = settings["budget_guard"]
+    plausible = [s for s in sessions if s["plausible"]]
+    if not plausible:
+        return None, None
+    r_pick = None
+    for r in (1, 2, 3, 4, 5):
+        lost = sum(1 for s in plausible
+                   if replay(s["rounds"], r, None, b["budget_unit"], settings["live"]["rounds"])[0]
+                   < s["plausible_round"])
+        if lost <= max_lost * len(plausible):
+            r_pick = r
+            break
+    times = sorted(scost(s, "seconds", s["plausible_round"]) for s in plausible)
+    budget = st.quantiles(times, n=100)[int(pct * 100) - 1] if len(times) > 1 else times[0]
+    return r_pick, budget
+
+
 def section_dev(bugs, dev, settings):
     out = ["## Development-set checks", ""]
     mr = dev.get("median_rounds_default")
@@ -334,6 +385,18 @@ def section_dev(bugs, dev, settings):
             out.append(f"- SD of per-bug log-ratio ARC/FRTP ({k[:2].upper()}): {fmt(sd)} "
                        f"(planned power assumes <= 0.15; smallest detectable saving at n=100, "
                        f"power 0.8: {fmt(1 - math.exp(-2.8 * sd / math.sqrt(100)))})")
+    shares, n = prior_shares(bugs)
+    if shares:
+        cur = settings["arc"]["shares"]
+        out.append("- ARC prior shares from " + str(n) + " wrong patches: "
+                   + ", ".join(f"{g} {shares[g]:.2f} (set {cur.get(g, 0):.2f})" for g in GROUPS))
+    default = load_live("e2", bugs).get("default", [])
+    r_pick, budget = guard_suggestion(default, settings)
+    if budget is not None:
+        b = settings["budget_guard"]
+        out.append(f"- Budget Guard: r = {r_pick or 'none of 1-5'} (rule: smallest r losing <= 5 % of "
+                   f"plausible Default sessions; set {b['r']}), budget = {budget:.0f} s "
+                   f"(rule: 90th percentile of the time to a plausible patch; set {b['budget']})")
     spent = defaultdict(float)
     for b in bugs:
         for phase, sec in C.read_json(C.CACHE / "audit" / b / "_ledger.json", {}).items():

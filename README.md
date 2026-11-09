@@ -150,10 +150,11 @@ E3). Every decision is logged in `data/selection.csv`; facts per bug are in
 
 The *Development-set checks* section of the report gives what the proposal
 fixes on the dev set: the median rounds per session (the model rule: at
-least 3, otherwise pick a smaller model), the SD of the per-bug log-ratio
-(power), and the audit time per bug (compute budget). Set the final values in
-`settings.json` (`arc` weights, `budget_guard.r` and `budget`, `model.name`,
-`analysis.margin_pp`), then freeze them:
+least 3, otherwise pick a weaker model), the SD of the per-bug log-ratio
+(power), the audit time per bug (compute budget), and suggested values for
+the ARC prior shares and the Budget Guard (`r`, `budget`), each from the rule
+pre-registered in the proposal. Set the final values in `settings.json`
+(`arc.shares`, `budget_guard.r` and `budget`, `model.name`), then freeze them:
 
 ```bash
 .venv/bin/python -m vlayer freeze        # writes settings.lock.json (hash + time)

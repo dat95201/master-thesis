@@ -53,7 +53,7 @@ class AuditedRunner:
             prefix = self.info["triggering_classes"] if "+trigger" in ordering.name else ()
             order, stop = A.oracle_order(audit, prefix, self.unit), None
         else:
-            order, stop = ordering.order(in_faulty=True)
+            order, stop = ordering.order(in_faulty=True, key=audit["key"])
         out = A.charge(audit, order, stop, self.unit)
         out["compile_error"] = audit.get("compile_error", "")
         out["fail"] = _fail_detail(self.info, out["fail"], audit["classes"][out["fail"]]) if out["fail"] else None
@@ -81,7 +81,7 @@ class LiveRunner:
         src = w / info["src_file"]
         original = src.read_text(errors="replace")
         top = info["modified_class"].split("$")[0]
-        order, stop = ordering.order(in_faulty=True)
+        order, stop = ordering.order(in_faulty=True, key=javasrc.candidate_key(methods))
         classes = order[:stop] if stop is not None else order
         try:
             src.write_text(javasrc.replace_methods(original, methods))

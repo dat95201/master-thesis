@@ -93,15 +93,34 @@ names in the same method and only matters if two patches differ only there.
 | `default` | `tests.all` order |
 | `frtp` | most rejections in the session first; ties in default order |
 | `coverage` | classes that reach the faulty methods: the class named after the modified class first, then fastest (CI time) first; then the rest, fastest first. For a change inside the faulty methods, the patch is plausible once the reaching classes pass (`stop_after`) |
-| `arc` | Algorithm 1: `K_t = (π_t + k_t)/(1 + n_t)`, `m_t = s_t/n_t` or the CI time, order by `K_t/m_t` |
+| `arc` | Algorithm 1: draw `θ_t ~ Beta(π_t + k_t, 1 − π_t + n_t − k_t)` for each candidate (Thompson sampling; the posterior mean is `K_t = (π_t + k_t)/(1 + n_t)`), `m_t = s_t/n_t` or the CI time, order by `θ_t/m_t` |
 | `oracle` | cheapest failing class in hindsight, computed from the audit |
 | `+trigger` | prefix: triggering classes first (in the inner order), then the inner order |
 
-**ARC prior.** Weight `w_name` for classes whose simple name starts with the
-modified class's simple name (`StringUtilsTest`, `StringUtilsTrimTest` for
-`StringUtils`), `w_package` for the same package, `w_other` otherwise,
-normalised to sum to one. A class with no CI time is estimated from its file
-size at the rate observed so far. Ties are broken by the default order.
+**Notation.** The proposal writes `q̂_t` for `K_t` (`ARC.K`) and `ĉ_t` for `m_t`
+(`ARC.m`); `α_t = π_t + k_t` and `β_t = 1 − π_t + n_t − k_t` are the Beta parameters
+(`ARC._beta`).
+
+**ARC prior.** Three location groups (`orderings.location_group`): classes
+whose simple name starts with the modified class's simple name
+(`StringUtilsTest`, `StringUtilsTrimTest` for `StringUtils`), other classes of
+its package, the rest. Each non-empty group gets its share
+`settings.arc.shares` (provisional 0.60 / 0.25 / 0.15), split equally among
+its classes; the shares of empty groups are redistributed, so `π_t` sums to
+one (`orderings.location_prior`). The prior has the weight of one run. A class
+with no CI time is estimated from its file size at the rate observed so far.
+Ties are broken by the default order.
+
+**Exploration (censoring).** Early stopping observes a class only when the
+order reaches it (a cascading-bandit observation model), so a class whose
+estimate is too low is rarely corrected. ARC orders by a posterior draw, not
+by `K_t`. Inverse propensity weighting is not used: a deterministic order
+reaches a class with probability 0 or 1. The draws of a candidate are seeded
+by the session (`build_layer` seeds the ordering with `seed-bug-session`; E1
+with `seed-bug-order`) and by the candidate's key (`order(..., key=)`), so
+every run is reproducible. Exploration depends on the prior being calibrated:
+with too much mass on the "other" group, unrelated classes are often drawn
+first, which is why the shares are fitted on the dev set.
 
 **RQ4 variants** (one part changed each):
 
@@ -110,9 +129,9 @@ size at the rate observed so far. Ties are broken by the default order.
 | `arc-nocost` | order by `K_t` only |
 | `arc-costonly` | order by `1/m_t` only (fastest first) |
 | `arc-flat` | `π_t = 1/N` |
-| `arc-noname` | the class-name hint removed (`w_name = w_package`), package kept |
+| `arc-noname` | the class-name hint removed (named classes join the package group, which gets both shares), package kept |
 | `arc-wrong` | prior computed for a wrong location (a class of another package) |
-| `arc-thompson` | `K_t` sampled from `Beta(π_t + k_t, 1 − π_t + n_t − k_t)` |
+| `arc-mean` | no exploration: order by the posterior mean `K_t/m_t` |
 | `arc-size` | start times from test file size, not the CI run |
 | `frtp-cost` | FRTP with ties broken by CI time |
 | `arc-cov` | ARC on the classes Coverage selects, with Coverage's stop |
@@ -199,4 +218,10 @@ stop; `live.sessions` (3) sessions per bug.
   bound against `analysis.margin_pp`), notice effect vs E2 ARC, median time to
   a plausible patch, budget overrun.
 * Dev checks: median rounds (model rule), SD of log-ratios and the smallest
-  detectable saving, audit hours per bug (compute budget).
+  detectable saving, audit hours per bug (compute budget), and the values the
+  dev set fixes: ARC prior shares (`prior_shares`: per wrong patch of S1, S2
+  and the rejected E2 candidates, the share of its failing classes in each
+  location group, averaged over patches) and the Budget Guard
+  (`guard_suggestion`: the smallest `r` whose replay loses at most 5 % of the
+  plausible Default sessions; `budget` = 90th percentile of the time to a
+  plausible patch).

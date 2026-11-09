@@ -6,6 +6,7 @@ first plausible patch, or when the layer says to stop (round limit, or the
 Budget Guard when it is not in log-only mode).
 """
 
+import random
 import textwrap
 
 from . import javasrc
@@ -31,9 +32,11 @@ def first_prompt(info) -> str:
             f"Return {target} in one Java code block.")
 
 
-def build_layer(info, settings, arm: dict, live=False):
-    """arm = {ordering, cache, notice, guard} with guard in off|log|on."""
-    ordering = orderings.make(arm["ordering"], info, settings)
+def build_layer(info, settings, arm: dict, live=False, session=0):
+    """arm = {ordering, cache, notice, guard} with guard in off|log|on.
+    The ordering's random draws are seeded by the bug and the session."""
+    rng = random.Random(f"{settings['seed']}-{info['bug']}-{session}")
+    ordering = orderings.make(arm["ordering"], info, settings, rng)
     runner = LiveRunner(info, settings) if live else AuditedRunner(
         info, settings, phase="live", cap_hours=settings["live"]["cap_cpu_hours"])
     rg = RepeatGuard(notice=arm.get("notice", False)) if arm.get("cache", True) else None
@@ -47,7 +50,7 @@ def build_layer(info, settings, arm: dict, live=False):
 
 def run_session(info, settings, arm: dict, session: int, llm: LLM = None, live=False, verbose=False):
     llm = llm or LLM(settings)
-    layer = build_layer(info, settings, arm, live)
+    layer = build_layer(info, settings, arm, live, session)
     faulty = [(f["key"], f["name"], f["nparams"]) for f in info["faulty"]]
     messages = [{"role": "user", "content": first_prompt(info)}]
     report = None

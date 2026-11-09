@@ -123,7 +123,7 @@ def mutants_for_bug(bug, settings):
 def _session_cost(info, settings, name, trigger, patches, fix, seed):
     """Validation cost of one simulated session under one ordering."""
     unit = settings["runner"]["cost_unit"]
-    o = orderings.make(name, info, settings, random.Random(seed), trigger)
+    o = orderings.make(name, info, settings, random.Random(f"{settings['seed']}-{info['bug']}-{seed}"), trigger)
     tot = {"rej_wall": 0.0, "rej_cpu": 0.0, "rej_tests_cpu": 0.0, "rej_tests_wall": 0.0,
            "acc_wall": 0.0, "acc_cpu": 0.0, "unsafe": 0}
     for audit, in_faulty in patches + [(fix, True)]:
@@ -131,7 +131,7 @@ def _session_cost(info, settings, name, trigger, patches, fix, seed):
             prefix = info["triggering_classes"] if trigger else ()
             order, stop = A.oracle_order(audit, prefix, unit), None
         else:
-            order, stop = o.order(in_faulty)
+            order, stop = o.order(in_faulty, key=audit["key"])
         ch = A.charge(audit, order, stop, unit)
         o.observe(ch["run"])
         if audit is fix:

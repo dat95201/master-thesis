@@ -15,13 +15,11 @@
     "cost_unit": "cpu"
   },
   "arc": {
-    "_tbd": "prior weights, TBD-on-dev",
-    "w_name": 20,
-    "w_package": 3,
-    "w_other": 1
+    "_tbd": "prior shares per location group, TBD-on-dev (share of the failing classes of wrong patches in each group; `analyze --split dev` suggests them)",
+    "shares": {"name": 0.60, "package": 0.25, "other": 0.15}
   },
   "budget_guard": {
-    "_tbd": "r and budget, TBD-on-dev",
+    "_tbd": "r: smallest r whose replay loses <= 5% of plausible Default sessions; budget: 90th percentile of the time to a plausible patch in Default sessions (TBD-on-dev)",
     "r": 3,
     "budget": 900,
     "budget_unit": "seconds"
@@ -39,14 +37,14 @@
     "e2_arms": ["default", "frtp", "coverage", "arc"]
   },
   "model": {
-    "_tbd": "model name TBD-on-dev (median Default session must need >= 3 rounds)",
-    "name": "gpt-4o-mini",
+    "_tbd": "kept if the median Default session needs >= 3 rounds on dev, otherwise a weaker model",
+    "name": "gpt-6-luna",
     "temperature": 0.8,
     "max_tokens": 2048
   },
   "prices": {
-    "usd_per_mtok_in": 0.15,
-    "usd_per_mtok_out": 0.60,
+    "usd_per_mtok_in": 0.10,
+    "usd_per_mtok_out": 0.50,
     "usd_per_cpu_hour": 0.05
   },
   "analysis": {
