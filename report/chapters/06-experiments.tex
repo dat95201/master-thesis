@@ -86,7 +86,7 @@ patch.
 \paragraph{Variants of \km\ (RQ4).} Each changes one part of \km: no cost
 term; cost only (fastest first); a flat prior; no location prior, which also
 shows \km\ without the indirect hint that a class named after the modified
-class gives; a wrong location; random exploration (Thompson sampling); start
+class gives; a wrong location; no exploration (ranking by the mean $\hat q_t$ instead of a draw); start
 times estimated from file size instead of the CI run; \frtp\ with a cost
 tie-break; and \km\ on the classes Coverage selects.
 
@@ -127,9 +127,25 @@ The last line shows why the trigger-step setting matters: a candidate that
 fails a triggering class costs the same under every ordering, so the orderings
 differ only on candidates that pass the triggering classes.
 
+\paragraph{How time is measured.} The classes of a candidate run one after
+another in a single JVM, as build tools run a test suite. A JUnit~4 runner,
+started once per candidate, records for each class its result, its wall-clock
+time and the CPU time of the whole JVM process while the class runs (all
+threads, including JIT compilation and garbage collection). JVM start-up is
+charged once per candidate, as the process time spent outside the classes, and
+compilation as the CPU time of the build. A JVM per class would add a start-up
+to every class and penalise the orderings that run more classes; a shared JVM
+charges it once, as in practice. A class that runs longer than $60$ seconds
+counts as failed; if the JVM dies inside a class, that class counts as failed
+and the remaining classes run in a new JVM. The main unit is CPU seconds,
+which depends less on the load of the machine than wall-clock time; wall-clock
+time is recorded for every class and reported as well.
+
 \paragraph{What is recorded.} For each model call: latency and tokens. For each
-audit: compile time, JVM start-up and the CPU time of each test class. Costs are
-reported in time, CPU time, tokens and money, using one fixed price list.
+audit: compile time, JVM start-up, and the result, wall-clock time and CPU
+time of each test class. Costs are reported in time, CPU time, tokens and
+money, using one fixed price list: the model's list price and \$0.05 per
+CPU-hour of validation.
 
 \paragraph{Reliability checks.} Each test class runs three times on the fixed
 program; classes that change outcome are excluded as flaky. A class is stopped
@@ -238,8 +254,14 @@ Repeat (E3 only) & the patch was already tried and which test rejected it\\
 \end{tabularx}
 \end{table}
 
-\paragraph{Model.} One model through an API (\pendlong), with a fixed version
-and a fixed temperature above zero, so that the three sessions of a bug differ. A \emph{session} is one repair
+\paragraph{Model.} One model through an API: OpenAI's \texttt{gpt-6-luna}, the
+smallest tier of the GPT-6 family, at temperature $0.8$, so that the three
+sessions of a bug differ, and at most $2{,}048$ output tokens per answer. The
+dated snapshot in use when the runs start is recorded and kept for every
+experiment. At its list price of \$0.10 and \$0.50 per million input and output
+tokens, the upper bound of $30{,}000$ calls (Section~\ref{sec:exp-prereg}) costs
+about \$45 even if every call carried $10{,}000$ input and $1{,}000$ output
+tokens. A \emph{session} is one repair
 attempt on one bug: it runs up to $20$ rounds, one model call per round, and
 stops earlier if a plausible patch is found. Each bug gets three independent
 sessions per configuration.
@@ -247,7 +269,10 @@ Defects4J is likely memorised by current models~\citep{ramos2024memorizing}; if
 most sessions ended in one or two rounds, there would be little cost to save.
 The model is therefore chosen on the development set by a rule fixed in
 advance: the median session must need at least three rounds; otherwise a
-smaller model is used.
+weaker model is used. A small tier is the natural first choice for a repair
+bot that runs on every failing build. The rule fixes a setting in which
+sessions take several rounds; how the cost breakdown changes with a stronger
+model is left to future work (Section~\ref{sec:plan-future}).
 
 \paragraph{Fair comparison.} Configurations of the same bug and session share two
 caches. Model answers are cached by their full prompt, so configurations get
@@ -315,8 +340,8 @@ of the paired difference is at most $0.24$. If the development set shows more
 spread than assumed, the number of sessions per bug is raised before the number of
 bugs. All estimates are reported with bootstrap intervals.
 
-\pendnote{The variances, the margin, the defaults of \km\ and the Budget Guard,
-and the number of eligible bugs; all are fixed on the development set.}
+The assumed standard deviations and the margin are provisional values,
+checked on the development set (Table~\ref{tab:exp-provisional}).
 
 \section{Pilot Study}
 \label{sec:exp-pilot}
@@ -355,9 +380,34 @@ Cap per bug & $2$ CPU-hours in E1 and $4$ in E2--E3; a bug that reaches its cap 
 \section{Pre-Registration}
 \label{sec:exp-prereg}
 
-This proposal fixes the bugs, settings, metrics and analyses in advance. The values added later (the prior weights of \km, the stopping count $r$, the
-budget $B$, the variances and the margin) are fixed on the development
-set before E1 starts; any later change will be reported. The experiments run in
+This proposal fixes the bugs, settings, metrics and analyses in advance.
+Table~\ref{tab:exp-provisional} gives the values that still depend on data,
+with a provisional value and the rule that fixes it on the development set;
+they are frozen before E1 starts on the evaluation set, and any later change
+will be reported.
+
+\begin{table}[htbp]
+\centering
+\caption{Provisional values and how the development set fixes them.}
+\label{tab:exp-provisional}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.22\textwidth} >{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Value & Provisional & Rule on the development set\\
+\midrule
+Model & \texttt{gpt-6-luna}, temperature $0.8$, at most $2{,}048$ output tokens & kept if the median Default session needs at least $3$ rounds, otherwise a weaker model\\
+Prior shares of \km\ & named after the modified class $0.60$, same package $0.25$, other $0.15$ & the share of the failing classes of wrong patches that falls in each group, from the development audits\\
+Stopping count $r$ & $3$ rounds without progress & the smallest $r$ whose replay loses at most $5\,\%$ of the plausible sessions\\
+Budget $B$ & $900$ s of session time (wall-clock) & the $90$th percentile of the time to a plausible patch in the Default sessions\\
+SD of the per-bug log-ratio & $0.15$ & measured; if larger, the smallest detectable saving is reported\\
+SD of the repair-rate difference & $0.24$ & measured; if larger, the sessions per bug are raised, not the margin\\
+Non-inferiority margin & $10$ percentage points & not changed\\
+Bugs & $120$ accepted: $20$ development, $100$ evaluation ($50$ also in E3) & the share of Defects4J bugs that pass the rules is reported from the selection log\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The experiments run in
 order: E1, then E2, then E3. The budget is $60$ repair sessions on the development set, $1{,}200$ in E2
 ($100$ bugs $\times$ $3$ sessions $\times$ $4$ orderings) and $150$ in E3. A session makes at most
 $20$ model calls, one per round, and stops early at a plausible patch; since the

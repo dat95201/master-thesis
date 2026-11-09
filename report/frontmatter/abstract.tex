@@ -8,14 +8,15 @@ The model often repeats patches it has already proposed, a wrong patch may pass
 many tests before one fails, and sessions continue after the model has stopped
 making progress. The size of these wastes has not been measured.
 
-This proposal measures how the cost of a repair loop is distributed and builds
-a validation layer, placed between the repair loop and the project's test
-runner, to reduce these wastes. A \emph{Repeat Guard} recognises
+This proposal builds a validation layer, placed between the repair loop and the
+project's test runner, with one module aimed at each waste. A \emph{Repeat Guard} recognises
 repeated patches and reuses their results. A \emph{Test Prioritiser} runs first
 the tests most likely to fail per second of running time, using a rule, \km,
 that learns both quantities during the session. A \emph{Budget Guard} stops
 sessions that are stuck or out of budget and reports why. The layer is designed
-for a repair bot in continuous integration and needs no instrumentation.
+for a repair bot in continuous integration and needs no instrumentation. The
+proposal also measures how the cost of a repair loop is distributed, to know
+how large each waste is and so the most each module can save.
 
 The evaluation on $100$ Defects4J bugs ($50$ for the end-to-end run) has two
 levels. A simulation on mutated patches, which every test ordering sees alike,

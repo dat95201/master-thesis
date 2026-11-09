@@ -271,6 +271,22 @@ whole session assumes otherwise.
 A history-based order is therefore learned from data that its own early
 stopping withholds.
 
+\paragraph{The cascade view.} This is the observation model of \emph{cascading
+bandits}~\citep{kveton2015cascading}, a learning-to-rank setting in which a user
+scans a ranked list and stops at the first attractive item; here the validator
+scans the ordered tests and stops at the first rejection. Two facts carry over.
+First, if outcomes are independent, whether a test is reached does not depend
+on its own outcome, so its rate among the runs that reached it is unbiased;
+with correlated outcomes the same rate is the rate conditional on reaching,
+the target of Section~\ref{sec:bg-problem}. Censoring thus costs observations
+more than accuracy. Second, that cost falls on the tests ranked low: a test
+whose rate is underestimated is rarely reached, so its estimate is rarely
+corrected. Reweighting the record by the inverse probability of reaching each
+test does not help, because a deterministic order reaches a test with
+probability zero or one. An order obtains the missing observations only by
+\emph{exploring}: running an uncertain test earlier than its estimate alone
+would.
+
 \section{Benchmark}
 \label{sec:bg-benchmarks}
 

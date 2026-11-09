@@ -200,6 +200,7 @@ Cost & likelihood of failing per unit of cost & least-cost testing~\citep{mitten
 Location tiers & failing tests, then tests in the package of the patched code, then the rest & ExpressAPR~\citep{xiao2024expressapr}\\
 Coverage, cost and name & tests covering the change only, fastest first, the unit test of the changed class favoured & PIT~\citep{coles2016pit}\\
 History across variants & tests that killed other mutants first & FaMT~\citep{zhang2013famt}\\
+History across CI cycles & a learned policy, rewarded for early failures & RETECS~\citep{spieker2017retecs}, COLEMAN~\citep{lima2022coleman}\\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -228,6 +229,17 @@ change is located exactly by an instrumented coverage run, and no failure is
 reported to anyone. In LLM-based repair the candidates arrive one at a time and
 are few, and the failing test that validation reports becomes the model's next
 input.
+
+Learned orders exist in continuous integration, where the order is learned
+across commits: RETECS uses reinforcement learning~\citep{spieker2017retecs}
+and COLEMAN a multi-armed bandit~\citep{lima2022coleman}, both rewarded for
+detecting failures early. Ranking under stop-at-first-success has its own bandit
+model, cascading bandits, with UCB and Thompson sampling
+algorithms~\citep{kveton2015cascading,zhong2021tscascade} and a variant in
+which examining each item has a cost~\citep{zhou2018costcascading}. These
+methods learn over hundreds or thousands of cycles. A repair session validates
+a handful of candidates, so whatever a learned order explores must pay off
+within a few rounds.
 
 \paragraph{Limitations.} \frtp\ ranks on a \emph{count} of past
 rejections~\citep{qi2013frtp}, which cannot tell a test never run from one run

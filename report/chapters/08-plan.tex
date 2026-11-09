@@ -90,6 +90,17 @@ tasks such as SWE-bench~\citep{jimenez2024swebench} and contest programs such
 as ConDefects~\citep{wu2024condefects}, where a test is one run of the whole
 program, are later steps.
 
+\paragraph{A stronger model.} If time allows, the $20$ development bugs are
+run again with the strongest tier of the same family, \texttt{gpt-6-sol}
+(\$2 and \$10 per million input and output tokens), in the Default
+configuration of E2 with three sessions per bug. A stronger model is expected
+to need fewer rounds and to repeat itself less, which moves the cost towards
+validating the accepted patch. Comparing its cost breakdown with that of the
+main model shows how the room left for each module changes with the strength of
+the model, a further result for RQ1, and checks that the rule for choosing the
+model (Section~\ref{sec:exp-live}) does not simply pick a setting in which
+the wastes exist.
+
 \paragraph{Other directions.} Multi-file bugs and imperfect fault
 localisation; a study of whether the give-up report helps developers; and using
 the test record to choose which failures to show the model.
@@ -98,10 +109,11 @@ the test record to choose which failures to show the model.
 \label{sec:plan-conclusion}
 
 In LLM-based repair, each round costs a model call and a test run, and part of
-this cost is wasted. This proposal measures how the cost is distributed and
-builds a validation layer with three modules: a Repeat Guard that avoids
+this cost is wasted in three ways. This proposal builds a validation layer with
+one module aimed at each waste: a Repeat Guard that avoids
 validating the same patch twice, a Test Prioritiser that uses \km\ to reject
 wrong patches earlier, and a Budget Guard that stops unproductive sessions and
-reports the reason. The layer is evaluated in a controlled
+reports the reason. It also measures how the cost is distributed, which bounds
+what each module can save. The layer is evaluated in a controlled
 simulation on mutated patches and in live runs with a real model on Defects4J,
 with every outcome's reading fixed in advance.

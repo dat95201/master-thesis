@@ -97,11 +97,11 @@ expensive ones~\citep{fan2025sweeffi}.
 \end{itemize}
 The size of each waste is unknown, because existing studies report either the
 generation or the validation cost, for different tools and settings. It is
-therefore not clear which part of the cost is worth reducing.
+therefore not known how much a technique aimed at each waste can save at most.
 
-\paragraph{Goal.} This thesis first measures how the cost of a repair loop is distributed. It
-then builds a \emph{validation layer}, a component placed between the repair
-loop and the test runner, that addresses the three wastes:
+\paragraph{Goal.} The three wastes are identified from the literature. This
+thesis builds a \emph{validation layer}, a component placed between the repair
+loop and the test runner, with one module aimed at each waste:
 \begin{enumerate}[leftmargin=*,itemsep=2pt]
 \item \textbf{Module M1, Repeat Guard}, avoids validating the same patch twice: it recognises a repeated patch, reuses
 its result and informs the model;
@@ -110,7 +110,9 @@ probability of failing per second of running time;
 \item \textbf{Module M3, Budget Guard}, stops unproductive sessions: it ends a session when the model makes no progress or the budget is spent, and reports the reason.
 \end{enumerate}
 The first two never change whether a patch is accepted. The third can, so its
-effect on the repair rate is measured.
+effect on the repair rate is measured. The thesis also measures how the cost of
+a repair loop is distributed, to know how large each waste is, that is, the
+upper bound on what the module aimed at it can save.
 
 \section{Research Questions and Contributions}
 \label{sec:intro-this}
@@ -118,7 +120,8 @@ effect on the repair rate is measured.
 \begin{itemize}[leftmargin=*,itemsep=3pt]
 \item \textbf{RQ1: Where does the cost of an LLM-based repair session go?}
 The cost per repaired bug, split into generating and validating patches, and
-how much of it falls after the model is stuck.
+how much of it falls after the model is stuck. The size of each waste bounds
+what the module aimed at it can save in RQ2.
 \item \textbf{RQ2: How much does each module save?} Each of the three
 modules is measured on the part of the cost it targets. The test ordering,
 \km, is compared with \frtp~\citep{qi2013frtp} and with the coverage-based rule

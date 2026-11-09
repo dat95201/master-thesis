@@ -171,38 +171,93 @@ result is safe for deterministic tests.
 \section{Module M2: Test Prioritiser}
 \label{sec:sys-km}
 
-\paragraph{Principle.} A wrong patch is rejected most cheaply when tests are run
-in decreasing order of failure probability per second of running time, the
-classical rule of Proposition~\ref{prop:ratio}~\citep{mitten1960}. The two quantities are
-unknown, so \km\ (Adaptive Rate-over-Cost) estimates them during the session:
-$K_t$, the chance that test class $t$ fails, and $\hat m_t$, its running time.
-The order adapts as the session reveals which classes fail and how long they
-take.
-
-\paragraph{Chance of failing, $K_t$.} A wrong patch usually fails only a few of
-many test classes, most often the classes that test the code it changes. So
-before any run, each class gets a small prior $\pi_t$ that is larger for
-classes named after the modified class (e.g.\ \texttt{StringUtilsTest} for
-\texttt{StringUtils}) and for classes in the same package. The priors sum to one, which corresponds to about one failing class per wrong
-patch. After the class has run $n_t$
-times and failed $k_t$ times,
+\paragraph{Principle.} A wrong patch is rejected most cheaply when the test
+classes run in decreasing $q_t / c_t$: the chance $q_t$ that class $t$ rejects
+it, divided by its running time $c_t$ (Proposition~\ref{prop:ratio}). Neither
+quantity is known in advance, so \km\ (Adaptive Rate-over-Cost) estimates both
+during the session and runs the classes in decreasing
 \[
-K_t = \frac{\pi_t + k_t}{1 + n_t}.
+\mathrm{score}_t \;=\; \frac{\theta_t}{\hat c_t},
 \]
-The prior has the weight of a single run, so observed results soon dominate:
-$K_t$ increases when the class fails and decreases when it passes. $K_t$ is a smoothed average,
-not a correction for censoring: a class is observed only when the order reaches
-it, and the order is \km's own. How far this biases the estimates is measured
-in RQ4.
+where $\theta_t$ is a draw of the failure chance and $\hat c_t$ the estimated
+running time. The paragraphs below define the two parts;
+Algorithm~\ref{alg:km} puts them together.
 
-\paragraph{Running time, $\hat m_t$.} The bot is started by a failing CI run,
-which already timed every test class on the faulty program; \km\ starts from
-these times and replaces them by the average measured on the session's
-candidates as runs accumulate. A class with no recorded time, such as a new test, is estimated from the size of its test file, at the rate observed
-so far.
+\paragraph{Failure chance: the prior.} A wrong patch usually fails only a few
+of many test classes, most often the classes that test the code it changes.
+Before any run, each class therefore gets a prior $\pi_t$ from its location.
+The classes fall into three groups: those named after the modified class
+(their simple name starts with its name, e.g.\ \texttt{StringUtilsTest} for
+\texttt{StringUtils}), the other classes of its package, and the rest. Each
+group $g$ receives a share $M_g$, split equally among its $|T_g|$ classes:
+\[
+\pi_t \;=\; \frac{M_g}{|T_g|} \qquad \text{for each class } t \text{ in group } g .
+\]
+The shares sum to one, so the priors do too, which corresponds to about one
+failing class per wrong patch; the share of an empty group is spread over the
+others. The provisional shares are $0.60$ (named after the modified class),
+$0.25$ (same package) and $0.15$ (the rest); the development set fixes them as
+the share of the failing classes of wrong patches that falls in each group
+(Section~\ref{sec:exp-prereg}).
 
-\paragraph{Order.} For each new candidate, \km\ runs the classes in decreasing
-$K_t / \hat m_t$, stops at the first failure, and updates its counts
+\paragraph{Failure chance: what the session observes.} The prior counts as one
+imaginary run of the class, which failed with weight $\pi_t$ and passed with
+weight $1 - \pi_t$; each real run adds one to the failures or to the passes.
+After $n_t$ runs of which $k_t$ failed, the two counts and the estimated
+failure chance are
+\[
+\alpha_t = \pi_t + k_t, \qquad
+\beta_t = (1 - \pi_t) + (n_t - k_t), \qquad
+\hat q_t = \frac{\alpha_t}{\alpha_t + \beta_t} = \frac{\pi_t + k_t}{1 + n_t}.
+\]
+The estimate $\hat q_t$ rises when the class fails and falls when it passes, and the
+observed runs soon outweigh the prior. In Bayesian terms, $\hat q_t$ is the
+mean of the posterior $\mathrm{Beta}(\alpha_t, \beta_t)$ that the prior
+$\mathrm{Beta}(\pi_t, 1 - \pi_t)$ gives after these runs.
+
+\paragraph{Failure chance: exploration.} Ranking by $\hat q_t$ alone has a
+blind spot. Early stopping observes a class only when the order reaches it
+(Section~\ref{sec:bg-censoring}), so a class whose $\hat q_t$ is too low is
+rarely run, and its estimate is rarely corrected. \km\ therefore ranks by a
+random draw from the posterior instead of its mean,
+\[
+\theta_t \sim \mathrm{Beta}(\alpha_t, \beta_t),
+\]
+made anew for each candidate: Thompson sampling~\citep{thompson1933}, the rule
+that does best in practice for cascading bandits, the learning model of
+stop-at-first-success ranking~\citep{zhong2021tscascade}. A class with many runs
+has a narrow posterior and draws close to $\hat q_t$; a class with few runs has
+a wide one, and sometimes draws high enough to move up and be observed. The
+exploration therefore needs no parameter of its own and fades as the session
+observes more.
+
+How much it explores depends on the prior being calibrated. With the
+provisional shares, in a suite of $60$ classes (one named after the modified
+class, five in its package) and before any run, the named class is drawn first
+for about three candidates in four, and a class of the third group for fewer
+than one in ten. The draws are seeded by the session and the candidate, so
+every run can be reproduced. Ranking by $\hat q_t$ instead of $\theta_t$ is a
+variant in RQ4, which tests whether exploration pays within the few candidates
+of a session.
+
+\paragraph{Running time, $\hat c_t$.} The bot is started by a failing CI run,
+which already timed every class on the faulty program; call this time
+$c_t^{\mathrm{CI}}$. \km\ starts from it and switches to the average of the
+session's own runs once the class has run:
+\[
+\hat c_t \;=\;
+\begin{cases}
+s_t / n_t & \text{if } n_t > 0,\\[2pt]
+c_t^{\mathrm{CI}} & \text{otherwise,}
+\end{cases}
+\]
+where $s_t$ is the total time of its $n_t$ runs. A class with no recorded
+time, such as a new test, is estimated from the size of its test file, at the
+rate observed so far.
+
+\paragraph{Order.} For each new candidate, \km\ draws $\theta_t$ for every
+class, runs the classes in decreasing $\theta_t / \hat c_t$, stops at the first
+failure, and updates the counts of the classes that ran
 (Algorithm~\ref{alg:km}). It needs no extra test run, no model call and no
 instrumentation.
 
@@ -210,15 +265,19 @@ instrumentation.
 \caption{\km\ for one new candidate}
 \label{alg:km}
 \begin{algorithmic}[1]
-\Require candidate $p$; test classes $T$; priors $\pi_t$; file sizes; counts $n_t, k_t$; total time $s_t$
+\Require candidate $p$; test classes $T$; for each class $t$: counts $\alpha_t, \beta_t$ (initially $\pi_t$ and $1 - \pi_t$), runs $n_t$ and total time $s_t$ (initially $0$)
 \For{each $t \in T$}
-  \State $K_t \gets (\pi_t + k_t)/(1 + n_t)$
-  \State $\hat m_t \gets s_t / n_t$ if $n_t > 0$, else its time in the failing CI run
+  \State draw $\theta_t \sim \mathrm{Beta}(\alpha_t, \beta_t)$
+  \State $\hat c_t \gets s_t / n_t$ if $n_t > 0$, else $c_t^{\mathrm{CI}}$
 \EndFor
-\For{$t$ in $T$ sorted by $K_t / \hat m_t$, highest first}
-  \State run $t$ on $p$; observe pass/fail $o$ and time $c$
-  \State $n_t \gets n_t + 1$;\; $k_t \gets k_t + o$;\; $s_t \gets s_t + c$
-  \If{$t$ failed} \State \textbf{return} ``rejected by $t$'' \EndIf
+\For{$t$ in $T$ sorted by $\theta_t / \hat c_t$, highest first}
+  \State run $t$ on $p$, taking time $c$
+  \State $n_t \gets n_t + 1$;\; $s_t \gets s_t + c$
+  \If{$t$ failed}
+    \State $\alpha_t \gets \alpha_t + 1$; \textbf{return} ``rejected by $t$''
+  \Else
+    \State $\beta_t \gets \beta_t + 1$
+  \EndIf
 \EndFor
 \State \textbf{return} ``plausible''
 \end{algorithmic}
@@ -229,7 +288,9 @@ which ranks tests by how many patches they have rejected. \frtp\ ties $T_1$
 with $T_2$ and $T_3$ with $T_4$. \km\ separates them: $T_1$ failed 8 of 10
 times and is fast, so it goes first; $T_4$ has never run but is named after the
 modified class, so it goes second; $T_2$ is thirty times slower than $T_1$; and
-$T_3$, though fastest, has passed 25 times and goes last.
+$T_3$, though fastest, has passed 25 times and goes last. This is the order of
+the means $\hat q_t$. With sampling, $T_4$, which has never run, comes first for
+about a quarter of the candidates, while $T_3$ stays last for almost all.
 
 \begin{table}[htbp]
 \centering
@@ -239,12 +300,12 @@ classes (illustrative values).}
 \small
 \begin{tabular}{@{}l r r r r r@{}}
 \toprule
-Test class & failed $k_t$ & runs $n_t$ & time $\hat m_t$ (s) & $K_t$ & $K_t/\hat m_t$\\
+Test class & failed $k_t$ & runs $n_t$ & time $\hat c_t$ (s) & $\hat q_t$ & $\hat q_t/\hat c_t$\\
 \midrule
 $T_1$ & 8 & 10 & 0.04 & 0.73 & 18.2\\
 $T_2$ & 8 & 30 & 1.20 & 0.26 & 0.22\\
-$T_3$ & 0 & 25 & 0.03 & 0.0003 & 0.01\\
-$T_4$ (named after the modified class) & 0 & 0 & 0.05 & 0.15 & 2.9\\
+$T_3$ & 0 & 25 & 0.03 & 0.00006 & 0.002\\
+$T_4$ (named after the modified class) & 0 & 0 & 0.05 & 0.60 & 12.0\\
 \midrule
 \multicolumn{6}{@{}l}{\frtp:\; $\{T_1, T_2\}$ tied, then $\{T_3, T_4\}$ tied;\qquad \km:\; $T_1, T_4, T_2, T_3$}\\
 \bottomrule
@@ -258,7 +319,11 @@ mutants~\citep{zhang2013famt}. The difference is that \km\ combines these
 signals in a single estimate, updates it during the session without
 instrumentation, and is designed for patches that arrive one at a time and
 whose reported failure is shown to the model
-(Section~\ref{sec:rel-b}).
+(Section~\ref{sec:rel-b}). In bandit terms, \km\ is a cost-aware cascading
+bandit~\citep{kveton2015cascading,zhou2018costcascading} solved by Thompson
+sampling, with two features a repair session needs: a prior from the location
+of the change, because the session is too short to learn from scratch, and test
+times from the failing CI run, so cost is known before the first candidate.
 
 \section{Module M3: Budget Guard}
 \label{sec:sys-stop}
