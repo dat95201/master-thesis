@@ -225,16 +225,28 @@ def select(settings: dict, n_dev: int, n_eval: int, n_e3: int, projects=None, jo
             if queues[pid]:
                 order.append(queues[pid].pop(0))
 
+    pos = {b: i for i, b in enumerate(order)}
     accepted = [b for b in order if log.get(b, {}).get("accepted") == "1"]
     todo = [b for b in order if b not in log]
+
+    def next_batch():
+        """The next bugs to check: in draw order until `want` are accepted;
+        after that, only undecided bugs drawn before the last one kept (e.g.
+        a bug whose log row was removed to check it again), since they come
+        first in the sample."""
+        if len(accepted) < want:
+            return todo[:jobs]
+        cutoff = pos[sorted(accepted, key=pos.get)[want - 1]]
+        return [b for b in todo[:jobs] if pos[b] < cutoff]
+
     SELECTION_LOG.parent.mkdir(parents=True, exist_ok=True)
     new_file = not SELECTION_LOG.exists()
     with SELECTION_LOG.open("a", newline="") as f:
         w = csv.DictWriter(f, fieldnames=["bug", "accepted", "reason"])
         if new_file:
             w.writeheader()
-        while len(accepted) < want and todo:
-            batch, todo = todo[:jobs], todo[jobs:]
+        while batch := next_batch():
+            todo = [b for b in todo if b not in batch]
             if jobs > 1:
                 with ProcessPoolExecutor(jobs) as ex:
                     results = list(ex.map(_prepare_job, [(b, settings) for b in batch]))
@@ -246,7 +258,7 @@ def select(settings: dict, n_dev: int, n_eval: int, n_e3: int, projects=None, jo
                 print(f"  {bug:<20} {'ACCEPT' if ok else 'reject'}  {why}")
                 if ok:
                     accepted.append(bug)
-    accepted = sorted(accepted, key=order.index)[:want]
+    accepted = sorted(accepted, key=pos.get)[:want]
     if len(accepted) < want:
         print(f"!! only {len(accepted)} bugs pass the rules (wanted {want})")
 

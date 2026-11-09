@@ -6,7 +6,6 @@ Codec-1,0,fix modifies more than one class
 Collections-5,1,ok
 Compress-20,1,ok
 Csv-13,0,fix modifies more than one class
-Gson-16,0,source file not found: gson/src/main/java/com/google/gson/internal/.java
 JacksonCore-13,0,"fix adds, removes or renames a method"
 JacksonDatabind-59,0,fix modifies more than one class
 JacksonXml-6,0,"fix adds, removes or renames a method"
@@ -183,3 +182,4 @@ Mockito-8,1,ok
 Time-9,0,fix changes code outside methods
 Chart-2,1,ok
 Cli-10,0,fix changes code outside methods
+Gson-16,1,ok
