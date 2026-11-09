@@ -1,0 +1,179 @@
+\chapter{Introduction}
+\label{ch:intro}
+
+\section{Problem Statement}
+\label{sec:intro-problem}
+
+\paragraph{Context.} Automated program repair (APR) fixes a faulty program
+without a human writing the patch~\citep{legoues2019apr}. Most tools work in a
+loop: they generate a candidate patch and run the test suite on it; a candidate
+that passes every test is called \emph{plausible}~\citep{qi2015plausibility}.
+Today the candidate comes from a large language model (LLM). If a test fails,
+the tool shows the failure to the model and asks again~\citep{xia2024chatrepair}.
+Each round of this loop has two costs (Figure~\ref{fig:intro-bottleneck}): the
+model call and the test run.
+
+\paragraph{Need.} The cost per bug is now reported next to the repair rate:
+\textsc{ChatRepair} spends about \$0.42 per bug~\citep{xia2024chatrepair} and
+\textsc{RepairAgent} about $270{,}000$ tokens per bug, with $99\,\%$ of its time
+spent running tools, mostly tests~\citep{bouzenia2025repairagent}. Tools already
+try to lower this cost~\citep{hidvegi2024cigar}, and long, costly sessions are
+named as an obstacle to using LLM-based repair in
+practice~\citep{yang2025llmrepairsurvey}. The practical need is therefore to \emph{lower the cost per repaired bug without
+repairing fewer bugs}. A typical setting is a repair bot in continuous
+integration (CI), which is where developers most want repair to
+run~\citep{noller2022trust}. Such a bot must respond within a bounded time and
+budget, fit into the existing pipeline, never propose a patch that the tests
+reject, and explain its failures.
+
+\begin{figure}[htbp]
+\centering
+\definecolor{okgreen}{HTML}{2E7D32}
+\resizebox{0.97\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=5pt,
+              text width=38mm,minimum height=16mm,fill=black!3},
+  res/.style={draw=okgreen,line width=0.8pt,rounded corners=2pt,align=center,
+              inner sep=4pt,text width=20mm,minimum height=11mm,fill=okgreen!10},
+  cost/.style={font=\scriptsize\bfseries,text=bkblue,align=center},
+  tp/.style={draw=okgreen,fill=okgreen!45,minimum width=3.6mm,minimum height=3.6mm,
+             inner sep=0pt,rounded corners=0.5pt},
+  tf/.style={tp,draw=pendred,fill=pendred!60},
+  tn/.style={tp,draw=black!30,fill=white},
+  waste/.style={circle,draw=pendred,fill=pendred!8,text=pendred,font=\scriptsize\bfseries,
+                inner sep=1pt,minimum size=4.6mm},
+  arr/.style={-{Stealth[length=2.4mm]},draw=black!60}
+]
+\node (llm) at (0,0)    [box] {\textbf{LLM}\\[2pt]{\scriptsize proposes a candidate patch}};
+\node (val) at (7.2,0)  [box] {\textbf{Validation}\\[2pt]{\scriptsize builds it and runs the tests,}\\{\scriptsize stopping at the first failure}};
+\node (pl)  at (12.6,0) [res] {plausible\\ patch};
+\node[cost,above=2pt of llm] {cost 1: model call\\ (tokens, latency)};
+\node[cost,above=2pt of val] {cost 2: validation\\ (CPU time, wall-clock)};
+\draw[arr] (llm.east) -- node[below,font=\scriptsize]{candidate} (val.west);
+\draw[arr,draw=okgreen] (val.east) -- node[above,font=\scriptsize,text=okgreen]{all pass} (pl.west);
+\coordinate (fb) at ([xshift=-14mm]val.south);
+\coordinate (fbl) at ([yshift=-15mm]fb);
+\draw[arr] (fb) -- (fbl) -| node[pos=0.25,below,font=\scriptsize]
+  {a test fails: next round, the failure is fed back} (llm.south);
+\begin{scope}[shift={([xshift=-6mm,yshift=-6mm]val.south)}]
+  \foreach \i in {0,...,3} { \node[tp] at ({0.5*\i},0) {}; }
+  \node[tf] at (2.0,0) {};
+  \foreach \i in {5,6} { \node[tn] at ({0.5*\i},0) {}; }
+  \node[tp,minimum width=2.8mm,minimum height=2.8mm] (lp) at (0,-0.6) {};
+  \node[font=\scriptsize,anchor=west] at (lp.east) {pass};
+  \node[tf,minimum width=2.8mm,minimum height=2.8mm] (lf) at (1.1,-0.6) {};
+  \node[font=\scriptsize,anchor=west] at (lf.east) {fail};
+  \node[tn,minimum width=2.8mm,minimum height=2.8mm] (ln) at (2.1,-0.6) {};
+  \node[font=\scriptsize,anchor=west] at (ln.east) {not run};
+  \node[waste] (w2) at (3.6,0) {2};
+\end{scope}
+\node[waste] (w1) at ($(llm.east)!0.5!(val.west)+(0,0.34)$) {1};
+\node[waste] (w3) at ($(llm.south |- fbl)!0.5!(fbl)+(0,0.34)$) {3};
+\end{tikzpicture}}
+\caption[One round of an LLM-based repair loop]{One round of an LLM-based repair
+loop and its two costs. Under the validation step, the tests of a rejected
+candidate: passing tests (green) run before the failing one (red), and the rest
+are not run. The marks are the three wastes: \textcircled{\scriptsize 1} a
+repeated candidate is generated and tested again; \textcircled{\scriptsize 2}
+passing tests run before the one that rejects a wrong candidate;
+\textcircled{\scriptsize 3} rounds go on after the model has stopped making
+progress.}
+\label{fig:intro-bottleneck}
+\end{figure}
+
+\paragraph{Problem.} A large part of this cost is spent without benefit, in
+three ways:
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Repeats.} The model proposes patches it has already proposed:
+$65\,\%$ of the patches of \textsc{ChatRepair} were duplicates~\citep{chen2025conversational}.
+Each repeat costs a model call and often a test run.
+\item \textbf{Slow rejections.} One failing test is enough to reject a wrong
+patch, but a fixed test order may run many passing tests first. Test orderings
+for repair exist~\citep{qi2013frtp}, but they ignore how long each test takes.
+\item \textbf{Stuck sessions.} A session goes on after the model has stopped
+making progress, until its budget runs out. These failed sessions are the
+expensive ones~\citep{fan2025sweeffi}.
+\end{itemize}
+The size of each waste is unknown, because existing studies report either the
+generation or the validation cost, for different tools and settings. It is
+therefore not clear which part of the cost is worth reducing.
+
+\paragraph{Goal.} This thesis first measures how the cost of a repair loop is distributed. It
+then builds a \emph{validation layer}, a component placed between the repair
+loop and the test runner, that addresses the three wastes:
+\begin{enumerate}[leftmargin=*,itemsep=2pt]
+\item \textbf{Module M1, Repeat Guard}, avoids validating the same patch twice: it recognises a repeated patch, reuses
+its result and informs the model;
+\item \textbf{Module M2, Test Prioritiser}, rejects wrong patches early: it runs first the tests with the highest
+probability of failing per second of running time;
+\item \textbf{Module M3, Budget Guard}, stops unproductive sessions: it ends a session when the model makes no progress or the budget is spent, and reports the reason.
+\end{enumerate}
+The first two never change whether a patch is accepted. The third can, so its
+effect on the repair rate is measured.
+
+\section{Research Questions and Contributions}
+\label{sec:intro-this}
+
+\begin{itemize}[leftmargin=*,itemsep=3pt]
+\item \textbf{RQ1: Where does the cost of an LLM-based repair session go?}
+The cost per repaired bug, split into generating and validating patches, and
+how much of it falls after the model is stuck.
+\item \textbf{RQ2: How much does each module save?} Each of the three
+modules is measured on the part of the cost it targets. The test ordering,
+\km, is compared with \frtp~\citep{qi2013frtp} and with the coverage-based rule
+of the mutation tool PIT~\citep{coles2016pit}.
+\item \textbf{RQ3: Does the whole layer lower the cost per repaired bug?}
+Against a standard conversational loop, without a lower repair rate.
+\item \textbf{RQ4: Why does \km\ differ from existing orderings?} Which of
+its parts matters, and when.
+\end{itemize}
+
+\paragraph{Contributions.}
+\begin{enumerate}[label=\textbf{C\arabic*},leftmargin=*,itemsep=2pt]
+\item \textbf{A cost breakdown of LLM-based repair loops}, with the most each
+kind of technique could save.
+\item \textbf{A cost-aware validation layer} of three modules: a repeat guard,
+a test prioritiser and a budget guard.
+\item \textbf{\km} (Adaptive Rate-over-Cost), the test ordering at the core of
+the prioritiser: it
+learns, during the session, how likely each test is to fail and how long it
+takes, and needs no extra instrumentation.
+\item \textbf{A two-level evaluation} on Defects4J: a simulation in which every
+ordering sees the same patches, and live runs with a real model.
+\end{enumerate}
+C1, C3 and C4 are the main research contributions. The repeat guard and the
+budget guard are included mainly for practical reasons, since they are simple,
+do not affect correctness and are absent from current tools (Section~\ref{sec:rel-practice}).
+
+\section{Scope}
+\label{sec:intro-scope}
+
+\begin{table}[htbp]
+\centering
+\caption{Scope of the study.}
+\label{tab:intro-scope}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+In scope & Defects4J~\citep{just2014defects4j} (Java), $100$ single-file bugs; one LLM through an API; a conversational loop with test feedback; the faulty methods are given to the model; success means a plausible patch\\
+Measured & time, CPU time, tokens and money\\
+Out of scope & other languages and benchmarks; finding the faulty code; judging whether a plausible patch is correct; tests run in parallel on many machines\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Structure}
+
+The rest of the proposal is organised as follows.
+\begin{itemize}[leftmargin=*,itemsep=1pt]
+\item Chapter~\ref{ch:background} gives the background: the cost of a repair
+session and how to order tests.
+\item Chapter~\ref{ch:related} reviews related work and the open problems.
+\item Chapter~\ref{ch:system} presents the validation layer and its three
+modules.
+\item Chapter~\ref{ch:experiments} plans the evaluation.
+\item Chapter~\ref{ch:outcomes} states how each possible result will be read.
+\item Chapter~\ref{ch:plan} gives the work plan, risks, threats to validity
+and future work.
+\end{itemize}

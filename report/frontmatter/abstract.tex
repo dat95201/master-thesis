@@ -1,0 +1,31 @@
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+\markboth{Abstract}{Abstract}
+
+In LLM-based program repair, each round has two costs: the model call that
+proposes a patch and the test run that checks it. Part of this cost is wasted.
+The model often repeats patches it has already proposed, a wrong patch may pass
+many tests before one fails, and sessions continue after the model has stopped
+making progress. The size of these wastes has not been measured.
+
+This proposal measures how the cost of a repair loop is distributed and builds
+a validation layer, placed between the repair loop and the project's test
+runner, to reduce these wastes. A \emph{Repeat Guard} recognises
+repeated patches and reuses their results. A \emph{Test Prioritiser} runs first
+the tests most likely to fail per second of running time, using a rule, \km,
+that learns both quantities during the session. A \emph{Budget Guard} stops
+sessions that are stuck or out of budget and reports why. The layer is designed
+for a repair bot in continuous integration and needs no instrumentation.
+
+The evaluation on $100$ Defects4J bugs ($50$ for the end-to-end run) has two
+levels. A simulation on mutated patches, which every test ordering sees alike,
+compares \km\ with \frtp\ and with the rule of the mutation tool PIT, with and
+without first running the failing tests. Live runs with a real model then
+measure where the cost goes and whether the whole layer lowers the cost per
+repaired bug without repairing fewer bugs. The test ordering is expected to
+save mainly on validation; model latency and build time dilute its effect end
+to end.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} automated program repair, large language models,
+patch validation, test prioritisation, cost analysis

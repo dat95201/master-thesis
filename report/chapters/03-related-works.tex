@@ -1,0 +1,340 @@
+\chapter{Related Works}
+\label{ch:related}
+
+Related work falls into three parts: the LLM-based repair systems that
+generate and validate candidate patches; the studies that measure what such
+systems cost; and the techniques that make a repair loop cheaper. The techniques are grouped into five classes according to the part of the
+cost they reduce. Test prioritisation, the group this thesis
+works on, is reviewed in depth; the others briefly.
+
+The review is a structured literature review, not a systematic one: a keyword
+search of the major digital libraries and software-engineering venues for
+LLM-based repair and for patch-validation cost, followed by backward and
+forward snowballing from four seed
+papers~\citep{qi2013frtp,lou2024aprregression,chen2021uniapr,xiao2024expressapr}.
+
+\section{LLM-Based Repair Systems}
+\label{sec:rel-systems}
+
+A recent survey classifies LLM-based repair systems by how much control the
+model has over the repair loop~\citep{yang2025llmrepairsurvey}; they also
+differ in which part of the loop they try to improve.
+Table~\ref{tab:rel-systems} groups representative systems into three families.
+
+\begin{table}[htbp]
+\centering
+\caption{Representative LLM-based repair systems, what they optimise, and how
+they use validation.}
+\label{tab:rel-systems}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.15\textwidth} >{\raggedright\arraybackslash}p{0.21\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X@{}}
+\toprule
+Family & Systems & Optimises & Use of validation\\
+\midrule
+Conversational & ChatRepair~\citep{xia2024chatrepair} &
+patch quality from failure feedback, at low cost per bug &
+every candidate is tested; failures return to the conversation\\
+Autonomous agents & RepairAgent~\citep{bouzenia2025repairagent},
+SWE-agent~\citep{yang2024sweagent}, AutoCodeRover~\citep{zhang2024autocoderover} &
+localisation and context gathering through tools &
+the agent decides when to run tests\\
+Agentless pipelines & Agentless~\citep{xia2025agentless} &
+a fixed localise--repair--validate pipeline with low, predictable cost &
+selected regression tests and generated reproduction tests filter and rank
+candidates\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Conversational and pipeline repair.} \textsc{ChatRepair}~\citep{xia2024chatrepair}
+alternates generation and validation in one conversation: earlier incorrect
+patches and their test failures stay in the prompt, so the model can avoid
+repeating them. It reported fixing $162$ of $337$ bugs at about \$0.42 per bug,
+yet $65\,\%$ of the patches it generated were duplicates of earlier
+ones~\citep{chen2025conversational}. \textsc{Agentless}~\citep{xia2025agentless}
+replaces free choice of actions with fixed phases (localisation, sampling of
+several candidates and validation), which gives predictable cost and far fewer
+tokens than tool-driven agents~\citep{yang2025llmrepairsurvey}.
+
+\paragraph{Agent-, search- and reasoning-based repair.} Autonomous agents such as
+\textsc{RepairAgent}~\citep{bouzenia2025repairagent},
+\textsc{SWE-agent}~\citep{yang2024sweagent} and
+\textsc{AutoCodeRover}~\citep{zhang2024autocoderover} let the model choose tools
+to read, edit and test code; they improve localisation and context at the price
+of long sessions, and \textsc{RepairAgent} spends $99\,\%$ of its repair time
+executing tools. Cost figures appear for only a few
+systems~\citep{yang2025llmrepairsurvey}.
+
+\section{Validation in Current Tools}
+\label{sec:rel-practice}
+
+How current tools validate, deduplicate
+and stop was read from the code of six open-source repair agents and from the
+reports of deployed systems (Table~\ref{tab:rel-practice}). The review leads to four findings. No tool orders tests by how likely they are to fail or what they cost, and
+none stops at the first failing test; validation is left to the model, run as
+one fixed command, or run per patch after generation. Only
+\textsc{AutoCodeRover} caches validation results, and only by exact text;
+\textsc{Agentless} normalises patches, but only to vote among them. All tools set budgets in dollars, steps, rounds or timeouts, but only OpenHands
+detects a stuck agent, from repeated actions and errors. No tool reports why
+it gave up beyond an exit status, except an exit summary in Meta's repair
+agent~\citep{maddila2025agentic}; \textsc{SWE-agent} submits its current diff
+anyway. Every tool tracks tokens and money; none accounts for the time spent
+running tests, although \textsc{RepairAgent} spends $99\,\%$ of its time in
+tools~\citep{bouzenia2025repairagent}.
+
+\begin{table}[htbp]
+\centering
+\caption[Validation, deduplication and stopping in current repair tools]{How
+current repair tools validate, deduplicate and stop, read from their code
+(open-source agents, November 2026) or reports (deployed systems).}
+\label{tab:rel-practice}
+\scriptsize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.15\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.17\textwidth} >{\raggedright\arraybackslash}p{0.24\textwidth}@{}}
+\toprule
+Tool & Validation & Repeats & Budget, stop, give-up\\
+\midrule
+\textsc{SWE-agent}~\citep{yang2024sweagent} & the model runs a reproduction script through the shell & identical parallel actions dropped & \$ and call limits, timeouts; on exit submits the current diff\\
+OpenHands~\citep{openhands2026sdk} & left to the model & notice after repeated identical calls & step and \$ limits; stuck detector; status only\\
+\textsc{Agentless}~\citep{xia2025agentless} & regression and reproduction tests on every sample, after generation; no feedback & normalised, for voting only & number of samples, timeouts\\
+\textsc{AutoCode\-Rover}~\citep{zhang2024autocoderover} & reproducer, an LLM reviewer, then the developer's tests & exact-text cache of results & retry and round caps; a reason string\\
+Aider~\citep{aider2026} & linter, then the user's test command & notice for an edit already applied & three reflections\\
+\textsc{RepairAgent}~\citep{bouzenia2025repairagent} & the whole Defects4J suite & notice for a repeated command & 40 cycles\\
+\midrule
+SapFix (Meta)~\citep{marginean2019sapfix} & reproduction, analysis, CI tests & one fix published & dropped if unreviewed in 7 days\\
+Repair agent (Meta)~\citep{maddila2025agentic} & the broken tests, analysis, an LLM judge & failures grouped by cause & timeout and cap; exit summary\\
+Passerine (Google)~\citep{rondon2025passerine} & the bug-reproduction tests & --- & 20 trajectories of 25 steps\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Cost Measurement in LLM-Based Repair}
+\label{sec:rel-cost}
+
+Studies that report what LLM-based repair costs fall into three kinds.
+
+\paragraph{Cost per bug, as a by-product.} Repair systems report a cost next to
+their success rate, each in its own unit: \textsc{ChatRepair} in API dollars per
+bug~\citep{xia2024chatrepair}, \textsc{RepairAgent} in tokens and in repair time
+per bug~\citep{bouzenia2025repairagent}, and \textsc{CigaR}, which makes token
+cost its objective, in tokens per bug against a conversational
+baseline~\citep{hidvegi2024cigar}. These figures compare systems on one side of
+the bill and are not normalised across studies~\citep{yang2025llmrepairsurvey}.
+
+\paragraph{Cost-aware comparisons.} A second kind of study holds the budget
+fixed and asks which strategy spends it better. Independent repeated prompting repairs
+more bugs than a conversational repairer at the same number of
+attempts~\citep{chen2025conversational}. For software agents,
+\textsc{SWE-Effi} re-scores SWE-bench systems by their resolve rate per token
+and per unit of time, and finds that effectiveness depends on how a scaffold
+pairs with its model, and that unresolved issues consume far more resources
+than resolved ones~\citep{fan2025sweeffi}.
+
+\paragraph{The cost of execution.} \citet{lin2026torun} isolate execution in
+agents. Every agent examined relies on code execution, which has become
+standard practice, but applies it indiscriminately: for commercial agents on
+SWE-bench, prohibiting execution changed the resolve rate by only $1.25$
+percentage points, a difference that was not statistically significant, while
+saving $56$--$62\,\%$ of tokens and $48$--$54\,\%$ of wall-clock time for one of
+them.
+
+\paragraph{What is not measured.} All three kinds treat a repair session as a
+whole, or remove one of its parts entirely. None splits the cost of one loop
+into generation and validation, nor validation into repeated, rejected and
+accepted candidates (Section~\ref{sec:bg-cost}). Without that split, the share of
+a session that a validation-cost technique can reach is unknown, and so is the
+largest saving it could deliver.
+
+\section{Classification of Cost-Reduction Techniques}
+\label{sec:rel-taxonomy}
+
+Table~\ref{tab:rel-taxonomy} sorts the techniques into five groups by the part
+of Equation~\eqref{eq:bg-decomp} they cut. Because the groups cut different
+parts, they can be combined. Groups A and B are the two classical problems of
+regression testing: \emph{selection} decides which tests to run,
+\emph{prioritisation} the order in which they run.
+
+\begin{table}[htbp]
+\centering
+\caption[The five groups of cost reduction]{The five groups of cost reduction.
+``Learns'' marks groups that use what the session has observed.}
+\label{tab:rel-taxonomy}
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.18\textwidth} >{\raggedright\arraybackslash}p{0.19\textwidth} >{\raggedright\arraybackslash}p{0.08\textwidth} >{\raggedright\arraybackslash}p{0.13\textwidth} c >{\raggedright\arraybackslash}X@{}}
+\toprule
+Group & Cuts & Safe & Language-bound & Learns & Representative work\\
+\midrule
+A test selection & tests that do not reach the change & if sound & yes & no & RTS in APR~\citep{lou2024aprregression}\\
+\textbf{B test prioritisation} & $V_{\mathrm{rej}} - V_{\mathrm{rej}}^{*}$ & yes & no & yes & \frtp~\citep{qi2013frtp}, PIT~\citep{coles2016pit}\\
+C execution acceleration & start-up share & yes & yes & no & UniAPR~\citep{chen2021uniapr}, ExpressAPR~\citep{xiao2024expressapr}\\
+D patch reduction & $V_{\mathrm{rep}}$ and equivalent candidates & mostly & partly & partly & verdict cache, test-equivalence~\citep{mechtaev2018testequivalence}\\
+E generation-side reduction & $G_{\mathrm{rep}}$ and rounds & --- & no & yes & ChatRepair~\citep{xia2024chatrepair}, CigaR~\citep{hidvegi2024cigar}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Test Prioritisation}
+\label{sec:rel-b}
+
+\paragraph{Principle.} Validation can stop as soon as one test fails, because
+one failure proves the patch wrong. The order of the tests then decides how
+much is spent before that failure: a failing test placed first costs one run,
+the same test placed last costs the whole suite. Ordering removes no test, so
+for deterministic tests it never changes a verdict.
+
+\paragraph{Key techniques.} The information an order is built from
+(Table~\ref{tab:rel-b}).
+
+\begin{table}[htbp]
+\centering
+\caption{Test prioritisation, by the information it ranks on.}
+\label{tab:rel-b}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth} X >{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
+\toprule
+Information & Rule & Representative work\\
+\midrule
+Coverage & tests covering more (new) code first & \tptot, \tpadd~\citep{rothermel2001prioritizing}\\
+Failure history & tests that rejected more candidates first & \frtp~\citep{qi2013frtp}\\
+Cost & likelihood of failing per unit of cost & least-cost testing~\citep{mitten1960}, APFD$_C$~\citep{elbaum2001cost}\\
+Location tiers & failing tests, then tests in the package of the patched code, then the rest & ExpressAPR~\citep{xiao2024expressapr}\\
+Coverage, cost and name & tests covering the change only, fastest first, the unit test of the changed class favoured & PIT~\citep{coles2016pit}\\
+History across variants & tests that killed other mutants first & FaMT~\citep{zhang2013famt}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Coverage-based
+ordering comes from regression testing (Section~\ref{sec:bg-regression}) and
+reads only the program. \frtp\ is built for repair: it runs first the tests
+that rejected earlier candidates in the same session, information that validation provides at no extra cost, and it matched GenProg's success rate while
+validating faster~\citep{qi2013frtp}. Cost entered prioritisation in regression
+testing~\citep{elbaum2001cost}, where test costs are assumed known in advance;
+none of the repair orderings uses it, although the run of the faulty program
+before repair already measures each test's cost. ExpressAPR orders tests by location in fixed tiers: the failing tests, then
+the tests in the package of the patched code, then the
+rest~\citep{xiao2024expressapr}. It uses neither test costs nor the session's
+history.
+
+Mutation testing faces the same problem as repair: many variants of one
+program, each to be rejected by any failing test, a duality ExpressAPR builds
+on~\citep{xiao2024expressapr}. PIT, the most used mutation tool for Java, runs
+only the tests that cover the mutated line, fastest first, favours the unit
+test of the mutated class, and stops at the first kill~\citep{coles2016pit}.
+FaMT orders the tests for each mutant by how they fared on other
+mutants~\citep{zhang2013famt}. Together they use the signals a repair ordering could use, namely cost, the
+location of the change and history across variants, but in a setting where the variants are known in advance, the
+change is located exactly by an instrumented coverage run, and no failure is
+reported to anyone. In LLM-based repair the candidates arrive one at a time and
+are few, and the failing test that validation reports becomes the model's next
+input.
+
+\paragraph{Limitations.} \frtp\ ranks on a \emph{count} of past
+rejections~\citep{qi2013frtp}, which cannot tell a test never run from one run
+often that never rejected, and no repair ordering reads how long a test takes;
+mutation tools do, but statically, from an instrumented run, and with rules
+that join the signals in sequence rather than in one estimate.
+History-based orders also learn from censored evidence: stopping at the first
+failure records only one failing test per rejected patch
+(Section~\ref{sec:bg-censoring}). Ordering saves anything only when validation
+stops at the first failure, and after test selection there are fewer tests to
+order, so the best order can change~\citep{lou2024aprregression}. Finally, the
+unit of measurement matters: prioritisation studies count test executions,
+which reproduce across machines~\citep{lou2024aprregression}, but when test
+costs differ an order that runs more cheap tests can finish sooner than one
+that runs fewer expensive ones, so counts and seconds can rank two orders in
+opposite directions.
+
+\section{Other Cost-Reduction Techniques}
+\label{sec:rel-other}
+
+\paragraph{A: Test selection.} A test that never executes the code a patch
+modifies gives the same result on the patched program as on the original, so it
+can be skipped. \citet{lou2024aprregression} measured regression test selection
+inside twelve repair systems on more than two million patches: every granularity (class~\citep{gligoric2015ekstazi}, method or statement)
+substantially improved efficiency, finer granularity was better, and combining
+selection with prioritisation was best. Sound
+selection needs a dependency tracker for the language, and it has nothing to
+remove when every test runs the whole program.
+
+\paragraph{C: Execution acceleration.} Part of a test run is overhead:
+recompiling the patched program and starting the runtime. UniAPR keeps one JVM
+alive and reloads only the patched classes, speeding repair up by over an order
+of magnitude~\citep{chen2021uniapr}; ExpressAPR borrows five mutation-testing
+accelerations, including compiling many candidates into one
+program, and validates $137\times$ faster than plain
+validation~\citep{xiao2024expressapr}. Both are built for the JVM; both also
+prioritise tests, ExpressAPR with the static location tiers of
+Table~\ref{tab:rel-b}.
+
+\paragraph{D: Patch reduction.} Some candidates need not be run at all. The
+simplest reduction is a verdict cache: a candidate textually identical to one
+already validated is given the stored verdict, which matters for LLMs, since
+$65\,\%$ of the patches \textsc{ChatRepair} generated were
+duplicates~\citep{chen2025conversational}. Test-equivalence analysis runs one
+candidate per group of candidates that behave alike on the
+tests~\citep{mechtaev2018testequivalence}. Equivalence analysis needs a program analysis
+for the language.
+
+\paragraph{E: Generation-side reduction.} A loop that needs fewer rounds,
+or wastes fewer on candidates it has already seen, is cheaper on both sides.
+The main levers are what the model is shown after a failure, such as the
+failing test in a conversation~\citep{xia2024chatrepair}, and how the budget is
+spent: many
+candidates per call to amortise the prompt~\citep{hidvegi2024cigar}, or
+independent re-sampling instead of conversational
+refinement~\citep{chen2025conversational}. These
+techniques are evaluated by success and tokens; the validation they cause or
+save is not reported.
+
+\section{Research Gap}
+\label{sec:rel-gap}
+
+Three observations close the review. First, every validation-side group has a technique with a measured saving:
+test selection~\citep{lou2024aprregression},
+test prioritisation~\citep{qi2013frtp}, execution
+acceleration~\citep{xiao2024expressapr} and equivalence-based patch
+reduction~\citep{mechtaev2018testequivalence}. However, all were measured with
+pre-LLM repair systems, on Java or C programs.
+
+Second, none of the LLM-based systems of Section~\ref{sec:rel-systems} reports
+using test prioritisation, and where these systems report cost, they report one
+side of the bill in a unit of their own (Section~\ref{sec:rel-cost}). How the
+cost of an LLM-based loop splits between generation and validation, and within
+validation, is not known.
+
+Third, of the validation-side groups, test prioritisation transfers most
+directly (Table~\ref{tab:rel-taxonomy}): it is safe for deterministic tests,
+language-independent, and learns from the loop, while execution acceleration
+is bound to one runtime, test selection to a sound dependency tracker, and
+patch reduction beyond a verdict cache to program analysis. But it acts only on
+the cost of rejecting invalid patches, so its value depends on how large that cost is in the whole session, a
+quantity that no study has measured.
+
+
+\paragraph{Open problems.} Together, the observations give five open problems,
+which the proposed system addresses (Chapter~\ref{ch:system}).
+\begin{enumerate}[label=\textbf{O\arabic*},leftmargin=*,itemsep=2pt]
+\item \textbf{The cost composition of a repair loop is unmeasured.} Without it,
+the upper bound on what a technique can save in a given setting is unknown.
+\item \textbf{The repair orderings were built for another kind of loop.} \frtp\
+was designed with search-based generators, which validate many
+candidates~\citep{qi2013frtp}; an LLM-based loop validates
+few, so a session-local history is short, and in a conversational loop the
+failing test is also the model's next input.
+\item \textbf{Count instead of rate, under censored evidence.} A count of past
+rejections cannot tell a test never run from one that never rejects, and early
+stopping hides every test after the first failure.
+\item \textbf{Cost and the location of the patch are used only statically.}
+The loop times every test it runs and knows which class each candidate
+modifies; no repair ordering uses the costs, and the location enters repair
+orderings only as a fixed tier (ExpressAPR). Mutation tools combine cost and
+location, but statically and from an instrumented run (PIT); none estimates
+them online from the session's own runs.
+\item \textbf{Repeats and stuck sessions are not managed.} Most of the patches
+a conversational repairer generated were repeats of earlier
+ones~\citep{chen2025conversational}; they are generated, and often validated,
+again, since only one tool caches results, by exact text. Sessions stop at a
+fixed budget; only one agent framework detects that it is stuck, and none
+reports why it gave up (Table~\ref{tab:rel-practice}).
+\end{enumerate}

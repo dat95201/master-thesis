@@ -1,0 +1,324 @@
+\chapter{Proposed System}
+\label{ch:system}
+
+This chapter presents the proposed system, a \emph{validation layer} placed
+between an LLM repair loop and the project's test runner. It has three modules, one
+per waste of Figure~\ref{fig:intro-bottleneck}. Section~\ref{sec:sys-req} states
+what a practical repair bot needs; Section~\ref{sec:sys-overview} shows the
+layer; the next three sections describe the modules.
+
+\section{Usage Scenario and Requirements}
+\label{sec:sys-req}
+
+\paragraph{Scenario.} A test fails in continuous integration. A repair bot is
+given the faulty code and tries to fix it within a budget set by the team. It
+returns either a plausible patch for a developer to review, or a report of why
+it gave up. Developers name CI as the place they most want repair to
+run~\citep{noller2022trust}, and deployed systems work this way: they act on
+failures found in CI and send every fix to a
+reviewer~\citep{marginean2019sapfix,kirbas2021bloomberg,maddila2025agentic}.
+Table~\ref{tab:sys-needs} lists what such a bot needs.
+
+\begin{table}[htbp]
+\centering
+\caption{What a repair bot in CI needs, and the evidence.}
+\label{tab:sys-needs}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.2\textwidth}@{}}
+\toprule
+Requirement & Evidence & Served by\\
+\midrule
+P1 bounded time & $63\,\%$ of $103$ practitioners would not wait over an hour~\citep{noller2022trust}, though correctness matters more than speed~\citep{winter2023feel} & M1 Repeat Guard, M2 Test Prioritiser\\
+P2 predictable cost & budgets decided the adoption of repair at Bloomberg~\citep{kirbas2021bloomberg} & M3 Budget Guard\\
+P3 drop-in & developers want repair inside the CI pipeline~\citep{noller2022trust}, fitting their workflow~\citep{winter2022bloomberg} & the layer\\
+P4 trustworthy & a fix must pass all CI checks and be reviewed~\citep{kirbas2021bloomberg} & M1 Repeat Guard, M2 Test Prioritiser\\
+P5 explain a failure & unexplained fixes are ignored~\citep{winter2022bloomberg}; developers value the fault location and tests~\citep{noller2022trust} & M3 Budget Guard\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The evidence is strong for P3 and P4 and mixed for P1, so the layer aims at a
+bounded time, not the shortest. P2 and P5 are supported only indirectly; they
+are design choices the evidence favours.
+
+\section{System Overview}
+\label{sec:sys-overview}
+
+Figure~\ref{fig:sys} shows one repair session. In each round the model
+proposes a candidate. The \textbf{Repeat Guard} (M1) checks whether it has seen
+the candidate before; if so, it reuses the stored result. Otherwise the
+\textbf{Test Prioritiser} (M2) orders the tests with \km, and the test runner
+runs them until the first failure. After a rejection, the \textbf{Budget Guard}
+(M3) checks that the session is still making progress and has budget left. If so, the next round starts, and the model is shown either the failure or a
+notice that the candidate was a repeat. Otherwise, the session ends with a
+give-up report.
+
+The repair loop interacts with the layer through a single call, which takes a
+candidate and returns the verdict, the feedback for the model and whether the
+session should continue. The layer therefore also determines what the model is told and when the
+session stops:
+\begin{Verbatim}[fontsize=\footnotesize,xleftmargin=8mm]
+result = layer.validate(candidate)
+result.verdict    # plausible, rejected, does not compile, or repeat
+result.feedback   # text to show the model in the next round
+result.go_on      # false when the Budget Guard stops the session
+result.report     # the give-up report, when go_on is false
+\end{Verbatim}
+The layer is configured with a budget per bug and needs no instrumentation of
+the project.
+
+\begin{figure}[htbp]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  box/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=4pt,
+              minimum height=14mm,text width=33mm,fill=black!3,
+              execute at begin node={\hyphenpenalty=10000}},
+  mod/.style={box,draw=bkblue,line width=1pt,fill=bkblue!10},
+  term/.style={box,draw=black!70,fill=black!8,text width=21mm,minimum height=11mm},
+  once/.style={box,dashed,fill=white,minimum height=10mm},
+  arr/.style={-{Stealth[length=2.3mm]},draw=black!65},
+  lab/.style={font=\scriptsize,align=center,execute at begin node={\hyphenpenalty=10000}}
+]
+\node (llm) at (0,0)     [box] {\textbf{LLM}\\[1pt]{\scriptsize proposes a candidate}};
+\node (m1)  at (4.5,0)   [mod] {\textbf{M1 Repeat Guard}\\[1pt]{\scriptsize seen before, after normalising?}};
+\node (m2)  at (9.0,0)   [mod] {\textbf{M2 Test Prioritiser}\\[1pt]{\scriptsize orders the tests by \km}};
+\node (run) at (13.5,0)  [box] {\textbf{Test runner}\\[1pt]{\scriptsize runs tests until the first failure}};
+\node (pl)  at (17.6,0)  [term] {\textbf{plausible}\\{\scriptsize stop}};
+\node (m3)  at (13.5,-3.7) [mod] {\textbf{M3 Budget Guard}\\[1pt]{\scriptsize progress, and budget left?}};
+\node (st)  at (17.6,-3.7) [term] {\textbf{give up}\\{\scriptsize with a report}};
+\node (pre) at (9.0,2.2) [once,text width=50mm] {\textbf{before the session} {\scriptsize(once)}\\{\scriptsize class the patch modifies; test times from the failing CI run}};
+\draw[arr] (llm) -- (m1);
+\draw[arr] (m1) -- node[above,lab]{new} (m2);
+\draw[arr] (m2) -- (run);
+\draw[arr] (run) -- node[above,lab]{all pass} (pl);
+\draw[arr] (pre) -- node[right,lab]{prior} (m2);
+\draw[arr] (run) -- node[right,lab]{rejected} (m3);
+\coordinate (rj) at ([xshift=-12mm]m3.north);
+\draw[arr] (m1.south) -- (m1.south |- 0,-1.8) -- node[above,lab]{repeat: reuse its result} (rj |- 0,-1.8) -- (rj);
+\draw[arr] (m3) -- node[above,lab]{no} (st);
+\draw[arr] (m3.west) -- node[below,lab,pos=0.5]{yes: next round, with the failing test or a repeat notice} (llm.south |- m3.west) -- (llm.south);
+\end{tikzpicture}}
+\caption[The validation layer]{One repair session with the validation layer.
+The three modules (highlighted) sit between the repair loop and the project's
+test runner.}
+\label{fig:sys}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption[The three modules]{The three modules: what each improves, the cost it
+targets, and how.}
+\label{tab:sys-modules}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth} >{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}p{0.12\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Module & Improves & Targets & How\\
+\midrule
+M1 Repeat Guard & no time or money spent twice on the same patch & $V_{\mathrm{rep}}$ & normalised cache; repeat notice\\
+M2 Test Prioritiser & wrong patches rejected sooner & $V_{\mathrm{rej}}$ & order by \km, learned during the session\\
+M3 Budget Guard & predictable cost; a reason when it fails & failed sessions & stop when stuck or out of budget; give-up report\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{A session, round by round.} Table~\ref{tab:sys-walk} follows one
+bug through the three modules, with the Budget Guard set to stop after $r = 2$
+rounds without progress.
+
+\begin{table}[htbp]
+\centering
+\caption{One session of a bug in \texttt{DateUtils}, round by round
+(illustrative).}
+\label{tab:sys-walk}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}c >{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.22\textwidth}@{}}
+\toprule
+Round & Candidate & Repeat Guard and Test Prioritiser & Budget Guard\\
+\midrule
+1 & new patch $P_1$ & \km\ runs \texttt{DateUtilsTest} early (named after the modified class); it fails with error A & progress (new failure)\\
+2 & $P_1$ with a variable renamed & repeat: result reused, no test run; the model is told & no progress (1)\\
+3 & new patch $P_3$ & \texttt{DateUtilsTest} passes; \texttt{CalendarTest} fails with error B & progress (new failure)\\
+4 & new patch $P_4$ & \km\ now runs \texttt{CalendarTest} first; it fails with error B again & no progress (1)\\
+5 & new patch $P_5$ & fails with error B again & no progress (2): stop\\
+\midrule
+\multicolumn{4}{@{}l}{Give-up report: stopped for lack of progress; 5 rounds, 4 distinct patches, 1 repeat; error B three times, error A twice.}\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Module M1: Repeat Guard}
+\label{sec:sys-guard}
+
+\paragraph{Principle.} A patch that the model has already proposed in the
+session does not need to be validated again.
+
+\paragraph{Normalisation.} The Repeat Guard (M1) keeps a cache of the session's candidates. Each candidate
+is first \emph{normalised}: it is parsed into a syntax tree, comments are
+removed, local variables are renamed in order of appearance ($v_0, v_1,
+\dots$), and the tree is printed back. A candidate whose normalised form is
+already in the cache is a \emph{repeat}; it gets the stored result without
+running any test. The Repeat Guard also tells the model, in the next prompt, that the patch
+was already tried and which test rejected it.
+
+\paragraph{Safety.} Normalisation only removes differences that cannot affect
+behaviour, namely layout, comments and local variable names. Semantically
+equivalent patches (for example $a+b$ and $b+a$) are not merged. Two patches
+therefore share a result only when they behave identically, so reusing the
+result is safe for deterministic tests.
+
+\section{Module M2: Test Prioritiser}
+\label{sec:sys-km}
+
+\paragraph{Principle.} A wrong patch is rejected most cheaply when tests are run
+in decreasing order of failure probability per second of running time, the
+classical rule of Proposition~\ref{prop:ratio}~\citep{mitten1960}. The two quantities are
+unknown, so \km\ (Adaptive Rate-over-Cost) estimates them during the session:
+$K_t$, the chance that test class $t$ fails, and $\hat m_t$, its running time.
+The order adapts as the session reveals which classes fail and how long they
+take.
+
+\paragraph{Chance of failing, $K_t$.} A wrong patch usually fails only a few of
+many test classes, most often the classes that test the code it changes. So
+before any run, each class gets a small prior $\pi_t$ that is larger for
+classes named after the modified class (e.g.\ \texttt{StringUtilsTest} for
+\texttt{StringUtils}) and for classes in the same package. The priors sum to one, which corresponds to about one failing class per wrong
+patch. After the class has run $n_t$
+times and failed $k_t$ times,
+\[
+K_t = \frac{\pi_t + k_t}{1 + n_t}.
+\]
+The prior has the weight of a single run, so observed results soon dominate:
+$K_t$ increases when the class fails and decreases when it passes. $K_t$ is a smoothed average,
+not a correction for censoring: a class is observed only when the order reaches
+it, and the order is \km's own. How far this biases the estimates is measured
+in RQ4.
+
+\paragraph{Running time, $\hat m_t$.} The bot is started by a failing CI run,
+which already timed every test class on the faulty program; \km\ starts from
+these times and replaces them by the average measured on the session's
+candidates as runs accumulate. A class with no recorded time, such as a new test, is estimated from the size of its test file, at the rate observed
+so far.
+
+\paragraph{Order.} For each new candidate, \km\ runs the classes in decreasing
+$K_t / \hat m_t$, stops at the first failure, and updates its counts
+(Algorithm~\ref{alg:km}). It needs no extra test run, no model call and no
+instrumentation.
+
+\begin{algorithm}[htbp]
+\caption{\km\ for one new candidate}
+\label{alg:km}
+\begin{algorithmic}[1]
+\Require candidate $p$; test classes $T$; priors $\pi_t$; file sizes; counts $n_t, k_t$; total time $s_t$
+\For{each $t \in T$}
+  \State $K_t \gets (\pi_t + k_t)/(1 + n_t)$
+  \State $\hat m_t \gets s_t / n_t$ if $n_t > 0$, else its time in the failing CI run
+\EndFor
+\For{$t$ in $T$ sorted by $K_t / \hat m_t$, highest first}
+  \State run $t$ on $p$; observe pass/fail $o$ and time $c$
+  \State $n_t \gets n_t + 1$;\; $k_t \gets k_t + o$;\; $s_t \gets s_t + c$
+  \If{$t$ failed} \State \textbf{return} ``rejected by $t$'' \EndIf
+\EndFor
+\State \textbf{return} ``plausible''
+\end{algorithmic}
+\end{algorithm}
+
+\paragraph{Example.} Table~\ref{tab:sys-example} compares \km\ with \frtp,
+which ranks tests by how many patches they have rejected. \frtp\ ties $T_1$
+with $T_2$ and $T_3$ with $T_4$. \km\ separates them: $T_1$ failed 8 of 10
+times and is fast, so it goes first; $T_4$ has never run but is named after the
+modified class, so it goes second; $T_2$ is thirty times slower than $T_1$; and
+$T_3$, though fastest, has passed 25 times and goes last.
+
+\begin{table}[htbp]
+\centering
+\caption[\frtp\ and \km\ on four tests]{\frtp\ and \km\ on four of $100$ test
+classes (illustrative values).}
+\label{tab:sys-example}
+\small
+\begin{tabular}{@{}l r r r r r@{}}
+\toprule
+Test class & failed $k_t$ & runs $n_t$ & time $\hat m_t$ (s) & $K_t$ & $K_t/\hat m_t$\\
+\midrule
+$T_1$ & 8 & 10 & 0.04 & 0.73 & 18.2\\
+$T_2$ & 8 & 30 & 1.20 & 0.26 & 0.22\\
+$T_3$ & 0 & 25 & 0.03 & 0.0003 & 0.01\\
+$T_4$ (named after the modified class) & 0 & 0 & 0.05 & 0.15 & 2.9\\
+\midrule
+\multicolumn{6}{@{}l}{\frtp:\; $\{T_1, T_2\}$ tied, then $\{T_3, T_4\}$ tied;\qquad \km:\; $T_1, T_4, T_2, T_3$}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Relation to existing work.} The information used by \km\ is not new.
+The mutation tool PIT already orders tests by cost and by the location of the
+change~\citep{coles2016pit}, and FaMT uses history across
+mutants~\citep{zhang2013famt}. The difference is that \km\ combines these
+signals in a single estimate, updates it during the session without
+instrumentation, and is designed for patches that arrive one at a time and
+whose reported failure is shown to the model
+(Section~\ref{sec:rel-b}).
+
+\section{Module M3: Budget Guard}
+\label{sec:sys-stop}
+
+\paragraph{Principle.} The Budget Guard ends sessions that make no progress,
+keeps the cost per bug within a budget and reports why a session stopped.
+Failed sessions account for most of the cost~\citep{fan2025sweeffi}, and
+current tools stop only at a fixed limit without giving a reason (Section~\ref{sec:rel-practice}).
+
+\paragraph{Progress.} A rejected candidate leaves a \emph{failure signature}:
+the test that rejected it, the exception type and its message, without line
+numbers, which change when a patch is reformatted. A round makes progress when its
+candidate is new and fails in a new way. A repeat, or new code that fails
+exactly as before, makes no progress.
+
+\paragraph{When to stop.} The Budget Guard (M3) counts the rounds since the last progress and
+stops when the count reaches $r$. It also stops before a round that the
+remaining budget $B$ (in time, tokens or money) cannot pay for, judged by the
+average cost of the rounds so far. The round limit $R_{\max}$ stays as a hard
+cap. The values of $r$ and $B$ are chosen on the development set
+(Section~\ref{sec:exp-prereg}).
+
+\paragraph{Give-up report.} A session that ends without a plausible patch
+returns: why it stopped; how many rounds, distinct candidates and repeats it
+had; what it spent; and its failure signatures, most frequent first, with the
+test, the error and an example patch. The signatures show where the model repeatedly failed, which is the kind of
+information (fault location and tests) that developers find most useful when
+they fix a bug themselves~\citep{noller2022trust}. Figure~\ref{fig:sys-report}
+shows an example.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.95\textwidth}
+\begin{Verbatim}[frame=single,fontsize=\footnotesize,framesep=2mm]
+Give-up report  (bug Lang-65, session 2)
+Stopped:  no progress for 3 rounds
+Rounds:   9   distinct patches: 7   repeats: 2
+Spent:    410 s  (model 120 s, validation 290 s), 38k tokens
+Failures, most frequent first:
+  4x  DateUtilsTest.testTruncateLang59
+      AssertionFailedError: expected <...MDT 2004> but was <...MST 2004>
+  2x  DateUtilsTest.testRound
+      ArithmeticException: Calendar value too large
+  1x  compile error: cannot find symbol 'millis'
+Example patch for the most frequent failure: round 7
+\end{Verbatim}
+\end{minipage}
+\caption{An example give-up report (illustrative values).}
+\label{fig:sys-report}
+\end{figure}
+
+\section{When the Layer Helps}
+\label{sec:sys-regimes}
+
+\begin{itemize}[leftmargin=*,itemsep=2pt]
+\item \textbf{Module M1 (Repeat Guard)} saves in proportion to how often the model repeats itself.
+\item \textbf{Module M2 (Test Prioritiser)} saves most when test times differ a lot and a session has
+many wrong patches; it cannot reduce the cost of the final, accepted patch,
+which runs every test in any order.
+\item \textbf{Module M3 (Budget Guard)} saves most when sessions go on long after the model is stuck.
+\item A slow model, compilation and JVM start-up are untouched, so they dilute
+the saving end to end; RQ1 measures by how much.
+\end{itemize}

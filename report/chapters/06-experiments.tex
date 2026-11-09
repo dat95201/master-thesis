@@ -1,0 +1,366 @@
+\chapter{Evaluation Plan}
+\label{ch:experiments}
+
+The evaluation has two levels (Table~\ref{tab:exp-overview}). \textbf{E1} tests
+the test orderings in a controlled simulation: the patches are made by
+mutation, so every ordering sees exactly the same patches. \textbf{E2} and
+\textbf{E3} run the repair loop live, with a real model and real feedback.
+
+\begin{table}[htbp]
+\centering
+\caption{The three experiments.}
+\label{tab:exp-overview}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.09\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Experiment & RQ & What is run\\
+\midrule
+E1 orderings on mutants & RQ2, RQ4 & five orderings and their variants on simulated sessions of mutated patches; $100$ bugs; no model call\\
+E2 orderings, live & RQ1, RQ2 & the repair loop with each of four orderings and a real model; $100$ bugs, $3$ independent sessions per bug, each up to $20$ rounds\\
+E3 whole layer, live & RQ3 & the full validation layer against the plain loop; $50$ bugs, $3$ sessions per bug, each up to $20$ rounds\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Bugs and Setup}
+\label{sec:exp-selection}
+
+\paragraph{Bugs.} Defects4J~\citep{just2014defects4j} version 3.0.1 has $854$
+real Java bugs from $17$ projects. A bug is used if (i) it can be reproduced, that is, its failing tests fail
+before the fix and pass after it; (ii) the fix changes one
+source file; and (iii) its test suite has at least ten test classes and runs in
+under $5$ minutes, which keeps the audits within budget
+(Section~\ref{sec:exp-compute}). From these, $120$ bugs are drawn at random, spread evenly
+over the projects: $20$ form a \emph{development set}, used to check the
+pipeline and fix every setting in advance, and $100$ form the
+\emph{evaluation set}, on which nothing is tuned. E3 uses $50$ of them.
+
+\paragraph{Faulty code given.} Finding the faulty code is not studied. As is
+common in LLM-based repair~\citep{xia2024chatrepair}, the model is given the
+methods that the developer's fix changes. Every candidate patch replaces
+these methods and nothing else. This favours repair success~\citep{liu2019flbias}
+but is the same for every configuration.
+
+\paragraph{Unit of ordering.} Tests are ordered by test class. Validation
+compiles the candidate, runs the classes in the chosen order, and stops at the
+first failing class. A candidate is plausible when it passes the whole suite.
+
+\section{What Is Compared}
+\label{sec:exp-arms}
+
+Five orderings are compared (Table~\ref{tab:exp-arms}), in two settings.
+\emph{Without a trigger step}, no ordering puts the originally failing tests
+first, so the orderings are compared on the same information. \emph{With a
+trigger step}, every ordering first runs the \emph{triggering classes} (the test classes that
+contain a test failed by the faulty program) and then orders the rest. Since
+practical tools already run failing tests first, the second setting examines
+whether the order of the remaining tests still matters. The trigger step is a
+prefix that can be combined with any ordering, and both settings are computed
+from the same audits.
+
+\begin{table}[htbp]
+\centering
+\caption{The orderings compared.}
+\label{tab:exp-arms}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.15\textwidth}@{}}
+\toprule
+Ordering & Rule & Role\\
+\midrule
+Default & Defects4J's own order & reference\\
+\frtp~\citep{qi2013frtp} & classes that rejected more patches in the session first & baseline\\
+Coverage (PIT rule)~\citep{coles2016pit} & only classes that run the faulty methods; fastest first; the class named after the modified class first & baseline\\
+\km & Algorithm~\ref{alg:km} & proposed\\
+Oracle & the cheapest failing class, known in hindsight & lower bound\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Coverage} follows the rule of PIT, the mutation tool whose problem is
+closest to ours, and is the strongest existing baseline. It needs one instrumented run of
+the faulty program before the session, to know which classes run the faulty
+methods; classes that do not can safely be skipped~\citep{rothermel2001prioritizing},
+so Coverage is the only ordering that also shortens the run of the accepted
+patch.
+
+\paragraph{Variants of \km\ (RQ4).} Each changes one part of \km: no cost
+term; cost only (fastest first); a flat prior; no location prior, which also
+shows \km\ without the indirect hint that a class named after the modified
+class gives; a wrong location; random exploration (Thompson sampling); start
+times estimated from file size instead of the CI run; \frtp\ with a cost
+tie-break; and \km\ on the classes Coverage selects.
+
+\section{How Cost Is Measured}
+\label{sec:exp-measure}
+
+\paragraph{Audit.} Every distinct candidate is compiled once and run on
+\emph{every} test class, recording each class's result and time. From this
+record, the cost of any ordering on that candidate is computed: compilation,
+JVM start-up, and the classes the ordering would run up to its first failure.
+All orderings are thus charged from the same measurement.
+Table~\ref{tab:exp-audit} shows the computation for one candidate.
+
+\begin{table}[htbp]
+\centering
+\caption[Charging orderings from one audit]{Charging orderings from one audit
+(illustrative). The candidate fails classes $C$ and $D$; compilation and JVM
+start-up are the same for every ordering and are left out.}
+\label{tab:exp-audit}
+\footnotesize
+\begin{tabular}{@{}l c c c c c@{}}
+\toprule
+ & $A$ & $B$ & $C$ & $D$ & $E$\\
+\midrule
+Time (s) & 0.2 & 3.0 & 0.1 & 1.0 & 0.5\\
+Result & pass & pass & fail & fail & pass\\
+\midrule
+\multicolumn{6}{@{}l}{Default ($A, B, C$, stop): $0.2 + 3.0 + 0.1 = 3.3$ s}\\
+\multicolumn{6}{@{}l}{\frtp, if $D$ rejected earlier patches ($D$, stop): $1.0$ s}\\
+\multicolumn{6}{@{}l}{\km, if it ranks $E$ before $C$ ($E, C$, stop): $0.5 + 0.1 = 0.6$ s}\\
+\multicolumn{6}{@{}l}{Oracle (cheapest failing class $C$): $0.1$ s}\\
+\multicolumn{6}{@{}l}{With a trigger step, if $C$ is a triggering class: $0.1$ s for every ordering}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The last line shows why the trigger-step setting matters: a candidate that
+fails a triggering class costs the same under every ordering, so the orderings
+differ only on candidates that pass the triggering classes.
+
+\paragraph{What is recorded.} For each model call: latency and tokens. For each
+audit: compile time, JVM start-up and the CPU time of each test class. Costs are
+reported in time, CPU time, tokens and money, using one fixed price list.
+
+\paragraph{Reliability checks.} Each test class runs three times on the fixed
+program; classes that change outcome are excluded as flaky. A class is stopped
+at a time limit, and a patch that hits it is rejected. On a random tenth of the
+candidates, the audit is repeated in two other orders to check that results do
+not depend on test order.
+
+\section{E1: Orderings on Mutants}
+\label{sec:exp-e1}
+
+\paragraph{Why mutants.} In a loop with feedback, the test order determines which failure the model
+sees and therefore influences the next patch, so two orderings cannot be
+compared on the same sequence of patches. Mutants do not depend on feedback,
+so every ordering can be evaluated on the same patches in the same order.
+Mutants are a standard stand-in for real faults when evaluating test
+ordering~\citep{do2006mutation}, and in mutation-based repair tools the
+candidate patches are mutants~\citep{ghanbari2019prapr}. Unlike a mutation testing study, E1 measures the cost of validating a repair
+session rather than the number of mutants a suite kills.
+
+\paragraph{Patches.} Mutants are generated with Major~\citep{just2014major},
+the mutation tool shipped with Defects4J, in four groups
+(Table~\ref{tab:exp-strata}). The main groups lie in the faulty methods, where
+the model's patches lie; two extra groups lie elsewhere, to check that results
+do not depend on this. For each bug, mutants are drawn at random until $5$ per
+group compile and fail at least one test, auditing at most $10$ per group: about
+$20$ wrong patches per bug, $2{,}000$ in all.
+
+\begin{table}[htbp]
+\centering
+\caption{Groups of mutated patches.}
+\label{tab:exp-strata}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}l >{\raggedright\arraybackslash}p{0.32\textwidth} >{\raggedright\arraybackslash}X l@{}}
+\toprule
+Group & Mutated code & Stands for & Use\\
+\midrule
+S1 & faulty methods, fixed program & a fix that breaks something else & main\\
+S2 & faulty methods, faulty program & an attempt that leaves the bug & main\\
+S3 & another method of the faulty class & a change in the wrong method & check\\
+S4 & another class used by the failing tests & a change in the wrong class & check\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Sessions.} A simulated session is a random order of a bug's wrong
+patches, ending with the developer's fix, which passes every test. Main
+sessions use the $10$ patches of S1 and S2; check sessions use all $20$. Each
+bug gets $10$ random orders, and every ordering runs on the same ones, in both
+settings. The main measure is the validation cost of \km\ relative to each
+baseline, per bug.
+
+\section{E2 and E3: The Loop, Live}
+\label{sec:exp-live}
+
+\paragraph{The loop.} A conversational loop in the style of
+\textsc{ChatRepair}~\citep{xia2024chatrepair}. The first prompt gives the faulty
+methods, a failing test and its error message. After each round the outcome is
+fed back (Table~\ref{tab:exp-prompts}); Figure~\ref{fig:exp-prompt} shows a first
+prompt and a feedback message. A session ends at the first plausible patch or
+after $20$ rounds.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.95\textwidth}
+\begin{Verbatim}[frame=single,fontsize=\footnotesize,framesep=2mm,label=First prompt]
+The following Java method contains a bug:
+
+    private static void modify(Calendar val, int field, boolean round) {
+        ...
+    }
+
+It makes this test fail:
+    Test:  DateUtilsTest.testTruncateLang59
+    Error: AssertionFailedError: Truncate Calendar.SECOND
+           expected:<Sun Oct 31 01:02:03 MDT 2004> but was:<... MST 2004>
+
+Return the complete fixed method in one Java code block.
+\end{Verbatim}
+\vspace{2mm}
+\begin{Verbatim}[frame=single,fontsize=\footnotesize,framesep=2mm,label=Feedback after a rejected patch]
+Your fix is still incorrect. It fails this test:
+    Test:  DateUtilsTest.testRoundLang346
+    Error: AssertionFailedError: Round Calendar.MINUTE
+           expected:<10:31> but was:<10:30>
+Please provide a different fix.
+\end{Verbatim}
+\end{minipage}
+\caption{The first prompt and a feedback message for Defects4J bug Lang-65.}
+\label{fig:exp-prompt}
+\end{figure}
+
+\begin{table}[htbp]
+\centering
+\caption{Feedback after each round.}
+\label{tab:exp-prompts}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Outcome & Feedback to the model\\
+\midrule
+A test fails & the first failing test, its line and error; ask for a different fix\\
+Does not compile & the compiler error; ask for a corrected version\\
+Unreadable answer & the answer could not be read as the given methods\\
+Repeat (E3 only) & the patch was already tried and which test rejected it\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Model.} One model through an API (\pendlong), with a fixed version
+and a fixed temperature above zero, so that the three sessions of a bug differ. A \emph{session} is one repair
+attempt on one bug: it runs up to $20$ rounds, one model call per round, and
+stops earlier if a plausible patch is found. Each bug gets three independent
+sessions per configuration.
+Defects4J is likely memorised by current models~\citep{ramos2024memorizing}; if
+most sessions ended in one or two rounds, there would be little cost to save.
+The model is therefore chosen on the development set by a rule fixed in
+advance: the median session must need at least three rounds; otherwise a
+smaller model is used.
+
+\paragraph{Fair comparison.} Configurations of the same bug and session share two
+caches. Model answers are cached by their full prompt, so configurations get
+the same patches until their conversations first differ. Audits are cached by
+normalised patch, so each patch is tested once and every configuration is
+charged from the same measurement.
+
+\paragraph{E2: orderings, live.} The loop runs on the $100$ evaluation bugs, three sessions each, with four
+orderings: Default, \frtp, Coverage and \km. All
+use the result cache, with no repeat notice and no stopping rule, so they differ
+only in the ordering. E2 measures the validation cost of \km\ against each
+baseline, and whether any ordering lowers the repair rate, since the failure it reports
+may be less useful to the model. The cost and headroom are also reported
+separately for candidates that pass the triggering classes, because these are
+the only candidates whose cost still depends on the ordering once a trigger
+step is used. The Default sessions also answer RQ1: where the cost goes. The repeat cache and
+the stopping rule are evaluated on these sessions by replay, which is exact because neither changes the prompt.
+
+\paragraph{E3: whole layer, live.} The full layer runs on $50$ bugs, three sessions each: \km\ with the repeat notice on, while the Budget Guard only logs when
+it would stop. Its stopping is then replayed, as in E2. This separates the two effects. Comparing E3 with the \km\ sessions of E2 gives the effect of the notice, and the
+replay gives the effect of the Budget Guard. The whole layer is compared with the Default sessions of E2. The main measure is the cost per repaired bug; the repair
+rate must not fall by more than a margin fixed in advance.
+
+\section{Metrics}
+\label{sec:exp-metrics}
+
+Table~\ref{tab:exp-metrics} lists the metrics. Costs are summed over sessions
+before dividing, and every comparison is made per bug.
+
+\begin{table}[htbp]
+\centering
+\caption{Metrics.}
+\label{tab:exp-metrics}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}X c@{}}
+\toprule
+Metric & Definition & RQ\\
+\midrule
+Cost per repaired bug & total cost of all sessions $/$ number of bugs repaired & 1, 3\\
+Cost breakdown & share of generation, $V_{\mathrm{rep}}$, $V_{\mathrm{rej}}$ and $V_{\mathrm{acc}}$ in the total & 1\\
+Ordering headroom & what the best possible order would save, as a share of the total & 1\\
+Repeat rate & share of rounds whose patch is a repeat & 1, 2\\
+Validation cost ratio & validation cost of \km\ $/$ that of another ordering, per bug & 2\\
+Stopping trade-off & cost saved by the Budget Guard against plausible patches lost & 2\\
+Repair rate difference & share of sessions with a plausible patch, against Default & 2, 3\\
+Time to a plausible patch & median time from start to the plausible patch & 3\\
+Cost of failed sessions & share of the total spent on sessions without a plausible patch & 1, 3\\
+Budget overrun & share of sessions that exceed the budget & 3\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Statistics}
+\label{sec:exp-size}
+
+The bug is the unit of analysis; the sessions of a bug are averaged first.
+The two main comparisons, \km\ against \frtp\ and against Coverage, are tested
+in E1 and in E2 with a paired Wilcoxon test on the per-bug log-ratio of costs,
+with a Holm correction. With $100$ bugs, a saving of $5\,\%$ is detected with
+power $0.8$ if the standard deviation of the log-ratio is at most $0.15$; live
+runs are noisier, and if their spread is larger the smallest detectable saving
+is reported. In E3, the repair rate is tested for non-inferiority; with $50$
+bugs a margin of $10$ percentage points is reachable if the standard deviation
+of the paired difference is at most $0.24$. If the development set shows more
+spread than assumed, the number of sessions per bug is raised before the number of
+bugs. All estimates are reported with bootstrap intervals.
+
+\pendnote{The variances, the margin, the defaults of \km\ and the Budget Guard,
+and the number of eligible bugs; all are fixed on the development set.}
+
+\section{Pilot Study}
+\label{sec:exp-pilot}
+
+\placeholdernote{Results of a pilot on Defects4J bugs (orderings on mutated
+patches), about three pages. They inform the setup and are not results of the
+study.}
+
+\section{Compute Budget}
+\label{sec:exp-compute}
+
+Most of the compute goes to audits: each runs a whole suite once.
+Table~\ref{tab:exp-compute} gives the counts and caps; the time per audit is
+measured on the development set before registration. If the estimate exceeds
+the budget, the number of mutants per group is lowered from $5$ to $3$ and the
+suite limit from $5$ to $3$ minutes, in that order.
+
+\begin{table}[htbp]
+\centering
+\caption{Audit counts and caps.}
+\label{tab:exp-compute}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.3\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Work & Audits\\
+\midrule
+Flakiness check & $3$ suite runs per bug\\
+E1 mutants & at most $40$ per bug ($10$ per group); $4{,}000$ at most\\
+E2 and E3 candidates & one per distinct patch, shared by all configurations\\
+Order check & a random tenth of all audits, run twice more\\
+Cap per bug & $2$ CPU-hours in E1 and $4$ in E2--E3; a bug that reaches its cap is reported and dropped\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Pre-Registration}
+\label{sec:exp-prereg}
+
+This proposal fixes the bugs, settings, metrics and analyses in advance. The values added later (the prior weights of \km, the stopping count $r$, the
+budget $B$, the variances and the margin) are fixed on the development
+set before E1 starts; any later change will be reported. The experiments run in
+order: E1, then E2, then E3. The budget is $60$ repair sessions on the development set, $1{,}200$ in E2
+($100$ bugs $\times$ $3$ sessions $\times$ $4$ orderings) and $150$ in E3. A session makes at most
+$20$ model calls, one per round, and stops early at a plausible patch; since the
+orderings of a bug share cached answers until their conversations differ, the
+$30{,}000$ calls are an upper bound, not an expected count. Each distinct patch
+is audited once.
