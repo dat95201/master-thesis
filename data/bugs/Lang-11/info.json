@@ -1,0 +1,838 @@
+{
+ "bug": "Lang-11",
+ "pid": "Lang",
+ "bid": 11,
+ "modified_class": "org.apache.commons.lang3.RandomStringUtils",
+ "src_file": "src/main/java/org/apache/commons/lang3/RandomStringUtils.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Lang-11/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Lang-11/b/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/easymock.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/commons-io.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/cglib.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/asm.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Lang-11/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Lang-11/f/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/easymock.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/commons-io.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/cglib.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/asm.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Lang-11/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Lang-11/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "random(int,int,int,boolean,boolean,char[],Random)",
+   "name": "random",
+   "nparams": 7
+  }
+ ],
+ "buggy_methods": {
+  "random(int,int,int,boolean,boolean,char[],Random)": "public static String random(int count, int start, int end, boolean letters, boolean numbers,\n                                char[] chars, Random random) {\n        if (count == 0) {\n            return \"\";\n        } else if (count < 0) {\n            throw new IllegalArgumentException(\"Requested random string length \" + count + \" is less than 0.\");\n        }\n        if (chars != null && chars.length == 0) {\n            throw new IllegalArgumentException(\"The chars array must not be empty\");\n        }\n\n        if (start == 0 && end == 0) {\n            if (chars != null) {\n                end = chars.length;\n            } else {\n                if (!letters && !numbers) {\n                    end = Integer.MAX_VALUE;\n                } else {\n                    end = 'z' + 1;\n                    start = ' ';                \n                }\n            }\n        }\n\n        char[] buffer = new char[count];\n        int gap = end - start;\n\n        while (count-- != 0) {\n            char ch;\n            if (chars == null) {\n                ch = (char) (random.nextInt(gap) + start);\n            } else {\n                ch = chars[random.nextInt(gap) + start];\n            }\n            if (letters && Character.isLetter(ch)\n                    || numbers && Character.isDigit(ch)\n                    || !letters && !numbers) {\n                if(ch >= 56320 && ch <= 57343) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // low surrogate, insert high surrogate after putting it in\n                        buffer[count] = ch;\n                        count--;\n                        buffer[count] = (char) (55296 + random.nextInt(128));\n                    }\n                } else if(ch >= 55296 && ch <= 56191) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // high surrogate, insert low surrogate before putting it in\n                        buffer[count] = (char) (56320 + random.nextInt(128));\n                        count--;\n                        buffer[count] = ch;\n                    }\n                } else if(ch >= 56192 && ch <= 56319) {\n                    // private high surrogate, no effing clue, so skip it\n                    count++;\n                } else {\n                    buffer[count] = ch;\n                }\n            } else {\n                count++;\n            }\n        }\n        return new String(buffer);\n    }"
+ },
+ "fixed_methods": {
+  "random(int,int,int,boolean,boolean,char[],Random)": "public static String random(int count, int start, int end, boolean letters, boolean numbers,\n                                char[] chars, Random random) {\n        if (count == 0) {\n            return \"\";\n        } else if (count < 0) {\n            throw new IllegalArgumentException(\"Requested random string length \" + count + \" is less than 0.\");\n        }\n        if (chars != null && chars.length == 0) {\n            throw new IllegalArgumentException(\"The chars array must not be empty\");\n        }\n\n        if (start == 0 && end == 0) {\n            if (chars != null) {\n                end = chars.length;\n            } else {\n                if (!letters && !numbers) {\n                    end = Integer.MAX_VALUE;\n                } else {\n                    end = 'z' + 1;\n                    start = ' ';                \n                }\n            }\n        } else {\n            if (end <= start) {\n                throw new IllegalArgumentException(\"Parameter end (\" + end + \") must be greater than start (\" + start + \")\");\n            }\n        }\n\n        char[] buffer = new char[count];\n        int gap = end - start;\n\n        while (count-- != 0) {\n            char ch;\n            if (chars == null) {\n                ch = (char) (random.nextInt(gap) + start);\n            } else {\n                ch = chars[random.nextInt(gap) + start];\n            }\n            if (letters && Character.isLetter(ch)\n                    || numbers && Character.isDigit(ch)\n                    || !letters && !numbers) {\n                if(ch >= 56320 && ch <= 57343) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // low surrogate, insert high surrogate after putting it in\n                        buffer[count] = ch;\n                        count--;\n                        buffer[count] = (char) (55296 + random.nextInt(128));\n                    }\n                } else if(ch >= 55296 && ch <= 56191) {\n                    if(count == 0) {\n                        count++;\n                    } else {\n                        // high surrogate, insert low surrogate before putting it in\n                        buffer[count] = (char) (56320 + random.nextInt(128));\n                        count--;\n                        buffer[count] = ch;\n                    }\n                } else if(ch >= 56192 && ch <= 56319) {\n                    // private high surrogate, no effing clue, so skip it\n                    count++;\n                } else {\n                    buffer[count] = ch;\n                }\n            } else {\n                count++;\n            }\n        }\n        return new String(buffer);\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.lang3.RandomStringUtilsTest::testLANG807",
+   "error": "junit.framework.AssertionFailedError: Message (bound must be positive) must contain 'start'"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.lang3.RandomStringUtilsTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.lang3.RandomStringUtils"
+ ],
+ "suite": [
+  "org.apache.commons.lang3.AnnotationUtilsTest",
+  "org.apache.commons.lang3.ArrayUtilsAddTest",
+  "org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest",
+  "org.apache.commons.lang3.ArrayUtilsRemoveTest",
+  "org.apache.commons.lang3.ArrayUtilsTest",
+  "org.apache.commons.lang3.BitFieldTest",
+  "org.apache.commons.lang3.BooleanUtilsTest",
+  "org.apache.commons.lang3.CharEncodingTest",
+  "org.apache.commons.lang3.CharRangeTest",
+  "org.apache.commons.lang3.CharSequenceUtilsTest",
+  "org.apache.commons.lang3.CharSetTest",
+  "org.apache.commons.lang3.CharSetUtilsTest",
+  "org.apache.commons.lang3.CharUtilsTest",
+  "org.apache.commons.lang3.ClassUtilsTest",
+  "org.apache.commons.lang3.EnumUtilsTest",
+  "org.apache.commons.lang3.JavaVersionTest",
+  "org.apache.commons.lang3.LocaleUtilsTest",
+  "org.apache.commons.lang3.ObjectUtilsTest",
+  "org.apache.commons.lang3.RandomStringUtilsTest",
+  "org.apache.commons.lang3.RangeTest",
+  "org.apache.commons.lang3.SerializationUtilsTest",
+  "org.apache.commons.lang3.StringEscapeUtilsTest",
+  "org.apache.commons.lang3.StringUtilsEqualsIndexOfTest",
+  "org.apache.commons.lang3.StringUtilsIsTest",
+  "org.apache.commons.lang3.StringUtilsStartsEndsWithTest",
+  "org.apache.commons.lang3.StringUtilsSubstringTest",
+  "org.apache.commons.lang3.StringUtilsTest",
+  "org.apache.commons.lang3.StringUtilsTrimEmptyTest",
+  "org.apache.commons.lang3.SystemUtilsTest",
+  "org.apache.commons.lang3.ValidateTest",
+  "org.apache.commons.lang3.builder.CompareToBuilderTest",
+  "org.apache.commons.lang3.builder.DefaultToStringStyleTest",
+  "org.apache.commons.lang3.builder.EqualsBuilderTest",
+  "org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest",
+  "org.apache.commons.lang3.builder.HashCodeBuilderTest",
+  "org.apache.commons.lang3.builder.MultiLineToStringStyleTest",
+  "org.apache.commons.lang3.builder.NoFieldNamesToStringStyleTest",
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderConcurrencyTest",
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest",
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
+  "org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest",
+  "org.apache.commons.lang3.builder.SimpleToStringStyleTest",
+  "org.apache.commons.lang3.builder.StandardToStringStyleTest",
+  "org.apache.commons.lang3.builder.ToStringBuilderTest",
+  "org.apache.commons.lang3.builder.ToStringStyleConcurrencyTest",
+  "org.apache.commons.lang3.builder.ToStringStyleTest",
+  "org.apache.commons.lang3.concurrent.AtomicInitializerTest",
+  "org.apache.commons.lang3.concurrent.AtomicSafeInitializerTest",
+  "org.apache.commons.lang3.concurrent.BackgroundInitializerTest",
+  "org.apache.commons.lang3.concurrent.BasicThreadFactoryTest",
+  "org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest",
+  "org.apache.commons.lang3.concurrent.ConcurrentUtilsTest",
+  "org.apache.commons.lang3.concurrent.ConstantInitializerTest",
+  "org.apache.commons.lang3.concurrent.LazyInitializerTest",
+  "org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest",
+  "org.apache.commons.lang3.concurrent.TimedSemaphoreTest",
+  "org.apache.commons.lang3.event.EventListenerSupportTest",
+  "org.apache.commons.lang3.event.EventUtilsTest",
+  "org.apache.commons.lang3.exception.ContextedExceptionTest",
+  "org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest",
+  "org.apache.commons.lang3.exception.DefaultExceptionContextTest",
+  "org.apache.commons.lang3.exception.ExceptionUtilsTest",
+  "org.apache.commons.lang3.math.FractionTest",
+  "org.apache.commons.lang3.math.IEEE754rUtilsTest",
+  "org.apache.commons.lang3.math.NumberUtilsTest",
+  "org.apache.commons.lang3.mutable.MutableBooleanTest",
+  "org.apache.commons.lang3.mutable.MutableByteTest",
+  "org.apache.commons.lang3.mutable.MutableDoubleTest",
+  "org.apache.commons.lang3.mutable.MutableFloatTest",
+  "org.apache.commons.lang3.mutable.MutableIntTest",
+  "org.apache.commons.lang3.mutable.MutableLongTest",
+  "org.apache.commons.lang3.mutable.MutableObjectTest",
+  "org.apache.commons.lang3.mutable.MutableShortTest",
+  "org.apache.commons.lang3.reflect.ConstructorUtilsTest",
+  "org.apache.commons.lang3.reflect.FieldUtilsTest",
+  "org.apache.commons.lang3.reflect.MethodUtilsTest",
+  "org.apache.commons.lang3.reflect.TypeUtilsTest",
+  "org.apache.commons.lang3.text.CompositeFormatTest",
+  "org.apache.commons.lang3.text.ExtendedMessageFormatTest",
+  "org.apache.commons.lang3.text.FormattableUtilsTest",
+  "org.apache.commons.lang3.text.StrBuilderAppendInsertTest",
+  "org.apache.commons.lang3.text.StrBuilderTest",
+  "org.apache.commons.lang3.text.StrLookupTest",
+  "org.apache.commons.lang3.text.StrMatcherTest",
+  "org.apache.commons.lang3.text.StrSubstitutorTest",
+  "org.apache.commons.lang3.text.StrTokenizerTest",
+  "org.apache.commons.lang3.text.WordUtilsTest",
+  "org.apache.commons.lang3.text.translate.EntityArraysTest",
+  "org.apache.commons.lang3.text.translate.LookupTranslatorTest",
+  "org.apache.commons.lang3.text.translate.NumericEntityEscaperTest",
+  "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest",
+  "org.apache.commons.lang3.text.translate.OctalUnescaperTest",
+  "org.apache.commons.lang3.text.translate.UnicodeEscaperTest",
+  "org.apache.commons.lang3.text.translate.UnicodeUnescaperTest",
+  "org.apache.commons.lang3.time.DateFormatUtilsTest",
+  "org.apache.commons.lang3.time.DateUtilsFragmentTest",
+  "org.apache.commons.lang3.time.DateUtilsRoundingTest",
+  "org.apache.commons.lang3.time.DateUtilsTest",
+  "org.apache.commons.lang3.time.DurationFormatUtilsTest",
+  "org.apache.commons.lang3.time.FastDateFormatTest",
+  "org.apache.commons.lang3.time.FastDateFormat_ParserTest",
+  "org.apache.commons.lang3.time.FastDateFormat_PrinterTest",
+  "org.apache.commons.lang3.time.FastDateParserTest",
+  "org.apache.commons.lang3.time.FastDatePrinterTest",
+  "org.apache.commons.lang3.time.StopWatchTest",
+  "org.apache.commons.lang3.tuple.ImmutablePairTest",
+  "org.apache.commons.lang3.tuple.ImmutableTripleTest",
+  "org.apache.commons.lang3.tuple.MutablePairTest",
+  "org.apache.commons.lang3.tuple.MutableTripleTest",
+  "org.apache.commons.lang3.tuple.PairTest",
+  "org.apache.commons.lang3.tuple.TripleTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.lang3.AnnotationUtilsTest": {
+   "wall": 0.059551,
+   "cpu": 0.110421,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsAddTest": {
+   "wall": 0.004664,
+   "cpu": 0.005128,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest": {
+   "wall": 0.007973,
+   "cpu": 0.018017,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsRemoveTest": {
+   "wall": 0.001689,
+   "cpu": 0.004515,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsTest": {
+   "wall": 0.015018,
+   "cpu": 0.033928,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.BitFieldTest": {
+   "wall": 0.001871,
+   "cpu": 0.0050940000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.BooleanUtilsTest": {
+   "wall": 0.005623,
+   "cpu": 0.015219,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharEncodingTest": {
+   "wall": 0.013387,
+   "cpu": 0.030474,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharRangeTest": {
+   "wall": 0.010286,
+   "cpu": 0.023618,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharSequenceUtilsTest": {
+   "wall": 0.001113,
+   "cpu": 0.002928,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharSetTest": {
+   "wall": 0.003887,
+   "cpu": 0.00842,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharSetUtilsTest": {
+   "wall": 0.0015429999999999999,
+   "cpu": 0.003455,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharUtilsTest": {
+   "wall": 0.002379,
+   "cpu": 0.005469,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ClassUtilsTest": {
+   "wall": 0.015817,
+   "cpu": 0.026,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.EnumUtilsTest": {
+   "wall": 0.0037589999999999998,
+   "cpu": 0.008297,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.JavaVersionTest": {
+   "wall": 0.0007,
+   "cpu": 0.001349,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.LocaleUtilsTest": {
+   "wall": 0.020732,
+   "cpu": 0.056461,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ObjectUtilsTest": {
+   "wall": 0.011337,
+   "cpu": 0.022828,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.RandomStringUtilsTest": {
+   "wall": 0.007909,
+   "cpu": 0.025917000000000003,
+   "status": "fail"
+  },
+  "org.apache.commons.lang3.RangeTest": {
+   "wall": 0.005548,
+   "cpu": 0.012898,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.SerializationUtilsTest": {
+   "wall": 0.012564,
+   "cpu": 0.030744,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringEscapeUtilsTest": {
+   "wall": 0.131186,
+   "cpu": 0.256452,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsEqualsIndexOfTest": {
+   "wall": 0.004874,
+   "cpu": 0.011224999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsIsTest": {
+   "wall": 0.004312,
+   "cpu": 0.007228,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsStartsEndsWithTest": {
+   "wall": 0.004554,
+   "cpu": 0.0028380000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsSubstringTest": {
+   "wall": 0.0005430000000000001,
+   "cpu": 0.0011510000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsTest": {
+   "wall": 0.016005,
+   "cpu": 0.039256,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsTrimEmptyTest": {
+   "wall": 0.004107,
+   "cpu": 0.010338,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.SystemUtilsTest": {
+   "wall": 0.000606,
+   "cpu": 0.0006820000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ValidateTest": {
+   "wall": 0.0016979999999999999,
+   "cpu": 0.0031739999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.CompareToBuilderTest": {
+   "wall": 0.011351000000000002,
+   "cpu": 0.019693000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.DefaultToStringStyleTest": {
+   "wall": 0.002155,
+   "cpu": 0.0029500000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.EqualsBuilderTest": {
+   "wall": 0.008074999999999999,
+   "cpu": 0.019001999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest": {
+   "wall": 0.003613,
+   "cpu": 0.007134000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.HashCodeBuilderTest": {
+   "wall": 0.003009,
+   "cpu": 0.0072759999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.MultiLineToStringStyleTest": {
+   "wall": 0.001003,
+   "cpu": 0.0021309999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.NoFieldNamesToStringStyleTest": {
+   "wall": 0.000743,
+   "cpu": 0.001665,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderConcurrencyTest": {
+   "wall": 0.001521,
+   "cpu": 0.00269,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest": {
+   "wall": 0.00229,
+   "cpu": 0.0031579999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest": {
+   "wall": 0.000211,
+   "cpu": 0.000279,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest": {
+   "wall": 0.000657,
+   "cpu": 0.00102,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.SimpleToStringStyleTest": {
+   "wall": 0.000492,
+   "cpu": 0.001607,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.StandardToStringStyleTest": {
+   "wall": 0.001095,
+   "cpu": 0.0020819999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ToStringBuilderTest": {
+   "wall": 0.011205,
+   "cpu": 0.023981000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ToStringStyleConcurrencyTest": {
+   "wall": 1.548794,
+   "cpu": 3.40256,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ToStringStyleTest": {
+   "wall": 0.002378,
+   "cpu": 0.002005,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.AtomicInitializerTest": {
+   "wall": 0.008587999999999998,
+   "cpu": 0.006212,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.AtomicSafeInitializerTest": {
+   "wall": 0.009308,
+   "cpu": 0.008,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.BackgroundInitializerTest": {
+   "wall": 0.01494,
+   "cpu": 0.02081,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.BasicThreadFactoryTest": {
+   "wall": 0.038316,
+   "cpu": 0.074,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest": {
+   "wall": 0.0015480000000000001,
+   "cpu": 0.002489,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.ConcurrentUtilsTest": {
+   "wall": 0.003216,
+   "cpu": 0.005392,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.ConstantInitializerTest": {
+   "wall": 0.0005110000000000001,
+   "cpu": 0.002368,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.LazyInitializerTest": {
+   "wall": 0.002129,
+   "cpu": 0.004398,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest": {
+   "wall": 0.007922,
+   "cpu": 0.02093,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.TimedSemaphoreTest": {
+   "wall": 1.167537,
+   "cpu": 0.028175000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.event.EventListenerSupportTest": {
+   "wall": 0.022404,
+   "cpu": 0.038060000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.event.EventUtilsTest": {
+   "wall": 0.031403,
+   "cpu": 0.038929000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.ContextedExceptionTest": {
+   "wall": 0.020368999999999998,
+   "cpu": 0.028195,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest": {
+   "wall": 0.007482,
+   "cpu": 0.014178000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.DefaultExceptionContextTest": {
+   "wall": 0.001333,
+   "cpu": 0.003212,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.ExceptionUtilsTest": {
+   "wall": 0.009488,
+   "cpu": 0.019289999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.math.FractionTest": {
+   "wall": 0.048789,
+   "cpu": 0.07793699999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.math.IEEE754rUtilsTest": {
+   "wall": 0.000894,
+   "cpu": 0.0013289999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.math.NumberUtilsTest": {
+   "wall": 0.0045449999999999996,
+   "cpu": 0.007977,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableBooleanTest": {
+   "wall": 0.0010840000000000001,
+   "cpu": 0.002639,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableByteTest": {
+   "wall": 0.0008539999999999999,
+   "cpu": 0.001616,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableDoubleTest": {
+   "wall": 0.001824,
+   "cpu": 0.002353,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableFloatTest": {
+   "wall": 0.0009170000000000001,
+   "cpu": 0.0013830000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableIntTest": {
+   "wall": 0.001001,
+   "cpu": 0.001915,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableLongTest": {
+   "wall": 0.000416,
+   "cpu": 0.001339,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableObjectTest": {
+   "wall": 0.000275,
+   "cpu": 0.00028000000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableShortTest": {
+   "wall": 0.001004,
+   "cpu": 0.001539,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.ConstructorUtilsTest": {
+   "wall": 0.003986,
+   "cpu": 0.00541,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.FieldUtilsTest": {
+   "wall": 0.046646,
+   "cpu": 0.031944,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.MethodUtilsTest": {
+   "wall": 0.006508,
+   "cpu": 0.009193,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.TypeUtilsTest": {
+   "wall": 0.013978999999999998,
+   "cpu": 0.022286999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.CompositeFormatTest": {
+   "wall": 0.002919,
+   "cpu": 0.005552,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.ExtendedMessageFormatTest": {
+   "wall": 4.608245,
+   "cpu": 9.560974,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.FormattableUtilsTest": {
+   "wall": 0.001425,
+   "cpu": 0.002196,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrBuilderAppendInsertTest": {
+   "wall": 0.006435,
+   "cpu": 0.009414,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrBuilderTest": {
+   "wall": 0.00242,
+   "cpu": 0.004691,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrLookupTest": {
+   "wall": 0.001509,
+   "cpu": 0.000944,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrMatcherTest": {
+   "wall": 0.000406,
+   "cpu": 0.000949,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrSubstitutorTest": {
+   "wall": 0.002881,
+   "cpu": 0.0065119999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrTokenizerTest": {
+   "wall": 0.003159,
+   "cpu": 0.006113,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.WordUtilsTest": {
+   "wall": 0.000618,
+   "cpu": 0.0024950000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.EntityArraysTest": {
+   "wall": 0.000325,
+   "cpu": 0.000722,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.LookupTranslatorTest": {
+   "wall": 0.000203,
+   "cpu": 0.001129,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.NumericEntityEscaperTest": {
+   "wall": 0.000244,
+   "cpu": 0.000249,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest": {
+   "wall": 0.000253,
+   "cpu": 0.000264,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.OctalUnescaperTest": {
+   "wall": 0.000211,
+   "cpu": 0.000596,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.UnicodeEscaperTest": {
+   "wall": 0.000232,
+   "cpu": 0.000236,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.UnicodeUnescaperTest": {
+   "wall": 0.000228,
+   "cpu": 0.000417,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateFormatUtilsTest": {
+   "wall": 0.06356300000000001,
+   "cpu": 0.115448,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateUtilsFragmentTest": {
+   "wall": 0.0026,
+   "cpu": 0.004086,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateUtilsRoundingTest": {
+   "wall": 0.018032,
+   "cpu": 0.035841,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateUtilsTest": {
+   "wall": 0.014459,
+   "cpu": 0.040145,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DurationFormatUtilsTest": {
+   "wall": 0.5917039999999999,
+   "cpu": 1.169634,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateFormatTest": {
+   "wall": 0.477323,
+   "cpu": 1.613124,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateFormat_ParserTest": {
+   "wall": 12.02605,
+   "cpu": 16.521978999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateFormat_PrinterTest": {
+   "wall": 0.003038,
+   "cpu": 0.004556,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateParserTest": {
+   "wall": 0.189273,
+   "cpu": 0.429396,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDatePrinterTest": {
+   "wall": 0.0010609999999999999,
+   "cpu": 0.003143,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.StopWatchTest": {
+   "wall": 4.777544,
+   "cpu": 0.166406,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.ImmutablePairTest": {
+   "wall": 0.0021190000000000002,
+   "cpu": 0.002989,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.ImmutableTripleTest": {
+   "wall": 0.010919,
+   "cpu": 0.014671,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.MutablePairTest": {
+   "wall": 0.002676,
+   "cpu": 0.003836,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.MutableTripleTest": {
+   "wall": 0.00166,
+   "cpu": 0.0030529999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.PairTest": {
+   "wall": 0.000937,
+   "cpu": 0.001883,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.TripleTest": {
+   "wall": 0.000505,
+   "cpu": 0.001108,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.3300313750019548,
+  "cpu": 0.3416129999999882
+ },
+ "fixed_suite_seconds": [
+  31.52,
+  25.16,
+  25.92
+ ],
+ "covering": [
+  "org.apache.commons.lang3.RandomStringUtilsTest"
+ ],
+ "sizes": {
+  "org.apache.commons.lang3.AnnotationUtilsTest": 19196,
+  "org.apache.commons.lang3.ArrayUtilsAddTest": 29702,
+  "org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest": 58797,
+  "org.apache.commons.lang3.ArrayUtilsRemoveTest": 23763,
+  "org.apache.commons.lang3.ArrayUtilsTest": 125359,
+  "org.apache.commons.lang3.BitFieldTest": 9853,
+  "org.apache.commons.lang3.BooleanUtilsTest": 37116,
+  "org.apache.commons.lang3.CharEncodingTest": 4016,
+  "org.apache.commons.lang3.CharRangeTest": 15388,
+  "org.apache.commons.lang3.CharSequenceUtilsTest": 3143,
+  "org.apache.commons.lang3.CharSetTest": 19592,
+  "org.apache.commons.lang3.CharSetUtilsTest": 10456,
+  "org.apache.commons.lang3.CharUtilsTest": 13278,
+  "org.apache.commons.lang3.ClassUtilsTest": 68462,
+  "org.apache.commons.lang3.EnumUtilsTest": 8436,
+  "org.apache.commons.lang3.JavaVersionTest": 2963,
+  "org.apache.commons.lang3.LocaleUtilsTest": 18257,
+  "org.apache.commons.lang3.ObjectUtilsTest": 21552,
+  "org.apache.commons.lang3.RandomStringUtilsTest": 14616,
+  "org.apache.commons.lang3.RangeTest": 13281,
+  "org.apache.commons.lang3.SerializationUtilsTest": 14668,
+  "org.apache.commons.lang3.StringEscapeUtilsTest": 21757,
+  "org.apache.commons.lang3.StringUtilsEqualsIndexOfTest": 49706,
+  "org.apache.commons.lang3.StringUtilsIsTest": 8678,
+  "org.apache.commons.lang3.StringUtilsStartsEndsWithTest": 9762,
+  "org.apache.commons.lang3.StringUtilsSubstringTest": 14981,
+  "org.apache.commons.lang3.StringUtilsTest": 99926,
+  "org.apache.commons.lang3.StringUtilsTrimEmptyTest": 13977,
+  "org.apache.commons.lang3.SystemUtilsTest": 19365,
+  "org.apache.commons.lang3.ValidateTest": 32370,
+  "org.apache.commons.lang3.builder.CompareToBuilderTest": 50841,
+  "org.apache.commons.lang3.builder.DefaultToStringStyleTest": 6545,
+  "org.apache.commons.lang3.builder.EqualsBuilderTest": 41809,
+  "org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest": 4797,
+  "org.apache.commons.lang3.builder.HashCodeBuilderTest": 22440,
+  "org.apache.commons.lang3.builder.MultiLineToStringStyleTest": 9282,
+  "org.apache.commons.lang3.builder.NoFieldNamesToStringStyleTest": 6512,
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderConcurrencyTest": 4605,
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest": 5042,
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest": 3689,
+  "org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest": 6450,
+  "org.apache.commons.lang3.builder.SimpleToStringStyleTest": 5812,
+  "org.apache.commons.lang3.builder.StandardToStringStyleTest": 6917,
+  "org.apache.commons.lang3.builder.ToStringBuilderTest": 48221,
+  "org.apache.commons.lang3.builder.ToStringStyleConcurrencyTest": 4254,
+  "org.apache.commons.lang3.builder.ToStringStyleTest": 3967,
+  "org.apache.commons.lang3.concurrent.AtomicInitializerTest": 1406,
+  "org.apache.commons.lang3.concurrent.AtomicSafeInitializerTest": 2546,
+  "org.apache.commons.lang3.concurrent.BackgroundInitializerTest": 10249,
+  "org.apache.commons.lang3.concurrent.BasicThreadFactoryTest": 11366,
+  "org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest": 3515,
+  "org.apache.commons.lang3.concurrent.ConcurrentUtilsTest": 18845,
+  "org.apache.commons.lang3.concurrent.ConstantInitializerTest": 4162,
+  "org.apache.commons.lang3.concurrent.LazyInitializerTest": 1992,
+  "org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest": 14553,
+  "org.apache.commons.lang3.concurrent.TimedSemaphoreTest": 17960,
+  "org.apache.commons.lang3.event.EventListenerSupportTest": 9758,
+  "org.apache.commons.lang3.event.EventUtilsTest": 9482,
+  "org.apache.commons.lang3.exception.ContextedExceptionTest": 4441,
+  "org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest": 4531,
+  "org.apache.commons.lang3.exception.DefaultExceptionContextTest": 1346,
+  "org.apache.commons.lang3.exception.ExceptionUtilsTest": 23142,
+  "org.apache.commons.lang3.math.FractionTest": 46084,
+  "org.apache.commons.lang3.math.IEEE754rUtilsTest": 4068,
+  "org.apache.commons.lang3.math.NumberUtilsTest": 59124,
+  "org.apache.commons.lang3.mutable.MutableBooleanTest": 4867,
+  "org.apache.commons.lang3.mutable.MutableByteTest": 6464,
+  "org.apache.commons.lang3.mutable.MutableDoubleTest": 6809,
+  "org.apache.commons.lang3.mutable.MutableFloatTest": 6714,
+  "org.apache.commons.lang3.mutable.MutableIntTest": 6471,
+  "org.apache.commons.lang3.mutable.MutableLongTest": 6249,
+  "org.apache.commons.lang3.mutable.MutableObjectTest": 3923,
+  "org.apache.commons.lang3.mutable.MutableShortTest": 6609,
+  "org.apache.commons.lang3.reflect.ConstructorUtilsTest": 9787,
+  "org.apache.commons.lang3.reflect.FieldUtilsTest": 53272,
+  "org.apache.commons.lang3.reflect.MethodUtilsTest": 17238,
+  "org.apache.commons.lang3.reflect.TypeUtilsTest": 32368,
+  "org.apache.commons.lang3.text.CompositeFormatTest": 3161,
+  "org.apache.commons.lang3.text.ExtendedMessageFormatTest": 19719,
+  "org.apache.commons.lang3.text.FormattableUtilsTest": 8158,
+  "org.apache.commons.lang3.text.StrBuilderAppendInsertTest": 45310,
+  "org.apache.commons.lang3.text.StrBuilderTest": 65646,
+  "org.apache.commons.lang3.text.StrLookupTest": 2650,
+  "org.apache.commons.lang3.text.StrMatcherTest": 9430,
+  "org.apache.commons.lang3.text.StrSubstitutorTest": 20403,
+  "org.apache.commons.lang3.text.StrTokenizerTest": 30670,
+  "org.apache.commons.lang3.text.WordUtilsTest": 19159,
+  "org.apache.commons.lang3.text.translate.EntityArraysTest": 2503,
+  "org.apache.commons.lang3.text.translate.LookupTranslatorTest": 1499,
+  "org.apache.commons.lang3.text.translate.NumericEntityEscaperTest": 2296,
+  "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest": 3001,
+  "org.apache.commons.lang3.text.translate.OctalUnescaperTest": 2243,
+  "org.apache.commons.lang3.text.translate.UnicodeEscaperTest": 1904,
+  "org.apache.commons.lang3.text.translate.UnicodeUnescaperTest": 1958,
+  "org.apache.commons.lang3.time.DateFormatUtilsTest": 11619,
+  "org.apache.commons.lang3.time.DateUtilsFragmentTest": 21625,
+  "org.apache.commons.lang3.time.DateUtilsRoundingTest": 33691,
+  "org.apache.commons.lang3.time.DateUtilsTest": 74191,
+  "org.apache.commons.lang3.time.DurationFormatUtilsTest": 30794,
+  "org.apache.commons.lang3.time.FastDateFormatTest": 14625,
+  "org.apache.commons.lang3.time.FastDateFormat_ParserTest": 1283,
+  "org.apache.commons.lang3.time.FastDateFormat_PrinterTest": 1226,
+  "org.apache.commons.lang3.time.FastDateParserTest": 14044,
+  "org.apache.commons.lang3.time.FastDatePrinterTest": 9593,
+  "org.apache.commons.lang3.time.StopWatchTest": 7233,
+  "org.apache.commons.lang3.tuple.ImmutablePairTest": 4121,
+  "org.apache.commons.lang3.tuple.ImmutableTripleTest": 5228,
+  "org.apache.commons.lang3.tuple.MutablePairTest": 4281,
+  "org.apache.commons.lang3.tuple.MutableTripleTest": 5460,
+  "org.apache.commons.lang3.tuple.PairTest": 4492,
+  "org.apache.commons.lang3.tuple.TripleTest": 5393
+ }
+}

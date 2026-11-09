@@ -1,0 +1,862 @@
+{
+ "bug": "Lang-7",
+ "pid": "Lang",
+ "bid": 7,
+ "modified_class": "org.apache.commons.lang3.math.NumberUtils",
+ "src_file": "src/main/java/org/apache/commons/lang3/math/NumberUtils.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Lang-7/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Lang-7/b/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/easymock.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/commons-io.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/cglib.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/asm.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Lang-7/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Lang-7/f/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/easymock.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/commons-io.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/cglib.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Lang/lib/asm.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Lang-7/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Lang-7/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "createNumber(String)",
+   "name": "createNumber",
+   "nparams": 1
+  },
+  {
+   "key": "createBigDecimal(String)",
+   "name": "createBigDecimal",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "createNumber(String)": "public static Number createNumber(String str) throws NumberFormatException {\n        if (str == null) {\n            return null;\n        }\n        if (StringUtils.isBlank(str)) {\n            throw new NumberFormatException(\"A blank string is not a valid number\");\n        }  \n        if (str.startsWith(\"--\")) {\n            return null;\n        }\n        if (str.startsWith(\"0x\") || str.startsWith(\"-0x\") || str.startsWith(\"0X\") || str.startsWith(\"-0X\")) {\n            int hexDigits = str.length() - 2; // drop 0x\n            if (str.startsWith(\"-\")) { // drop -\n                hexDigits--;\n            }\n            if (hexDigits > 8) { // too many for an int\n                return createLong(str);\n            }\n            return createInteger(str);\n        }   \n        char lastChar = str.charAt(str.length() - 1);\n        String mant;\n        String dec;\n        String exp;\n        int decPos = str.indexOf('.');\n        int expPos = str.indexOf('e') + str.indexOf('E') + 1;\n\n        if (decPos > -1) {\n\n            if (expPos > -1) {\n                if (expPos < decPos || expPos > str.length()) {\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n                }\n                dec = str.substring(decPos + 1, expPos);\n            } else {\n                dec = str.substring(decPos + 1);\n            }\n            mant = str.substring(0, decPos);\n        } else {\n            if (expPos > -1) {\n                if (expPos > str.length()) {\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n                }\n                mant = str.substring(0, expPos);\n            } else {\n                mant = str;\n            }\n            dec = null;\n        }\n        if (!Character.isDigit(lastChar) && lastChar != '.') {\n            if (expPos > -1 && expPos < str.length() - 1) {\n                exp = str.substring(expPos + 1, str.length() - 1);\n            } else {\n                exp = null;\n            }\n            //Requesting a specific type..\n            String numeric = str.substring(0, str.length() - 1);\n            boolean allZeros = isAllZeros(mant) && isAllZeros(exp);\n            switch (lastChar) {\n                case 'l' :\n                case 'L' :\n                    if (dec == null\n                        && exp == null\n                        && (numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {\n                        try {\n                            return createLong(numeric);\n                        } catch (NumberFormatException nfe) { // NOPMD\n                            // Too big for a long\n                        }\n                        return createBigInteger(numeric);\n\n                    }\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n                case 'f' :\n                case 'F' :\n                    try {\n                        Float f = NumberUtils.createFloat(numeric);\n                        if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\n                            //If it's too big for a float or the float value = 0 and the string\n                            //has non-zeros in it, then float does not have the precision we want\n                            return f;\n                        }\n\n                    } catch (NumberFormatException nfe) { // NOPMD\n                        // ignore the bad number\n                    }\n                    //$FALL-THROUGH$\n                case 'd' :\n                case 'D' :\n                    try {\n                        Double d = NumberUtils.createDouble(numeric);\n                        if (!(d.isInfinite() || (d.floatValue() == 0.0D && !allZeros))) {\n                            return d;\n                        }\n                    } catch (NumberFormatException nfe) { // NOPMD\n                        // ignore the bad number\n                    }\n                    try {\n                        return createBigDecimal(numeric);\n                    } catch (NumberFormatException e) { // NOPMD\n                        // ignore the bad number\n                    }\n                    //$FALL-THROUGH$\n                default :\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n\n            }\n        } else {\n            //User doesn't have a preference on the return type, so let's start\n            //small and go from there...\n            if (expPos > -1 && expPos < str.length() - 1) {\n                exp = str.substring(expPos + 1, str.length());\n            } else {\n                exp = null;\n            }\n            if (dec == null && exp == null) {\n                //Must be an int,long,bigint\n                try {\n                    return createInteger(str);\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n                try {\n                    return createLong(str);\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n                return createBigInteger(str);\n\n            } else {\n                //Must be a float,double,BigDec\n                boolean allZeros = isAllZeros(mant) && isAllZeros(exp);\n                try {\n                    Float f = createFloat(str);\n                    if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\n                        return f;\n                    }\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n                try {\n                    Double d = createDouble(str);\n                    if (!(d.isInfinite() || (d.doubleValue() == 0.0D && !allZeros))) {\n                        return d;\n                    }\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n\n                return createBigDecimal(str);\n\n            }\n        }\n    }",
+  "createBigDecimal(String)": "public static BigDecimal createBigDecimal(String str) {\n        if (str == null) {\n            return null;\n        }\n        // handle JDK1.3.1 bug where \"\" throws IndexOutOfBoundsException\n        if (StringUtils.isBlank(str)) {\n            throw new NumberFormatException(\"A blank string is not a valid number\");\n        }\n            // this is protection for poorness in java.lang.BigDecimal.\n            // it accepts this as a legal value, but it does not appear \n            // to be in specification of class. OS X Java parses it to \n            // a wrong value.\n        return new BigDecimal(str);\n    }"
+ },
+ "fixed_methods": {
+  "createNumber(String)": "public static Number createNumber(String str) throws NumberFormatException {\n        if (str == null) {\n            return null;\n        }\n        if (StringUtils.isBlank(str)) {\n            throw new NumberFormatException(\"A blank string is not a valid number\");\n        }  \n        if (str.startsWith(\"0x\") || str.startsWith(\"-0x\") || str.startsWith(\"0X\") || str.startsWith(\"-0X\")) {\n            int hexDigits = str.length() - 2; // drop 0x\n            if (str.startsWith(\"-\")) { // drop -\n                hexDigits--;\n            }\n            if (hexDigits > 8) { // too many for an int\n                return createLong(str);\n            }\n            return createInteger(str);\n        }   \n        char lastChar = str.charAt(str.length() - 1);\n        String mant;\n        String dec;\n        String exp;\n        int decPos = str.indexOf('.');\n        int expPos = str.indexOf('e') + str.indexOf('E') + 1;\n\n        if (decPos > -1) {\n\n            if (expPos > -1) {\n                if (expPos < decPos || expPos > str.length()) {\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n                }\n                dec = str.substring(decPos + 1, expPos);\n            } else {\n                dec = str.substring(decPos + 1);\n            }\n            mant = str.substring(0, decPos);\n        } else {\n            if (expPos > -1) {\n                if (expPos > str.length()) {\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n                }\n                mant = str.substring(0, expPos);\n            } else {\n                mant = str;\n            }\n            dec = null;\n        }\n        if (!Character.isDigit(lastChar) && lastChar != '.') {\n            if (expPos > -1 && expPos < str.length() - 1) {\n                exp = str.substring(expPos + 1, str.length() - 1);\n            } else {\n                exp = null;\n            }\n            //Requesting a specific type..\n            String numeric = str.substring(0, str.length() - 1);\n            boolean allZeros = isAllZeros(mant) && isAllZeros(exp);\n            switch (lastChar) {\n                case 'l' :\n                case 'L' :\n                    if (dec == null\n                        && exp == null\n                        && (numeric.charAt(0) == '-' && isDigits(numeric.substring(1)) || isDigits(numeric))) {\n                        try {\n                            return createLong(numeric);\n                        } catch (NumberFormatException nfe) { // NOPMD\n                            // Too big for a long\n                        }\n                        return createBigInteger(numeric);\n\n                    }\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n                case 'f' :\n                case 'F' :\n                    try {\n                        Float f = NumberUtils.createFloat(numeric);\n                        if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\n                            //If it's too big for a float or the float value = 0 and the string\n                            //has non-zeros in it, then float does not have the precision we want\n                            return f;\n                        }\n\n                    } catch (NumberFormatException nfe) { // NOPMD\n                        // ignore the bad number\n                    }\n                    //$FALL-THROUGH$\n                case 'd' :\n                case 'D' :\n                    try {\n                        Double d = NumberUtils.createDouble(numeric);\n                        if (!(d.isInfinite() || (d.floatValue() == 0.0D && !allZeros))) {\n                            return d;\n                        }\n                    } catch (NumberFormatException nfe) { // NOPMD\n                        // ignore the bad number\n                    }\n                    try {\n                        return createBigDecimal(numeric);\n                    } catch (NumberFormatException e) { // NOPMD\n                        // ignore the bad number\n                    }\n                    //$FALL-THROUGH$\n                default :\n                    throw new NumberFormatException(str + \" is not a valid number.\");\n\n            }\n        } else {\n            //User doesn't have a preference on the return type, so let's start\n            //small and go from there...\n            if (expPos > -1 && expPos < str.length() - 1) {\n                exp = str.substring(expPos + 1, str.length());\n            } else {\n                exp = null;\n            }\n            if (dec == null && exp == null) {\n                //Must be an int,long,bigint\n                try {\n                    return createInteger(str);\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n                try {\n                    return createLong(str);\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n                return createBigInteger(str);\n\n            } else {\n                //Must be a float,double,BigDec\n                boolean allZeros = isAllZeros(mant) && isAllZeros(exp);\n                try {\n                    Float f = createFloat(str);\n                    if (!(f.isInfinite() || (f.floatValue() == 0.0F && !allZeros))) {\n                        return f;\n                    }\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n                try {\n                    Double d = createDouble(str);\n                    if (!(d.isInfinite() || (d.doubleValue() == 0.0D && !allZeros))) {\n                        return d;\n                    }\n                } catch (NumberFormatException nfe) { // NOPMD\n                    // ignore the bad number\n                }\n\n                return createBigDecimal(str);\n\n            }\n        }\n    }",
+  "createBigDecimal(String)": "public static BigDecimal createBigDecimal(String str) {\n        if (str == null) {\n            return null;\n        }\n        // handle JDK1.3.1 bug where \"\" throws IndexOutOfBoundsException\n        if (StringUtils.isBlank(str)) {\n            throw new NumberFormatException(\"A blank string is not a valid number\");\n        }\n        if (str.trim().startsWith(\"--\")) {\n            // this is protection for poorness in java.lang.BigDecimal.\n            // it accepts this as a legal value, but it does not appear \n            // to be in specification of class. OS X Java parses it to \n            // a wrong value.\n            throw new NumberFormatException(str + \" is not a valid number.\");\n        }\n        return new BigDecimal(str);\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.lang3.math.NumberUtilsTest::testCreateNumber",
+   "error": "junit.framework.AssertionFailedError: Expected NumberFormatException"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.lang3.math.NumberUtilsTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.lang3.JavaVersion",
+  "org.apache.commons.lang3.math.NumberUtils",
+  "org.apache.commons.lang3.StringUtils",
+  "org.apache.commons.lang3.SystemUtils"
+ ],
+ "suite": [
+  "org.apache.commons.lang3.AnnotationUtilsTest",
+  "org.apache.commons.lang3.ArrayUtilsAddTest",
+  "org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest",
+  "org.apache.commons.lang3.ArrayUtilsRemoveTest",
+  "org.apache.commons.lang3.ArrayUtilsTest",
+  "org.apache.commons.lang3.BitFieldTest",
+  "org.apache.commons.lang3.BooleanUtilsTest",
+  "org.apache.commons.lang3.CharEncodingTest",
+  "org.apache.commons.lang3.CharRangeTest",
+  "org.apache.commons.lang3.CharSequenceUtilsTest",
+  "org.apache.commons.lang3.CharSetTest",
+  "org.apache.commons.lang3.CharSetUtilsTest",
+  "org.apache.commons.lang3.CharUtilsTest",
+  "org.apache.commons.lang3.ClassUtilsTest",
+  "org.apache.commons.lang3.ConversionTest",
+  "org.apache.commons.lang3.EnumUtilsTest",
+  "org.apache.commons.lang3.HashSetvBitSetTest",
+  "org.apache.commons.lang3.JavaVersionTest",
+  "org.apache.commons.lang3.LocaleUtilsTest",
+  "org.apache.commons.lang3.ObjectUtilsTest",
+  "org.apache.commons.lang3.RandomStringUtilsTest",
+  "org.apache.commons.lang3.RangeTest",
+  "org.apache.commons.lang3.SerializationUtilsTest",
+  "org.apache.commons.lang3.StringEscapeUtilsTest",
+  "org.apache.commons.lang3.StringUtilsEqualsIndexOfTest",
+  "org.apache.commons.lang3.StringUtilsIsTest",
+  "org.apache.commons.lang3.StringUtilsStartsEndsWithTest",
+  "org.apache.commons.lang3.StringUtilsSubstringTest",
+  "org.apache.commons.lang3.StringUtilsTest",
+  "org.apache.commons.lang3.StringUtilsTrimEmptyTest",
+  "org.apache.commons.lang3.SystemUtilsTest",
+  "org.apache.commons.lang3.ValidateTest",
+  "org.apache.commons.lang3.builder.CompareToBuilderTest",
+  "org.apache.commons.lang3.builder.DefaultToStringStyleTest",
+  "org.apache.commons.lang3.builder.EqualsBuilderTest",
+  "org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest",
+  "org.apache.commons.lang3.builder.HashCodeBuilderTest",
+  "org.apache.commons.lang3.builder.MultiLineToStringStyleTest",
+  "org.apache.commons.lang3.builder.NoFieldNamesToStringStyleTest",
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderConcurrencyTest",
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest",
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest",
+  "org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest",
+  "org.apache.commons.lang3.builder.SimpleToStringStyleTest",
+  "org.apache.commons.lang3.builder.StandardToStringStyleTest",
+  "org.apache.commons.lang3.builder.ToStringBuilderTest",
+  "org.apache.commons.lang3.builder.ToStringStyleConcurrencyTest",
+  "org.apache.commons.lang3.builder.ToStringStyleTest",
+  "org.apache.commons.lang3.concurrent.AtomicInitializerTest",
+  "org.apache.commons.lang3.concurrent.AtomicSafeInitializerTest",
+  "org.apache.commons.lang3.concurrent.BackgroundInitializerTest",
+  "org.apache.commons.lang3.concurrent.BasicThreadFactoryTest",
+  "org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest",
+  "org.apache.commons.lang3.concurrent.ConcurrentUtilsTest",
+  "org.apache.commons.lang3.concurrent.ConstantInitializerTest",
+  "org.apache.commons.lang3.concurrent.LazyInitializerTest",
+  "org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest",
+  "org.apache.commons.lang3.concurrent.TimedSemaphoreTest",
+  "org.apache.commons.lang3.event.EventListenerSupportTest",
+  "org.apache.commons.lang3.event.EventUtilsTest",
+  "org.apache.commons.lang3.exception.ContextedExceptionTest",
+  "org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest",
+  "org.apache.commons.lang3.exception.DefaultExceptionContextTest",
+  "org.apache.commons.lang3.exception.ExceptionUtilsTest",
+  "org.apache.commons.lang3.math.FractionTest",
+  "org.apache.commons.lang3.math.IEEE754rUtilsTest",
+  "org.apache.commons.lang3.math.NumberUtilsTest",
+  "org.apache.commons.lang3.mutable.MutableBooleanTest",
+  "org.apache.commons.lang3.mutable.MutableByteTest",
+  "org.apache.commons.lang3.mutable.MutableDoubleTest",
+  "org.apache.commons.lang3.mutable.MutableFloatTest",
+  "org.apache.commons.lang3.mutable.MutableIntTest",
+  "org.apache.commons.lang3.mutable.MutableLongTest",
+  "org.apache.commons.lang3.mutable.MutableObjectTest",
+  "org.apache.commons.lang3.mutable.MutableShortTest",
+  "org.apache.commons.lang3.reflect.ConstructorUtilsTest",
+  "org.apache.commons.lang3.reflect.FieldUtilsTest",
+  "org.apache.commons.lang3.reflect.MethodUtilsTest",
+  "org.apache.commons.lang3.reflect.TypeUtilsTest",
+  "org.apache.commons.lang3.text.CompositeFormatTest",
+  "org.apache.commons.lang3.text.ExtendedMessageFormatTest",
+  "org.apache.commons.lang3.text.FormattableUtilsTest",
+  "org.apache.commons.lang3.text.StrBuilderAppendInsertTest",
+  "org.apache.commons.lang3.text.StrBuilderTest",
+  "org.apache.commons.lang3.text.StrLookupTest",
+  "org.apache.commons.lang3.text.StrMatcherTest",
+  "org.apache.commons.lang3.text.StrSubstitutorTest",
+  "org.apache.commons.lang3.text.StrTokenizerTest",
+  "org.apache.commons.lang3.text.WordUtilsTest",
+  "org.apache.commons.lang3.text.translate.EntityArraysTest",
+  "org.apache.commons.lang3.text.translate.LookupTranslatorTest",
+  "org.apache.commons.lang3.text.translate.NumericEntityEscaperTest",
+  "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest",
+  "org.apache.commons.lang3.text.translate.OctalUnescaperTest",
+  "org.apache.commons.lang3.text.translate.UnicodeEscaperTest",
+  "org.apache.commons.lang3.text.translate.UnicodeUnescaperTest",
+  "org.apache.commons.lang3.time.DateFormatUtilsTest",
+  "org.apache.commons.lang3.time.DateUtilsFragmentTest",
+  "org.apache.commons.lang3.time.DateUtilsRoundingTest",
+  "org.apache.commons.lang3.time.DateUtilsTest",
+  "org.apache.commons.lang3.time.DurationFormatUtilsTest",
+  "org.apache.commons.lang3.time.FastDateFormatTest",
+  "org.apache.commons.lang3.time.FastDateFormat_ParserTest",
+  "org.apache.commons.lang3.time.FastDateFormat_PrinterTest",
+  "org.apache.commons.lang3.time.FastDateParserTest",
+  "org.apache.commons.lang3.time.FastDatePrinterTest",
+  "org.apache.commons.lang3.time.StopWatchTest",
+  "org.apache.commons.lang3.tuple.ImmutablePairTest",
+  "org.apache.commons.lang3.tuple.ImmutableTripleTest",
+  "org.apache.commons.lang3.tuple.MutablePairTest",
+  "org.apache.commons.lang3.tuple.MutableTripleTest",
+  "org.apache.commons.lang3.tuple.PairTest",
+  "org.apache.commons.lang3.tuple.TripleTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.lang3.AnnotationUtilsTest": {
+   "wall": 0.062904,
+   "cpu": 0.112812,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsAddTest": {
+   "wall": 0.003686,
+   "cpu": 0.0049050000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest": {
+   "wall": 0.007378,
+   "cpu": 0.017753,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsRemoveTest": {
+   "wall": 0.0024230000000000002,
+   "cpu": 0.006347,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ArrayUtilsTest": {
+   "wall": 0.012733000000000001,
+   "cpu": 0.028072,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.BitFieldTest": {
+   "wall": 0.001768,
+   "cpu": 0.002908,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.BooleanUtilsTest": {
+   "wall": 0.005133,
+   "cpu": 0.012282999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharEncodingTest": {
+   "wall": 0.010849000000000001,
+   "cpu": 0.025415,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharRangeTest": {
+   "wall": 0.009635,
+   "cpu": 0.020989,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharSequenceUtilsTest": {
+   "wall": 0.001557,
+   "cpu": 0.003337,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharSetTest": {
+   "wall": 0.004954,
+   "cpu": 0.011623,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharSetUtilsTest": {
+   "wall": 0.0012900000000000001,
+   "cpu": 0.003472,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.CharUtilsTest": {
+   "wall": 0.001943,
+   "cpu": 0.005335,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ClassUtilsTest": {
+   "wall": 0.015702,
+   "cpu": 0.022018999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ConversionTest": {
+   "wall": 0.003643,
+   "cpu": 0.008060000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.EnumUtilsTest": {
+   "wall": 0.004149,
+   "cpu": 0.007914,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.HashSetvBitSetTest": {
+   "wall": 0.33834800000000004,
+   "cpu": 0.474843,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.JavaVersionTest": {
+   "wall": 0.00046600000000000005,
+   "cpu": 0.000661,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.LocaleUtilsTest": {
+   "wall": 0.020406,
+   "cpu": 0.054307,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ObjectUtilsTest": {
+   "wall": 0.012826,
+   "cpu": 0.023604,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.RandomStringUtilsTest": {
+   "wall": 0.004875,
+   "cpu": 0.011134999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.RangeTest": {
+   "wall": 0.0076159999999999995,
+   "cpu": 0.012805,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.SerializationUtilsTest": {
+   "wall": 0.014497,
+   "cpu": 0.041706,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringEscapeUtilsTest": {
+   "wall": 0.133937,
+   "cpu": 0.278676,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsEqualsIndexOfTest": {
+   "wall": 0.004325,
+   "cpu": 0.008039999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsIsTest": {
+   "wall": 0.004045,
+   "cpu": 0.008024,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsStartsEndsWithTest": {
+   "wall": 0.00381,
+   "cpu": 0.004874,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsSubstringTest": {
+   "wall": 0.0005719999999999999,
+   "cpu": 0.000953,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsTest": {
+   "wall": 0.014235,
+   "cpu": 0.037189,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.StringUtilsTrimEmptyTest": {
+   "wall": 0.003977,
+   "cpu": 0.009443,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.SystemUtilsTest": {
+   "wall": 0.000489,
+   "cpu": 0.001472,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.ValidateTest": {
+   "wall": 0.00145,
+   "cpu": 0.002991,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.CompareToBuilderTest": {
+   "wall": 0.007857,
+   "cpu": 0.014914,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.DefaultToStringStyleTest": {
+   "wall": 0.0017430000000000002,
+   "cpu": 0.004233,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.EqualsBuilderTest": {
+   "wall": 0.007614,
+   "cpu": 0.014082,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest": {
+   "wall": 0.0033020000000000002,
+   "cpu": 0.004817,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.HashCodeBuilderTest": {
+   "wall": 0.003535,
+   "cpu": 0.003165,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.MultiLineToStringStyleTest": {
+   "wall": 0.0005679999999999999,
+   "cpu": 0.00065,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.NoFieldNamesToStringStyleTest": {
+   "wall": 0.00046899999999999996,
+   "cpu": 0.000474,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderConcurrencyTest": {
+   "wall": 0.001621,
+   "cpu": 0.0046689999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest": {
+   "wall": 0.001745,
+   "cpu": 0.002578,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest": {
+   "wall": 0.000131,
+   "cpu": 0.000136,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest": {
+   "wall": 0.00048499999999999997,
+   "cpu": 0.001942,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.SimpleToStringStyleTest": {
+   "wall": 0.00038,
+   "cpu": 0.001123,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.StandardToStringStyleTest": {
+   "wall": 0.0010860000000000002,
+   "cpu": 0.002604,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ToStringBuilderTest": {
+   "wall": 0.010699,
+   "cpu": 0.022771,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ToStringStyleConcurrencyTest": {
+   "wall": 1.0563040000000001,
+   "cpu": 2.541874,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.builder.ToStringStyleTest": {
+   "wall": 0.0025,
+   "cpu": 0.001103,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.AtomicInitializerTest": {
+   "wall": 0.004417,
+   "cpu": 0.008583,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.AtomicSafeInitializerTest": {
+   "wall": 0.00279,
+   "cpu": 0.007636,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.BackgroundInitializerTest": {
+   "wall": 0.004745,
+   "cpu": 0.008194000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.BasicThreadFactoryTest": {
+   "wall": 0.0238,
+   "cpu": 0.051698999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest": {
+   "wall": 0.001813,
+   "cpu": 0.002712,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.ConcurrentUtilsTest": {
+   "wall": 0.002818,
+   "cpu": 0.004987,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.ConstantInitializerTest": {
+   "wall": 0.000399,
+   "cpu": 0.000687,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.LazyInitializerTest": {
+   "wall": 0.001858,
+   "cpu": 0.004405,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest": {
+   "wall": 0.008164999999999999,
+   "cpu": 0.021253,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.concurrent.TimedSemaphoreTest": {
+   "wall": 1.163865,
+   "cpu": 0.024532,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.event.EventListenerSupportTest": {
+   "wall": 0.015245,
+   "cpu": 0.035716,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.event.EventUtilsTest": {
+   "wall": 0.0060609999999999995,
+   "cpu": 0.010641,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.ContextedExceptionTest": {
+   "wall": 0.009547,
+   "cpu": 0.020085000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest": {
+   "wall": 0.003798,
+   "cpu": 0.009878,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.DefaultExceptionContextTest": {
+   "wall": 0.001156,
+   "cpu": 0.002705,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.exception.ExceptionUtilsTest": {
+   "wall": 0.006265,
+   "cpu": 0.017382,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.math.FractionTest": {
+   "wall": 0.040304,
+   "cpu": 0.08048999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.math.IEEE754rUtilsTest": {
+   "wall": 0.001118,
+   "cpu": 0.001625,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.math.NumberUtilsTest": {
+   "wall": 0.0038889999999999997,
+   "cpu": 0.008357,
+   "status": "fail"
+  },
+  "org.apache.commons.lang3.mutable.MutableBooleanTest": {
+   "wall": 0.005077,
+   "cpu": 0.005242,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableByteTest": {
+   "wall": 0.0018520000000000001,
+   "cpu": 0.0029100000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableDoubleTest": {
+   "wall": 0.0012410000000000001,
+   "cpu": 0.002205,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableFloatTest": {
+   "wall": 0.001062,
+   "cpu": 0.001751,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableIntTest": {
+   "wall": 0.003153,
+   "cpu": 0.001675,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableLongTest": {
+   "wall": 0.000975,
+   "cpu": 0.0022299999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableObjectTest": {
+   "wall": 0.000978,
+   "cpu": 0.00103,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.mutable.MutableShortTest": {
+   "wall": 0.001758,
+   "cpu": 0.002969,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.ConstructorUtilsTest": {
+   "wall": 0.00285,
+   "cpu": 0.00566,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.FieldUtilsTest": {
+   "wall": 0.016951,
+   "cpu": 0.0257,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.MethodUtilsTest": {
+   "wall": 0.011224999999999999,
+   "cpu": 0.013435,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.reflect.TypeUtilsTest": {
+   "wall": 0.01349,
+   "cpu": 0.025541,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.CompositeFormatTest": {
+   "wall": 0.00297,
+   "cpu": 0.004945000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.ExtendedMessageFormatTest": {
+   "wall": 4.49278,
+   "cpu": 9.428281,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.FormattableUtilsTest": {
+   "wall": 0.001514,
+   "cpu": 0.002812,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrBuilderAppendInsertTest": {
+   "wall": 0.0072169999999999995,
+   "cpu": 0.010617000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrBuilderTest": {
+   "wall": 0.002666,
+   "cpu": 0.004193,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrLookupTest": {
+   "wall": 0.002021,
+   "cpu": 0.000736,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrMatcherTest": {
+   "wall": 0.000373,
+   "cpu": 0.0008719999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrSubstitutorTest": {
+   "wall": 0.003467,
+   "cpu": 0.0071070000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.StrTokenizerTest": {
+   "wall": 0.0034660000000000003,
+   "cpu": 0.006632,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.WordUtilsTest": {
+   "wall": 0.000596,
+   "cpu": 0.0023650000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.EntityArraysTest": {
+   "wall": 0.000264,
+   "cpu": 0.000513,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.LookupTranslatorTest": {
+   "wall": 0.00013900000000000002,
+   "cpu": 0.000268,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.NumericEntityEscaperTest": {
+   "wall": 0.000178,
+   "cpu": 0.00018099999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest": {
+   "wall": 0.000245,
+   "cpu": 0.000248,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.OctalUnescaperTest": {
+   "wall": 0.000126,
+   "cpu": 0.00013000000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.UnicodeEscaperTest": {
+   "wall": 0.000158,
+   "cpu": 0.000161,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.text.translate.UnicodeUnescaperTest": {
+   "wall": 0.000154,
+   "cpu": 0.00015900000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateFormatUtilsTest": {
+   "wall": 0.055908,
+   "cpu": 0.110618,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateUtilsFragmentTest": {
+   "wall": 0.0021669999999999997,
+   "cpu": 0.005511,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateUtilsRoundingTest": {
+   "wall": 0.013917,
+   "cpu": 0.033374,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DateUtilsTest": {
+   "wall": 0.024167,
+   "cpu": 0.047248,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.DurationFormatUtilsTest": {
+   "wall": 0.461015,
+   "cpu": 0.965659,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateFormatTest": {
+   "wall": 0.6227010000000001,
+   "cpu": 2.247513,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateFormat_ParserTest": {
+   "wall": 12.192099,
+   "cpu": 17.779483,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateFormat_PrinterTest": {
+   "wall": 0.0069900000000000006,
+   "cpu": 0.029018000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDateParserTest": {
+   "wall": 3.009926,
+   "cpu": 5.972988999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.FastDatePrinterTest": {
+   "wall": 0.001081,
+   "cpu": 0.0013260000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.time.StopWatchTest": {
+   "wall": 4.781569,
+   "cpu": 0.642702,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.ImmutablePairTest": {
+   "wall": 0.0026520000000000003,
+   "cpu": 0.004212,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.ImmutableTripleTest": {
+   "wall": 0.005873000000000001,
+   "cpu": 0.010683999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.MutablePairTest": {
+   "wall": 0.0015660000000000001,
+   "cpu": 0.003023,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.MutableTripleTest": {
+   "wall": 0.00064,
+   "cpu": 0.0012749999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.PairTest": {
+   "wall": 0.001252,
+   "cpu": 0.00216,
+   "status": "pass"
+  },
+  "org.apache.commons.lang3.tuple.TripleTest": {
+   "wall": 0.000488,
+   "cpu": 0.000995,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.29909908299897126,
+  "cpu": 0.3867310000000188
+ },
+ "fixed_suite_seconds": [
+  28.6,
+  27.31,
+  28.27
+ ],
+ "covering": [
+  "org.apache.commons.lang3.math.NumberUtilsTest"
+ ],
+ "sizes": {
+  "org.apache.commons.lang3.AnnotationUtilsTest": 19196,
+  "org.apache.commons.lang3.ArrayUtilsAddTest": 29702,
+  "org.apache.commons.lang3.ArrayUtilsRemoveMultipleTest": 59103,
+  "org.apache.commons.lang3.ArrayUtilsRemoveTest": 23763,
+  "org.apache.commons.lang3.ArrayUtilsTest": 125250,
+  "org.apache.commons.lang3.BitFieldTest": 9961,
+  "org.apache.commons.lang3.BooleanUtilsTest": 37116,
+  "org.apache.commons.lang3.CharEncodingTest": 4138,
+  "org.apache.commons.lang3.CharRangeTest": 14694,
+  "org.apache.commons.lang3.CharSequenceUtilsTest": 3292,
+  "org.apache.commons.lang3.CharSetTest": 18804,
+  "org.apache.commons.lang3.CharSetUtilsTest": 10600,
+  "org.apache.commons.lang3.CharUtilsTest": 13356,
+  "org.apache.commons.lang3.ClassUtilsTest": 69310,
+  "org.apache.commons.lang3.ConversionTest": 100416,
+  "org.apache.commons.lang3.EnumUtilsTest": 19723,
+  "org.apache.commons.lang3.HashSetvBitSetTest": 6059,
+  "org.apache.commons.lang3.JavaVersionTest": 3000,
+  "org.apache.commons.lang3.LocaleUtilsTest": 18555,
+  "org.apache.commons.lang3.ObjectUtilsTest": 24728,
+  "org.apache.commons.lang3.RandomStringUtilsTest": 14778,
+  "org.apache.commons.lang3.RangeTest": 13281,
+  "org.apache.commons.lang3.SerializationUtilsTest": 14688,
+  "org.apache.commons.lang3.StringEscapeUtilsTest": 21757,
+  "org.apache.commons.lang3.StringUtilsEqualsIndexOfTest": 49245,
+  "org.apache.commons.lang3.StringUtilsIsTest": 8004,
+  "org.apache.commons.lang3.StringUtilsStartsEndsWithTest": 9744,
+  "org.apache.commons.lang3.StringUtilsSubstringTest": 15137,
+  "org.apache.commons.lang3.StringUtilsTest": 102807,
+  "org.apache.commons.lang3.StringUtilsTrimEmptyTest": 13342,
+  "org.apache.commons.lang3.SystemUtilsTest": 18118,
+  "org.apache.commons.lang3.ValidateTest": 33056,
+  "org.apache.commons.lang3.builder.CompareToBuilderTest": 50724,
+  "org.apache.commons.lang3.builder.DefaultToStringStyleTest": 6545,
+  "org.apache.commons.lang3.builder.EqualsBuilderTest": 42164,
+  "org.apache.commons.lang3.builder.HashCodeBuilderAndEqualsBuilderTest": 4797,
+  "org.apache.commons.lang3.builder.HashCodeBuilderTest": 22629,
+  "org.apache.commons.lang3.builder.MultiLineToStringStyleTest": 9282,
+  "org.apache.commons.lang3.builder.NoFieldNamesToStringStyleTest": 6512,
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderConcurrencyTest": 4639,
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderExcludeTest": 5042,
+  "org.apache.commons.lang3.builder.ReflectionToStringBuilderMutateInspectConcurrencyTest": 3636,
+  "org.apache.commons.lang3.builder.ShortPrefixToStringStyleTest": 6450,
+  "org.apache.commons.lang3.builder.SimpleToStringStyleTest": 5812,
+  "org.apache.commons.lang3.builder.StandardToStringStyleTest": 6917,
+  "org.apache.commons.lang3.builder.ToStringBuilderTest": 48132,
+  "org.apache.commons.lang3.builder.ToStringStyleConcurrencyTest": 4271,
+  "org.apache.commons.lang3.builder.ToStringStyleTest": 3967,
+  "org.apache.commons.lang3.concurrent.AtomicInitializerTest": 1406,
+  "org.apache.commons.lang3.concurrent.AtomicSafeInitializerTest": 2546,
+  "org.apache.commons.lang3.concurrent.BackgroundInitializerTest": 10312,
+  "org.apache.commons.lang3.concurrent.BasicThreadFactoryTest": 11366,
+  "org.apache.commons.lang3.concurrent.CallableBackgroundInitializerTest": 3341,
+  "org.apache.commons.lang3.concurrent.ConcurrentUtilsTest": 18845,
+  "org.apache.commons.lang3.concurrent.ConstantInitializerTest": 4162,
+  "org.apache.commons.lang3.concurrent.LazyInitializerTest": 1992,
+  "org.apache.commons.lang3.concurrent.MultiBackgroundInitializerTest": 14570,
+  "org.apache.commons.lang3.concurrent.TimedSemaphoreTest": 17934,
+  "org.apache.commons.lang3.event.EventListenerSupportTest": 9435,
+  "org.apache.commons.lang3.event.EventUtilsTest": 9728,
+  "org.apache.commons.lang3.exception.ContextedExceptionTest": 4666,
+  "org.apache.commons.lang3.exception.ContextedRuntimeExceptionTest": 4790,
+  "org.apache.commons.lang3.exception.DefaultExceptionContextTest": 1417,
+  "org.apache.commons.lang3.exception.ExceptionUtilsTest": 23303,
+  "org.apache.commons.lang3.math.FractionTest": 46303,
+  "org.apache.commons.lang3.math.IEEE754rUtilsTest": 4198,
+  "org.apache.commons.lang3.math.NumberUtilsTest": 60154,
+  "org.apache.commons.lang3.mutable.MutableBooleanTest": 4752,
+  "org.apache.commons.lang3.mutable.MutableByteTest": 6568,
+  "org.apache.commons.lang3.mutable.MutableDoubleTest": 6893,
+  "org.apache.commons.lang3.mutable.MutableFloatTest": 6795,
+  "org.apache.commons.lang3.mutable.MutableIntTest": 6558,
+  "org.apache.commons.lang3.mutable.MutableLongTest": 6339,
+  "org.apache.commons.lang3.mutable.MutableObjectTest": 3764,
+  "org.apache.commons.lang3.mutable.MutableShortTest": 6565,
+  "org.apache.commons.lang3.reflect.ConstructorUtilsTest": 10076,
+  "org.apache.commons.lang3.reflect.FieldUtilsTest": 53272,
+  "org.apache.commons.lang3.reflect.MethodUtilsTest": 17446,
+  "org.apache.commons.lang3.reflect.TypeUtilsTest": 32630,
+  "org.apache.commons.lang3.text.CompositeFormatTest": 2991,
+  "org.apache.commons.lang3.text.ExtendedMessageFormatTest": 19632,
+  "org.apache.commons.lang3.text.FormattableUtilsTest": 8158,
+  "org.apache.commons.lang3.text.StrBuilderAppendInsertTest": 47235,
+  "org.apache.commons.lang3.text.StrBuilderTest": 66416,
+  "org.apache.commons.lang3.text.StrLookupTest": 2747,
+  "org.apache.commons.lang3.text.StrMatcherTest": 9500,
+  "org.apache.commons.lang3.text.StrSubstitutorTest": 20632,
+  "org.apache.commons.lang3.text.StrTokenizerTest": 30615,
+  "org.apache.commons.lang3.text.WordUtilsTest": 19339,
+  "org.apache.commons.lang3.text.translate.EntityArraysTest": 2551,
+  "org.apache.commons.lang3.text.translate.LookupTranslatorTest": 1529,
+  "org.apache.commons.lang3.text.translate.NumericEntityEscaperTest": 2356,
+  "org.apache.commons.lang3.text.translate.NumericEntityUnescaperTest": 3088,
+  "org.apache.commons.lang3.text.translate.OctalUnescaperTest": 2260,
+  "org.apache.commons.lang3.text.translate.UnicodeEscaperTest": 1954,
+  "org.apache.commons.lang3.text.translate.UnicodeUnescaperTest": 2044,
+  "org.apache.commons.lang3.time.DateFormatUtilsTest": 11627,
+  "org.apache.commons.lang3.time.DateUtilsFragmentTest": 22172,
+  "org.apache.commons.lang3.time.DateUtilsRoundingTest": 33916,
+  "org.apache.commons.lang3.time.DateUtilsTest": 76923,
+  "org.apache.commons.lang3.time.DurationFormatUtilsTest": 31234,
+  "org.apache.commons.lang3.time.FastDateFormatTest": 14611,
+  "org.apache.commons.lang3.time.FastDateFormat_ParserTest": 1283,
+  "org.apache.commons.lang3.time.FastDateFormat_PrinterTest": 1226,
+  "org.apache.commons.lang3.time.FastDateParserTest": 19555,
+  "org.apache.commons.lang3.time.FastDatePrinterTest": 10557,
+  "org.apache.commons.lang3.time.StopWatchTest": 7341,
+  "org.apache.commons.lang3.tuple.ImmutablePairTest": 4121,
+  "org.apache.commons.lang3.tuple.ImmutableTripleTest": 5228,
+  "org.apache.commons.lang3.tuple.MutablePairTest": 4281,
+  "org.apache.commons.lang3.tuple.MutableTripleTest": 5460,
+  "org.apache.commons.lang3.tuple.PairTest": 4492,
+  "org.apache.commons.lang3.tuple.TripleTest": 5393
+ }
+}

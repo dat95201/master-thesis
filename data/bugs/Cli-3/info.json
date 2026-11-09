@@ -1,0 +1,208 @@
+{
+ "bug": "Cli-3",
+ "pid": "Cli",
+ "bid": 3,
+ "modified_class": "org.apache.commons.cli.TypeHandler",
+ "src_file": "src/java/org/apache/commons/cli/TypeHandler.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/lib/junit/jars/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/lib/junit/jars/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/b/target/lib/junit/jars/junit-3.8.1.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-3/f/target/lib/junit/jars/junit-3.8.1.jar"
+ },
+ "faulty": [
+  {
+   "key": "createNumber(String)",
+   "name": "createNumber",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "createNumber(String)": "public static Number createNumber(String str)\n    {\n        try\n        {\n            return org.apache.commons.lang.math.NumberUtils.createNumber(str);\n        }\n        catch (NumberFormatException nfe)\n        {\n            System.err.println(nfe.getMessage());\n        }\n\n        return null;\n    }"
+ },
+ "fixed_methods": {
+  "createNumber(String)": "public static Number createNumber(String str)\n    {\n        try\n        {\n            if( str != null )\n            {\n                if( str.indexOf('.') != -1 )\n                {\n                    return Double.valueOf(str);\n                }\n                else\n                {\n                    return Long.valueOf(str);\n                }\n            }\n        }\n        catch (NumberFormatException nfe)\n        {\n            System.err.println(nfe.getMessage());\n        }\n\n        return null;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.cli.PatternOptionBuilderTest::testSimplePattern",
+   "error": "junit.framework.AssertionFailedError: number flag n expected:<4.5> but was:<4.5>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.cli.PatternOptionBuilderTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.cli.CommandLine",
+  "org.apache.commons.cli.CommandLineParser",
+  "org.apache.commons.cli.MissingArgumentException",
+  "org.apache.commons.cli.MissingOptionException",
+  "org.apache.commons.cli.Option",
+  "org.apache.commons.cli.OptionBuilder",
+  "org.apache.commons.cli.Options",
+  "org.apache.commons.cli.OptionValidator",
+  "org.apache.commons.cli.ParseException",
+  "org.apache.commons.cli.Parser",
+  "org.apache.commons.cli.PatternOptionBuilder",
+  "org.apache.commons.cli.PosixParser",
+  "org.apache.commons.cli.TypeHandler",
+  "org.apache.commons.cli.UnrecognizedOptionException",
+  "org.apache.commons.cli.Util"
+ ],
+ "suite": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.ArgumentIsOptionTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.BuildTest",
+  "org.apache.commons.cli.GnuParseTest",
+  "org.apache.commons.cli.OptionBuilderTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.OptionTest",
+  "org.apache.commons.cli.OptionsTest",
+  "org.apache.commons.cli.ParseRequiredTest",
+  "org.apache.commons.cli.ParseTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.TestHelpFormatter",
+  "org.apache.commons.cli.ValueTest",
+  "org.apache.commons.cli.ValuesTest",
+  "org.apache.commons.cli.bug.BugCLI13Test",
+  "org.apache.commons.cli.bug.BugCLI18Test",
+  "org.apache.commons.cli.bug.BugCLI51Test",
+  "org.apache.commons.cli.bug.BugCLI71Test"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.cli.ApplicationTest": {
+   "wall": 0.12921000000000002,
+   "cpu": 0.071321,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ArgumentIsOptionTest": {
+   "wall": 0.001472,
+   "cpu": 0.003323,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BugsTest": {
+   "wall": 0.056266,
+   "cpu": 0.028405999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BuildTest": {
+   "wall": 0.00249,
+   "cpu": 0.0046760000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.GnuParseTest": {
+   "wall": 0.0038020000000000003,
+   "cpu": 0.00656,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionBuilderTest": {
+   "wall": 0.007702,
+   "cpu": 0.004969,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionGroupTest": {
+   "wall": 0.002677,
+   "cpu": 0.003057,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionTest": {
+   "wall": 0.001379,
+   "cpu": 0.001694,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionsTest": {
+   "wall": 0.000628,
+   "cpu": 0.0006580000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ParseRequiredTest": {
+   "wall": 0.001204,
+   "cpu": 0.002109,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ParseTest": {
+   "wall": 0.002907,
+   "cpu": 0.005893,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PatternOptionBuilderTest": {
+   "wall": 0.044456,
+   "cpu": 0.017971,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.TestHelpFormatter": {
+   "wall": 0.002902,
+   "cpu": 0.00166,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValueTest": {
+   "wall": 0.004625,
+   "cpu": 0.007669,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValuesTest": {
+   "wall": 0.002493,
+   "cpu": 0.003946,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI13Test": {
+   "wall": 0.0011639999999999999,
+   "cpu": 0.00121,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI18Test": {
+   "wall": 0.001188,
+   "cpu": 0.0018620000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI51Test": {
+   "wall": 0.00115,
+   "cpu": 0.001415,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI71Test": {
+   "wall": 0.002712,
+   "cpu": 0.001863,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.4288777079995449,
+  "cpu": 0.23311199999999946
+ },
+ "fixed_suite_seconds": [
+  0.7,
+  0.27,
+  0.42
+ ],
+ "covering": [
+  "org.apache.commons.cli.PatternOptionBuilderTest"
+ ],
+ "sizes": {
+  "org.apache.commons.cli.ApplicationTest": 5123,
+  "org.apache.commons.cli.ArgumentIsOptionTest": 3094,
+  "org.apache.commons.cli.BugsTest": 19754,
+  "org.apache.commons.cli.BuildTest": 2464,
+  "org.apache.commons.cli.GnuParseTest": 8653,
+  "org.apache.commons.cli.OptionBuilderTest": 5866,
+  "org.apache.commons.cli.OptionGroupTest": 8937,
+  "org.apache.commons.cli.OptionTest": 1292,
+  "org.apache.commons.cli.OptionsTest": 2658,
+  "org.apache.commons.cli.ParseRequiredTest": 3363,
+  "org.apache.commons.cli.ParseTest": 9359,
+  "org.apache.commons.cli.PatternOptionBuilderTest": 3740,
+  "org.apache.commons.cli.TestHelpFormatter": 6253,
+  "org.apache.commons.cli.ValueTest": 12754,
+  "org.apache.commons.cli.ValuesTest": 8779,
+  "org.apache.commons.cli.bug.BugCLI13Test": 1948,
+  "org.apache.commons.cli.bug.BugCLI18Test": 1645,
+  "org.apache.commons.cli.bug.BugCLI51Test": 1866,
+  "org.apache.commons.cli.bug.BugCLI71Test": 2905
+ }
+}

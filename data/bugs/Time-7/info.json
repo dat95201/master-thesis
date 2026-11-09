@@ -1,0 +1,993 @@
+{
+ "bug": "Time-7",
+ "pid": "Time",
+ "bid": 7,
+ "modified_class": "org.joda.time.format.DateTimeFormatter",
+ "src_file": "src/main/java/org/joda/time/format/DateTimeFormatter.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Time/lib/org/joda/joda-convert/1.2/joda-convert-1.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Time/lib/junit/junit/3.8.2/junit-3.8.2.jar:/Users/datnguyen/Study/research/master-thesis/work/Time-7/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Time-7/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Time/lib/org/joda/joda-convert/1.2/joda-convert-1.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Time/lib/junit/junit/3.8.2/junit-3.8.2.jar:/Users/datnguyen/Study/research/master-thesis/work/Time-7/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Time-7/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Time-7/b/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Time/lib/org/joda/joda-convert/1.2/joda-convert-1.2.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Time-7/f/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Time/lib/org/joda/joda-convert/1.2/joda-convert-1.2.jar"
+ },
+ "faulty": [
+  {
+   "key": "parseInto(ReadWritableInstant,String,int)",
+   "name": "parseInto",
+   "nparams": 3
+  }
+ ],
+ "buggy_methods": {
+  "parseInto(ReadWritableInstant,String,int)": "public int parseInto(ReadWritableInstant instant, String text, int position) {\n        DateTimeParser parser = requireParser();\n        if (instant == null) {\n            throw new IllegalArgumentException(\"Instant must not be null\");\n        }\n        \n        long instantMillis = instant.getMillis();\n        Chronology chrono = instant.getChronology();\n        long instantLocal = instantMillis + chrono.getZone().getOffset(instantMillis);\n        chrono = selectChronology(chrono);\n        int defaultYear = chrono.year().get(instantLocal);\n        \n        DateTimeParserBucket bucket = new DateTimeParserBucket(\n            instantLocal, chrono, iLocale, iPivotYear, defaultYear);\n        int newPos = parser.parseInto(bucket, text, position);\n        instant.setMillis(bucket.computeMillis(false, text));\n        if (iOffsetParsed && bucket.getOffsetInteger() != null) {\n            int parsedOffset = bucket.getOffsetInteger();\n            DateTimeZone parsedZone = DateTimeZone.forOffsetMillis(parsedOffset);\n            chrono = chrono.withZone(parsedZone);\n        } else if (bucket.getZone() != null) {\n            chrono = chrono.withZone(bucket.getZone());\n        }\n        instant.setChronology(chrono);\n        if (iZone != null) {\n            instant.setZone(iZone);\n        }\n        return newPos;\n    }"
+ },
+ "fixed_methods": {
+  "parseInto(ReadWritableInstant,String,int)": "public int parseInto(ReadWritableInstant instant, String text, int position) {\n        DateTimeParser parser = requireParser();\n        if (instant == null) {\n            throw new IllegalArgumentException(\"Instant must not be null\");\n        }\n        \n        long instantMillis = instant.getMillis();\n        Chronology chrono = instant.getChronology();\n        int defaultYear = DateTimeUtils.getChronology(chrono).year().get(instantMillis);\n        long instantLocal = instantMillis + chrono.getZone().getOffset(instantMillis);\n        chrono = selectChronology(chrono);\n        \n        DateTimeParserBucket bucket = new DateTimeParserBucket(\n            instantLocal, chrono, iLocale, iPivotYear, defaultYear);\n        int newPos = parser.parseInto(bucket, text, position);\n        instant.setMillis(bucket.computeMillis(false, text));\n        if (iOffsetParsed && bucket.getOffsetInteger() != null) {\n            int parsedOffset = bucket.getOffsetInteger();\n            DateTimeZone parsedZone = DateTimeZone.forOffsetMillis(parsedOffset);\n            chrono = chrono.withZone(parsedZone);\n        } else if (bucket.getZone() != null) {\n            chrono = chrono.withZone(bucket.getZone());\n        }\n        instant.setChronology(chrono);\n        if (iZone != null) {\n            instant.setZone(iZone);\n        }\n        return newPos;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_newYork_startOfYear",
+   "error": "org.joda.time.IllegalFieldValueException: Cannot parse \"2 29\": Value 29 for dayOfMonth must be in the range [1,28]"
+  },
+  {
+   "test": "org.joda.time.format.TestDateTimeFormatter::testParseInto_monthDay_feb29_tokyo_endOfYear",
+   "error": "org.joda.time.IllegalFieldValueException: Cannot parse \"2 29\": Value 29 for dayOfMonth must be in the range [1,28]"
+  }
+ ],
+ "triggering_classes": [
+  "org.joda.time.format.TestDateTimeFormatter"
+ ],
+ "loaded_classes": [
+  "org.joda.time.base.AbstractDateTime",
+  "org.joda.time.base.AbstractInstant",
+  "org.joda.time.base.BaseDateTime",
+  "org.joda.time.chrono.AssembledChronology",
+  "org.joda.time.chrono.BaseChronology",
+  "org.joda.time.chrono.BasicChronology",
+  "org.joda.time.chrono.BasicDayOfMonthDateTimeField",
+  "org.joda.time.chrono.BasicDayOfYearDateTimeField",
+  "org.joda.time.chrono.BasicGJChronology",
+  "org.joda.time.chrono.BasicMonthOfYearDateTimeField",
+  "org.joda.time.chrono.BasicSingleEraDateTimeField",
+  "org.joda.time.chrono.BasicWeekOfWeekyearDateTimeField",
+  "org.joda.time.chrono.BasicWeekyearDateTimeField",
+  "org.joda.time.chrono.BasicYearDateTimeField",
+  "org.joda.time.chrono.BuddhistChronology",
+  "org.joda.time.chrono.GJChronology",
+  "org.joda.time.chrono.GJDayOfWeekDateTimeField",
+  "org.joda.time.chrono.GJEraDateTimeField",
+  "org.joda.time.chrono.GJMonthOfYearDateTimeField",
+  "org.joda.time.chrono.GJYearOfEraDateTimeField",
+  "org.joda.time.chrono.GregorianChronology",
+  "org.joda.time.chrono.ISOChronology",
+  "org.joda.time.chrono.ISOYearOfEraDateTimeField",
+  "org.joda.time.chrono.JulianChronology",
+  "org.joda.time.chrono.LimitChronology",
+  "org.joda.time.chrono.ZonedChronology",
+  "org.joda.time.Chronology",
+  "org.joda.time.DateTime",
+  "org.joda.time.DateTimeField",
+  "org.joda.time.DateTimeFieldType",
+  "org.joda.time.DateTimeUtils",
+  "org.joda.time.DateTimeZone",
+  "org.joda.time.DurationField",
+  "org.joda.time.DurationFieldType",
+  "org.joda.time.field.BaseDateTimeField",
+  "org.joda.time.field.BaseDurationField",
+  "org.joda.time.field.DecoratedDateTimeField",
+  "org.joda.time.field.DecoratedDurationField",
+  "org.joda.time.field.DelegatedDateTimeField",
+  "org.joda.time.field.DividedDateTimeField",
+  "org.joda.time.field.FieldUtils",
+  "org.joda.time.field.ImpreciseDateTimeField",
+  "org.joda.time.field.MillisDurationField",
+  "org.joda.time.field.OffsetDateTimeField",
+  "org.joda.time.field.PreciseDateTimeField",
+  "org.joda.time.field.PreciseDurationDateTimeField",
+  "org.joda.time.field.PreciseDurationField",
+  "org.joda.time.field.RemainderDateTimeField",
+  "org.joda.time.field.ScaledDurationField",
+  "org.joda.time.field.SkipDateTimeField",
+  "org.joda.time.field.SkipUndoDateTimeField",
+  "org.joda.time.field.UnsupportedDateTimeField",
+  "org.joda.time.field.UnsupportedDurationField",
+  "org.joda.time.field.ZeroIsMaxDateTimeField",
+  "org.joda.time.format.DateTimeFormat",
+  "org.joda.time.format.DateTimeFormatter",
+  "org.joda.time.format.DateTimeFormatterBuilder",
+  "org.joda.time.format.DateTimeParser",
+  "org.joda.time.format.DateTimeParserBucket",
+  "org.joda.time.format.DateTimePrinter",
+  "org.joda.time.format.ISODateTimeFormat",
+  "org.joda.time.IllegalFieldValueException",
+  "org.joda.time.IllegalInstantException",
+  "org.joda.time.Instant",
+  "org.joda.time.JodaTimePermission",
+  "org.joda.time.MutableDateTime",
+  "org.joda.time.ReadableDateTime",
+  "org.joda.time.ReadableInstant",
+  "org.joda.time.ReadableInterval",
+  "org.joda.time.ReadablePartial",
+  "org.joda.time.ReadWritableDateTime",
+  "org.joda.time.ReadWritableInstant",
+  "org.joda.time.tz.CachedDateTimeZone",
+  "org.joda.time.tz.DateTimeZoneBuilder",
+  "org.joda.time.tz.DefaultNameProvider",
+  "org.joda.time.tz.FixedDateTimeZone",
+  "org.joda.time.tz.NameProvider",
+  "org.joda.time.tz.Provider",
+  "org.joda.time.tz.ZoneInfoProvider"
+ ],
+ "suite": [
+  "org.joda.time.TestAbstractPartial",
+  "org.joda.time.TestBasePartial",
+  "org.joda.time.TestBaseSingleFieldPeriod",
+  "org.joda.time.TestChronology",
+  "org.joda.time.TestDateMidnight_Basics",
+  "org.joda.time.TestDateMidnight_Constructors",
+  "org.joda.time.TestDateMidnight_Properties",
+  "org.joda.time.TestDateTimeComparator",
+  "org.joda.time.TestDateTimeConstants",
+  "org.joda.time.TestDateTimeFieldType",
+  "org.joda.time.TestDateTimeUtils",
+  "org.joda.time.TestDateTimeZone",
+  "org.joda.time.TestDateTimeZoneCutover",
+  "org.joda.time.TestDateTime_Constructors",
+  "org.joda.time.TestDateTime_Properties",
+  "org.joda.time.TestDays",
+  "org.joda.time.TestDurationField",
+  "org.joda.time.TestDurationFieldType",
+  "org.joda.time.TestDuration_Basics",
+  "org.joda.time.TestDuration_Constructors",
+  "org.joda.time.TestHours",
+  "org.joda.time.TestIllegalFieldValueException",
+  "org.joda.time.TestInstant_Basics",
+  "org.joda.time.TestInstant_Constructors",
+  "org.joda.time.TestInterval_Basics",
+  "org.joda.time.TestInterval_Constructors",
+  "org.joda.time.TestLocalDateTime_Basics",
+  "org.joda.time.TestLocalDateTime_Constructors",
+  "org.joda.time.TestLocalDateTime_Properties",
+  "org.joda.time.TestLocalDate_Basics",
+  "org.joda.time.TestLocalDate_Constructors",
+  "org.joda.time.TestLocalDate_Properties",
+  "org.joda.time.TestLocalTime_Basics",
+  "org.joda.time.TestLocalTime_Constructors",
+  "org.joda.time.TestLocalTime_Properties",
+  "org.joda.time.TestMinutes",
+  "org.joda.time.TestMonthDay_Basics",
+  "org.joda.time.TestMonthDay_Constructors",
+  "org.joda.time.TestMonthDay_Properties",
+  "org.joda.time.TestMonths",
+  "org.joda.time.TestMutableDateTime_Adds",
+  "org.joda.time.TestMutableDateTime_Basics",
+  "org.joda.time.TestMutableDateTime_Constructors",
+  "org.joda.time.TestMutableDateTime_Properties",
+  "org.joda.time.TestMutableDateTime_Sets",
+  "org.joda.time.TestMutableInterval_Basics",
+  "org.joda.time.TestMutableInterval_Constructors",
+  "org.joda.time.TestMutableInterval_Updates",
+  "org.joda.time.TestMutablePeriod_Basics",
+  "org.joda.time.TestMutablePeriod_Constructors",
+  "org.joda.time.TestMutablePeriod_Updates",
+  "org.joda.time.TestPartial_Basics",
+  "org.joda.time.TestPartial_Constructors",
+  "org.joda.time.TestPartial_Match",
+  "org.joda.time.TestPartial_Properties",
+  "org.joda.time.TestPeriodType",
+  "org.joda.time.TestPeriod_Basics",
+  "org.joda.time.TestPeriod_Constructors",
+  "org.joda.time.TestSeconds",
+  "org.joda.time.TestSerialization",
+  "org.joda.time.TestStringConvert",
+  "org.joda.time.TestTimeOfDay_Basics",
+  "org.joda.time.TestTimeOfDay_Constructors",
+  "org.joda.time.TestTimeOfDay_Properties",
+  "org.joda.time.TestWeeks",
+  "org.joda.time.TestYearMonthDay_Basics",
+  "org.joda.time.TestYearMonthDay_Constructors",
+  "org.joda.time.TestYearMonthDay_Properties",
+  "org.joda.time.TestYearMonth_Basics",
+  "org.joda.time.TestYearMonth_Constructors",
+  "org.joda.time.TestYearMonth_Properties",
+  "org.joda.time.TestYears",
+  "org.joda.time.chrono.TestBuddhistChronology",
+  "org.joda.time.chrono.TestCopticChronology",
+  "org.joda.time.chrono.TestEthiopicChronology",
+  "org.joda.time.chrono.TestGJChronology",
+  "org.joda.time.chrono.TestGregorianChronology",
+  "org.joda.time.chrono.TestISOChronology",
+  "org.joda.time.chrono.TestIslamicChronology",
+  "org.joda.time.chrono.TestJulianChronology",
+  "org.joda.time.chrono.TestLenientChronology",
+  "org.joda.time.convert.TestCalendarConverter",
+  "org.joda.time.convert.TestConverterManager",
+  "org.joda.time.convert.TestConverterSet",
+  "org.joda.time.convert.TestDateConverter",
+  "org.joda.time.convert.TestLongConverter",
+  "org.joda.time.convert.TestNullConverter",
+  "org.joda.time.convert.TestReadableDurationConverter",
+  "org.joda.time.convert.TestReadableInstantConverter",
+  "org.joda.time.convert.TestReadableIntervalConverter",
+  "org.joda.time.convert.TestReadablePartialConverter",
+  "org.joda.time.convert.TestReadablePeriodConverter",
+  "org.joda.time.convert.TestStringConverter",
+  "org.joda.time.field.TestBaseDateTimeField",
+  "org.joda.time.field.TestFieldUtils",
+  "org.joda.time.field.TestMillisDurationField",
+  "org.joda.time.field.TestOffsetDateTimeField",
+  "org.joda.time.field.TestPreciseDateTimeField",
+  "org.joda.time.field.TestPreciseDurationDateTimeField",
+  "org.joda.time.field.TestPreciseDurationField",
+  "org.joda.time.field.TestScaledDurationField",
+  "org.joda.time.field.TestUnsupportedDateTimeField",
+  "org.joda.time.format.TestDateTimeFormat",
+  "org.joda.time.format.TestDateTimeFormatStyle",
+  "org.joda.time.format.TestDateTimeFormatter",
+  "org.joda.time.format.TestDateTimeFormatterBuilder",
+  "org.joda.time.format.TestISODateTimeFormat",
+  "org.joda.time.format.TestISODateTimeFormatParsing",
+  "org.joda.time.format.TestISODateTimeFormat_Fields",
+  "org.joda.time.format.TestISOPeriodFormat",
+  "org.joda.time.format.TestISOPeriodFormatParsing",
+  "org.joda.time.format.TestPeriodFormat",
+  "org.joda.time.format.TestPeriodFormatParsing",
+  "org.joda.time.format.TestPeriodFormatter",
+  "org.joda.time.format.TestPeriodFormatterBuilder",
+  "org.joda.time.format.TestTextFields",
+  "org.joda.time.tz.TestBuilder",
+  "org.joda.time.tz.TestCachedDateTimeZone",
+  "org.joda.time.tz.TestCompiler",
+  "org.joda.time.tz.TestFixedDateTimeZone",
+  "org.joda.time.tz.TestUTCProvider"
+ ],
+ "flaky": [
+  "org.joda.time.TestDateTime_Basics"
+ ],
+ "ci": {
+  "org.joda.time.TestAbstractPartial": {
+   "wall": 0.104869,
+   "cpu": 0.133661,
+   "status": "pass"
+  },
+  "org.joda.time.TestBasePartial": {
+   "wall": 0.002398,
+   "cpu": 0.004991,
+   "status": "pass"
+  },
+  "org.joda.time.TestBaseSingleFieldPeriod": {
+   "wall": 0.053634,
+   "cpu": 0.025160000000000002,
+   "status": "pass"
+  },
+  "org.joda.time.TestChronology": {
+   "wall": 0.017017,
+   "cpu": 0.018182,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateMidnight_Basics": {
+   "wall": 0.03756,
+   "cpu": 0.065308,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateMidnight_Constructors": {
+   "wall": 0.018843,
+   "cpu": 0.022239000000000002,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateMidnight_Properties": {
+   "wall": 0.00311,
+   "cpu": 0.007288,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTimeComparator": {
+   "wall": 0.013007999999999999,
+   "cpu": 0.032019,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTimeConstants": {
+   "wall": 0.001423,
+   "cpu": 0.0033,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTimeFieldType": {
+   "wall": 0.004472,
+   "cpu": 0.010615,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTimeUtils": {
+   "wall": 0.009175,
+   "cpu": 0.017492,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTimeZone": {
+   "wall": 0.123434,
+   "cpu": 0.26252499999999995,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTimeZoneCutover": {
+   "wall": 0.039155,
+   "cpu": 0.059877,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTime_Constructors": {
+   "wall": 0.003258,
+   "cpu": 0.006814,
+   "status": "pass"
+  },
+  "org.joda.time.TestDateTime_Properties": {
+   "wall": 0.004038,
+   "cpu": 0.009526999999999999,
+   "status": "pass"
+  },
+  "org.joda.time.TestDays": {
+   "wall": 0.005104,
+   "cpu": 0.009662,
+   "status": "pass"
+  },
+  "org.joda.time.TestDurationField": {
+   "wall": 0.000309,
+   "cpu": 0.0006889999999999999,
+   "status": "pass"
+  },
+  "org.joda.time.TestDurationFieldType": {
+   "wall": 0.002503,
+   "cpu": 0.005606,
+   "status": "pass"
+  },
+  "org.joda.time.TestDuration_Basics": {
+   "wall": 0.00304,
+   "cpu": 0.006286,
+   "status": "pass"
+  },
+  "org.joda.time.TestDuration_Constructors": {
+   "wall": 0.001373,
+   "cpu": 0.001673,
+   "status": "pass"
+  },
+  "org.joda.time.TestHours": {
+   "wall": 0.0020710000000000004,
+   "cpu": 0.00435,
+   "status": "pass"
+  },
+  "org.joda.time.TestIllegalFieldValueException": {
+   "wall": 0.0010969999999999999,
+   "cpu": 0.003003,
+   "status": "pass"
+  },
+  "org.joda.time.TestInstant_Basics": {
+   "wall": 0.001953,
+   "cpu": 0.004541000000000001,
+   "status": "pass"
+  },
+  "org.joda.time.TestInstant_Constructors": {
+   "wall": 0.00053,
+   "cpu": 0.001572,
+   "status": "pass"
+  },
+  "org.joda.time.TestInterval_Basics": {
+   "wall": 0.0059960000000000005,
+   "cpu": 0.012737,
+   "status": "pass"
+  },
+  "org.joda.time.TestInterval_Constructors": {
+   "wall": 0.016682,
+   "cpu": 0.022829000000000002,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalDateTime_Basics": {
+   "wall": 0.012027,
+   "cpu": 0.027,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalDateTime_Constructors": {
+   "wall": 0.0033239999999999997,
+   "cpu": 0.00711,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalDateTime_Properties": {
+   "wall": 0.002508,
+   "cpu": 0.004423,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalDate_Basics": {
+   "wall": 0.010564,
+   "cpu": 0.025639,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalDate_Constructors": {
+   "wall": 0.0018009999999999999,
+   "cpu": 0.002801,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalDate_Properties": {
+   "wall": 0.001496,
+   "cpu": 0.005507,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalTime_Basics": {
+   "wall": 0.004247,
+   "cpu": 0.007699,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalTime_Constructors": {
+   "wall": 0.001895,
+   "cpu": 0.0039369999999999995,
+   "status": "pass"
+  },
+  "org.joda.time.TestLocalTime_Properties": {
+   "wall": 0.001276,
+   "cpu": 0.0034500000000000004,
+   "status": "pass"
+  },
+  "org.joda.time.TestMinutes": {
+   "wall": 0.002057,
+   "cpu": 0.00411,
+   "status": "pass"
+  },
+  "org.joda.time.TestMonthDay_Basics": {
+   "wall": 0.01408,
+   "cpu": 0.029201,
+   "status": "pass"
+  },
+  "org.joda.time.TestMonthDay_Constructors": {
+   "wall": 0.00265,
+   "cpu": 0.004944,
+   "status": "pass"
+  },
+  "org.joda.time.TestMonthDay_Properties": {
+   "wall": 0.001219,
+   "cpu": 0.001739,
+   "status": "pass"
+  },
+  "org.joda.time.TestMonths": {
+   "wall": 0.002366,
+   "cpu": 0.004332,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableDateTime_Adds": {
+   "wall": 0.001228,
+   "cpu": 0.001239,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableDateTime_Basics": {
+   "wall": 0.005602,
+   "cpu": 0.010532,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableDateTime_Constructors": {
+   "wall": 0.003044,
+   "cpu": 0.006559000000000001,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableDateTime_Properties": {
+   "wall": 0.00468,
+   "cpu": 0.008376,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableDateTime_Sets": {
+   "wall": 0.001595,
+   "cpu": 0.005097000000000001,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableInterval_Basics": {
+   "wall": 0.002297,
+   "cpu": 0.004307,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableInterval_Constructors": {
+   "wall": 0.002955,
+   "cpu": 0.0064340000000000005,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutableInterval_Updates": {
+   "wall": 0.001879,
+   "cpu": 0.005248999999999999,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutablePeriod_Basics": {
+   "wall": 0.004322,
+   "cpu": 0.009543,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutablePeriod_Constructors": {
+   "wall": 0.003538,
+   "cpu": 0.003962,
+   "status": "pass"
+  },
+  "org.joda.time.TestMutablePeriod_Updates": {
+   "wall": 0.002643,
+   "cpu": 0.0045780000000000005,
+   "status": "pass"
+  },
+  "org.joda.time.TestPartial_Basics": {
+   "wall": 0.0064329999999999995,
+   "cpu": 0.011049,
+   "status": "pass"
+  },
+  "org.joda.time.TestPartial_Constructors": {
+   "wall": 0.000907,
+   "cpu": 0.001581,
+   "status": "pass"
+  },
+  "org.joda.time.TestPartial_Match": {
+   "wall": 0.00043,
+   "cpu": 0.000528,
+   "status": "pass"
+  },
+  "org.joda.time.TestPartial_Properties": {
+   "wall": 0.0012909999999999998,
+   "cpu": 0.00212,
+   "status": "pass"
+  },
+  "org.joda.time.TestPeriodType": {
+   "wall": 0.008287000000000001,
+   "cpu": 0.020076,
+   "status": "pass"
+  },
+  "org.joda.time.TestPeriod_Basics": {
+   "wall": 0.016229,
+   "cpu": 0.030419,
+   "status": "pass"
+  },
+  "org.joda.time.TestPeriod_Constructors": {
+   "wall": 0.0037170000000000003,
+   "cpu": 0.0076760000000000005,
+   "status": "pass"
+  },
+  "org.joda.time.TestSeconds": {
+   "wall": 0.0022400000000000002,
+   "cpu": 0.004757,
+   "status": "pass"
+  },
+  "org.joda.time.TestSerialization": {
+   "wall": 0.049890000000000004,
+   "cpu": 0.083732,
+   "status": "pass"
+  },
+  "org.joda.time.TestStringConvert": {
+   "wall": 0.011785,
+   "cpu": 0.023155000000000002,
+   "status": "pass"
+  },
+  "org.joda.time.TestTimeOfDay_Basics": {
+   "wall": 0.012063,
+   "cpu": 0.010404,
+   "status": "pass"
+  },
+  "org.joda.time.TestTimeOfDay_Constructors": {
+   "wall": 0.002522,
+   "cpu": 0.005730000000000001,
+   "status": "pass"
+  },
+  "org.joda.time.TestTimeOfDay_Properties": {
+   "wall": 0.046543,
+   "cpu": 0.072122,
+   "status": "pass"
+  },
+  "org.joda.time.TestWeeks": {
+   "wall": 0.003639,
+   "cpu": 0.006273,
+   "status": "pass"
+  },
+  "org.joda.time.TestYearMonthDay_Basics": {
+   "wall": 0.004312,
+   "cpu": 0.0077670000000000005,
+   "status": "pass"
+  },
+  "org.joda.time.TestYearMonthDay_Constructors": {
+   "wall": 0.0017130000000000001,
+   "cpu": 0.003164,
+   "status": "pass"
+  },
+  "org.joda.time.TestYearMonthDay_Properties": {
+   "wall": 0.0020859999999999997,
+   "cpu": 0.003942,
+   "status": "pass"
+  },
+  "org.joda.time.TestYearMonth_Basics": {
+   "wall": 0.005817999999999999,
+   "cpu": 0.00922,
+   "status": "pass"
+  },
+  "org.joda.time.TestYearMonth_Constructors": {
+   "wall": 0.001528,
+   "cpu": 0.002817,
+   "status": "pass"
+  },
+  "org.joda.time.TestYearMonth_Properties": {
+   "wall": 0.001338,
+   "cpu": 0.002362,
+   "status": "pass"
+  },
+  "org.joda.time.TestYears": {
+   "wall": 0.0026709999999999998,
+   "cpu": 0.004738,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestBuddhistChronology": {
+   "wall": 0.307095,
+   "cpu": 0.472785,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestCopticChronology": {
+   "wall": 0.165096,
+   "cpu": 0.259212,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestEthiopicChronology": {
+   "wall": 0.158221,
+   "cpu": 0.22241,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestGJChronology": {
+   "wall": 0.048733,
+   "cpu": 0.162326,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestGregorianChronology": {
+   "wall": 0.002189,
+   "cpu": 0.00715,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestISOChronology": {
+   "wall": 0.013384,
+   "cpu": 0.048048,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestIslamicChronology": {
+   "wall": 0.306405,
+   "cpu": 0.523887,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestJulianChronology": {
+   "wall": 0.000759,
+   "cpu": 0.001004,
+   "status": "pass"
+  },
+  "org.joda.time.chrono.TestLenientChronology": {
+   "wall": 0.001721,
+   "cpu": 0.003176,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestCalendarConverter": {
+   "wall": 0.003766,
+   "cpu": 0.005718,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestConverterManager": {
+   "wall": 0.022185,
+   "cpu": 0.036656,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestConverterSet": {
+   "wall": 0.00226,
+   "cpu": 0.006594,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestDateConverter": {
+   "wall": 0.0004,
+   "cpu": 0.0010329999999999998,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestLongConverter": {
+   "wall": 0.000539,
+   "cpu": 0.002154,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestNullConverter": {
+   "wall": 0.001089,
+   "cpu": 0.002936,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestReadableDurationConverter": {
+   "wall": 0.000882,
+   "cpu": 0.004847000000000001,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestReadableInstantConverter": {
+   "wall": 0.010091,
+   "cpu": 0.018346,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestReadableIntervalConverter": {
+   "wall": 0.002115,
+   "cpu": 0.0012929999999999999,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestReadablePartialConverter": {
+   "wall": 0.004405999999999999,
+   "cpu": 0.00996,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestReadablePeriodConverter": {
+   "wall": 0.000371,
+   "cpu": 0.0023279999999999998,
+   "status": "pass"
+  },
+  "org.joda.time.convert.TestStringConverter": {
+   "wall": 0.002776,
+   "cpu": 0.00596,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestBaseDateTimeField": {
+   "wall": 0.004785,
+   "cpu": 0.0144,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestFieldUtils": {
+   "wall": 0.000423,
+   "cpu": 0.000521,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestMillisDurationField": {
+   "wall": 0.0007930000000000001,
+   "cpu": 0.001168,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestOffsetDateTimeField": {
+   "wall": 0.002815,
+   "cpu": 0.002005,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestPreciseDateTimeField": {
+   "wall": 0.052286,
+   "cpu": 0.077433,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestPreciseDurationDateTimeField": {
+   "wall": 0.004475,
+   "cpu": 0.0021669999999999997,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestPreciseDurationField": {
+   "wall": 0.0012649999999999998,
+   "cpu": 0.001784,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestScaledDurationField": {
+   "wall": 0.00113,
+   "cpu": 0.001218,
+   "status": "pass"
+  },
+  "org.joda.time.field.TestUnsupportedDateTimeField": {
+   "wall": 0.001467,
+   "cpu": 0.003192,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestDateTimeFormat": {
+   "wall": 0.031146,
+   "cpu": 0.029051999999999998,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestDateTimeFormatStyle": {
+   "wall": 0.029832,
+   "cpu": 0.069575,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestDateTimeFormatter": {
+   "wall": 0.00626,
+   "cpu": 0.020287,
+   "status": "fail"
+  },
+  "org.joda.time.format.TestDateTimeFormatterBuilder": {
+   "wall": 0.015872999999999998,
+   "cpu": 0.030171,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestISODateTimeFormat": {
+   "wall": 0.0021939999999999998,
+   "cpu": 0.006382,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestISODateTimeFormatParsing": {
+   "wall": 0.00228,
+   "cpu": 0.004046,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestISODateTimeFormat_Fields": {
+   "wall": 0.0034519999999999998,
+   "cpu": 0.010624,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestISOPeriodFormat": {
+   "wall": 0.001778,
+   "cpu": 0.005077,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestISOPeriodFormatParsing": {
+   "wall": 0.000709,
+   "cpu": 0.003661,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestPeriodFormat": {
+   "wall": 0.013029,
+   "cpu": 0.047893,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestPeriodFormatParsing": {
+   "wall": 0.000763,
+   "cpu": 0.00378,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestPeriodFormatter": {
+   "wall": 0.001452,
+   "cpu": 0.006606,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestPeriodFormatterBuilder": {
+   "wall": 0.0017929999999999999,
+   "cpu": 0.0020870000000000003,
+   "status": "pass"
+  },
+  "org.joda.time.format.TestTextFields": {
+   "wall": 0.002057,
+   "cpu": 0.006031,
+   "status": "pass"
+  },
+  "org.joda.time.tz.TestBuilder": {
+   "wall": 0.009688,
+   "cpu": 0.039768,
+   "status": "pass"
+  },
+  "org.joda.time.tz.TestCachedDateTimeZone": {
+   "wall": 0.0006850000000000001,
+   "cpu": 0.003624,
+   "status": "pass"
+  },
+  "org.joda.time.tz.TestCompiler": {
+   "wall": 0.027816,
+   "cpu": 0.062468,
+   "status": "pass"
+  },
+  "org.joda.time.tz.TestFixedDateTimeZone": {
+   "wall": 0.000767,
+   "cpu": 0.002994,
+   "status": "pass"
+  },
+  "org.joda.time.tz.TestUTCProvider": {
+   "wall": 0.000611,
+   "cpu": 0.001965,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.3940338339987166,
+  "cpu": 0.6095740000000003
+ },
+ "fixed_suite_seconds": [
+  2.57,
+  2.77,
+  3.86
+ ],
+ "covering": [
+  "org.joda.time.format.TestDateTimeFormatter",
+  "org.joda.time.tz.TestCompiler"
+ ],
+ "sizes": {
+  "org.joda.time.TestAbstractPartial": 7448,
+  "org.joda.time.TestBasePartial": 4363,
+  "org.joda.time.TestBaseSingleFieldPeriod": 12894,
+  "org.joda.time.TestChronology": 11371,
+  "org.joda.time.TestDateMidnight_Basics": 46140,
+  "org.joda.time.TestDateMidnight_Constructors": 24210,
+  "org.joda.time.TestDateMidnight_Properties": 28587,
+  "org.joda.time.TestDateTimeComparator": 37715,
+  "org.joda.time.TestDateTimeConstants": 4083,
+  "org.joda.time.TestDateTimeFieldType": 22119,
+  "org.joda.time.TestDateTimeUtils": 21451,
+  "org.joda.time.TestDateTimeZone": 47160,
+  "org.joda.time.TestDateTimeZoneCutover": 69015,
+  "org.joda.time.TestDateTime_Constructors": 31022,
+  "org.joda.time.TestDateTime_Properties": 71394,
+  "org.joda.time.TestDays": 15865,
+  "org.joda.time.TestDurationField": 1988,
+  "org.joda.time.TestDurationFieldType": 9887,
+  "org.joda.time.TestDuration_Basics": 32090,
+  "org.joda.time.TestDuration_Constructors": 10210,
+  "org.joda.time.TestHours": 14508,
+  "org.joda.time.TestIllegalFieldValueException": 15076,
+  "org.joda.time.TestInstant_Basics": 25857,
+  "org.joda.time.TestInstant_Constructors": 6508,
+  "org.joda.time.TestInterval_Basics": 62243,
+  "org.joda.time.TestInterval_Constructors": 30371,
+  "org.joda.time.TestLocalDateTime_Basics": 45225,
+  "org.joda.time.TestLocalDateTime_Constructors": 35108,
+  "org.joda.time.TestLocalDateTime_Properties": 48922,
+  "org.joda.time.TestLocalDate_Basics": 47265,
+  "org.joda.time.TestLocalDate_Constructors": 24246,
+  "org.joda.time.TestLocalDate_Properties": 22825,
+  "org.joda.time.TestLocalTime_Basics": 34936,
+  "org.joda.time.TestLocalTime_Constructors": 31354,
+  "org.joda.time.TestLocalTime_Properties": 31360,
+  "org.joda.time.TestMinutes": 14427,
+  "org.joda.time.TestMonthDay_Basics": 29019,
+  "org.joda.time.TestMonthDay_Constructors": 14724,
+  "org.joda.time.TestMonthDay_Properties": 14794,
+  "org.joda.time.TestMonths": 13925,
+  "org.joda.time.TestMutableDateTime_Adds": 10121,
+  "org.joda.time.TestMutableDateTime_Basics": 35399,
+  "org.joda.time.TestMutableDateTime_Constructors": 23041,
+  "org.joda.time.TestMutableDateTime_Properties": 41336,
+  "org.joda.time.TestMutableDateTime_Sets": 26257,
+  "org.joda.time.TestMutableInterval_Basics": 22828,
+  "org.joda.time.TestMutableInterval_Constructors": 29716,
+  "org.joda.time.TestMutableInterval_Updates": 15634,
+  "org.joda.time.TestMutablePeriod_Basics": 21820,
+  "org.joda.time.TestMutablePeriod_Constructors": 44058,
+  "org.joda.time.TestMutablePeriod_Updates": 59951,
+  "org.joda.time.TestPartial_Basics": 34819,
+  "org.joda.time.TestPartial_Constructors": 15835,
+  "org.joda.time.TestPartial_Match": 6771,
+  "org.joda.time.TestPartial_Properties": 18845,
+  "org.joda.time.TestPeriodType": 45664,
+  "org.joda.time.TestPeriod_Basics": 64964,
+  "org.joda.time.TestPeriod_Constructors": 66773,
+  "org.joda.time.TestSeconds": 14034,
+  "org.joda.time.TestSerialization": 19706,
+  "org.joda.time.TestStringConvert": 8082,
+  "org.joda.time.TestTimeOfDay_Basics": 38562,
+  "org.joda.time.TestTimeOfDay_Constructors": 28992,
+  "org.joda.time.TestTimeOfDay_Properties": 29174,
+  "org.joda.time.TestWeeks": 14262,
+  "org.joda.time.TestYearMonthDay_Basics": 34119,
+  "org.joda.time.TestYearMonthDay_Constructors": 17018,
+  "org.joda.time.TestYearMonthDay_Properties": 23294,
+  "org.joda.time.TestYearMonth_Basics": 25772,
+  "org.joda.time.TestYearMonth_Constructors": 14590,
+  "org.joda.time.TestYearMonth_Properties": 15196,
+  "org.joda.time.TestYears": 11444,
+  "org.joda.time.chrono.TestBuddhistChronology": 20803,
+  "org.joda.time.chrono.TestCopticChronology": 30192,
+  "org.joda.time.chrono.TestEthiopicChronology": 30610,
+  "org.joda.time.chrono.TestGJChronology": 27294,
+  "org.joda.time.chrono.TestGregorianChronology": 16813,
+  "org.joda.time.chrono.TestISOChronology": 23188,
+  "org.joda.time.chrono.TestIslamicChronology": 39439,
+  "org.joda.time.chrono.TestJulianChronology": 15803,
+  "org.joda.time.chrono.TestLenientChronology": 7087,
+  "org.joda.time.convert.TestCalendarConverter": 8354,
+  "org.joda.time.convert.TestConverterManager": 45550,
+  "org.joda.time.convert.TestConverterSet": 6409,
+  "org.joda.time.convert.TestDateConverter": 4708,
+  "org.joda.time.convert.TestLongConverter": 4886,
+  "org.joda.time.convert.TestNullConverter": 7841,
+  "org.joda.time.convert.TestReadableDurationConverter": 4905,
+  "org.joda.time.convert.TestReadableInstantConverter": 6682,
+  "org.joda.time.convert.TestReadableIntervalConverter": 7766,
+  "org.joda.time.convert.TestReadablePartialConverter": 5910,
+  "org.joda.time.convert.TestReadablePeriodConverter": 4411,
+  "org.joda.time.convert.TestStringConverter": 26708,
+  "org.joda.time.field.TestBaseDateTimeField": 23228,
+  "org.joda.time.field.TestFieldUtils": 8985,
+  "org.joda.time.field.TestMillisDurationField": 8828,
+  "org.joda.time.field.TestOffsetDateTimeField": 21765,
+  "org.joda.time.field.TestPreciseDateTimeField": 25495,
+  "org.joda.time.field.TestPreciseDurationDateTimeField": 25995,
+  "org.joda.time.field.TestPreciseDurationField": 10409,
+  "org.joda.time.field.TestScaledDurationField": 11339,
+  "org.joda.time.field.TestUnsupportedDateTimeField": 25054,
+  "org.joda.time.format.TestDateTimeFormat": 46571,
+  "org.joda.time.format.TestDateTimeFormatStyle": 19496,
+  "org.joda.time.format.TestDateTimeFormatter": 48639,
+  "org.joda.time.format.TestDateTimeFormatterBuilder": 26514,
+  "org.joda.time.format.TestISODateTimeFormat": 25255,
+  "org.joda.time.format.TestISODateTimeFormatParsing": 43546,
+  "org.joda.time.format.TestISODateTimeFormat_Fields": 50743,
+  "org.joda.time.format.TestISOPeriodFormat": 10241,
+  "org.joda.time.format.TestISOPeriodFormatParsing": 8065,
+  "org.joda.time.format.TestPeriodFormat": 17103,
+  "org.joda.time.format.TestPeriodFormatParsing": 5242,
+  "org.joda.time.format.TestPeriodFormatter": 8828,
+  "org.joda.time.format.TestPeriodFormatterBuilder": 41274,
+  "org.joda.time.format.TestTextFields": 5362,
+  "org.joda.time.tz.TestBuilder": 16265,
+  "org.joda.time.tz.TestCachedDateTimeZone": 2677,
+  "org.joda.time.tz.TestCompiler": 8678,
+  "org.joda.time.tz.TestFixedDateTimeZone": 4034,
+  "org.joda.time.tz.TestUTCProvider": 2430
+ }
+}

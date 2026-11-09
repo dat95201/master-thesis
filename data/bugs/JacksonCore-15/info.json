@@ -1,0 +1,644 @@
+{
+ "bug": "JacksonCore-15",
+ "pid": "JacksonCore",
+ "bid": 15,
+ "modified_class": "com.fasterxml.jackson.core.filter.FilteringParserDelegate",
+ "src_file": "src/main/java/com/fasterxml/jackson/core/filter/FilteringParserDelegate.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-15/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-15/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.8.2/junit-4.8.2.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-15/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-15/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.8.2/junit-4.8.2.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-15/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-15/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "nextToken()",
+   "name": "nextToken",
+   "nparams": 0
+  }
+ ],
+ "buggy_methods": {
+  "nextToken()": "@Override\n    public JsonToken nextToken() throws IOException\n    {\n    \t//Check for _allowMultipleMatches - false and atleast there is one token - which is _currToken\n    \t// check for no buffered context _exposedContext - null\n    \t//If all the conditions matches then check for scalar / non-scalar property\n    \t\t//if not scalar and ended successfully, then return null\n    \t\t//else if scalar, and scalar not present in obj/array and !includePath and INCLUDE_ALL matched once\n    \t\t// then return null \n        // Anything buffered?\n        TokenFilterContext ctxt = _exposedContext;\n\n        if (ctxt != null) {\n            while (true) {\n                JsonToken t = ctxt.nextTokenToRead();\n                if (t != null) {\n                    _currToken = t;\n                    return t;\n                }\n                // all done with buffered stuff?\n                if (ctxt == _headContext) {\n                    _exposedContext = null;\n                    if (ctxt.inArray()) {\n                        t = delegate.getCurrentToken();\n// Is this guaranteed to work without further checks?\n//                        if (t != JsonToken.START_ARRAY) {\n                        _currToken = t;\n                        return t;\n                    }\n\n                    // Almost! Most likely still have the current token;\n                    // with the sole exception of \n                    /*\n                    t = delegate.getCurrentToken();\n                    if (t != JsonToken.FIELD_NAME) {\n                        _currToken = t;\n                        return t;\n                    }\n                    */\n                    break;\n                }\n                // If not, traverse down the context chain\n                ctxt = _headContext.findChildOf(ctxt);\n                _exposedContext = ctxt;\n                if (ctxt == null) { // should never occur\n                    throw _constructError(\"Unexpected problem: chain of filtered context broken\");\n                }\n            }\n        }\n\n        // If not, need to read more. If we got any:\n        JsonToken t = delegate.nextToken();\n        if (t == null) {\n            // no strict need to close, since we have no state here\n            return (_currToken = t);\n        }\n\n        // otherwise... to include or not?\n        TokenFilter f;\n        \n        switch (t.id()) {\n        case ID_START_ARRAY:\n            f = _itemFilter;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildArrayContext(f, true);\n                return (_currToken = t);\n            }\n            if (f == null) { // does this occur?\n                delegate.skipChildren();\n                break;\n            }\n            // Otherwise still iffy, need to check\n            f = _headContext.checkValue(f);\n            if (f == null) {\n                delegate.skipChildren();\n                break;\n            }\n            if (f != TokenFilter.INCLUDE_ALL) {\n                f = f.filterStartArray();\n            }\n            _itemFilter = f;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildArrayContext(f, true);\n                return (_currToken = t);\n            }\n            _headContext = _headContext.createChildArrayContext(f, false);\n            \n            // Also: only need buffering if parent path to be included\n            if (_includePath) {\n                t = _nextTokenWithBuffering(_headContext);\n                if (t != null) {\n                    _currToken = t;\n                    return t;\n                }\n            }\n            break;\n\n        case ID_START_OBJECT:\n            f = _itemFilter;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildObjectContext(f, true);\n                return (_currToken = t);\n            }\n            if (f == null) { // does this occur?\n                delegate.skipChildren();\n                break;\n            }\n            // Otherwise still iffy, need to check\n            f = _headContext.checkValue(f);\n            if (f == null) {\n                delegate.skipChildren();\n                break;\n            }\n            if (f != TokenFilter.INCLUDE_ALL) {\n                f = f.filterStartObject();\n            }\n            _itemFilter = f;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildObjectContext(f, true);\n                return (_currToken = t);\n            }\n            _headContext = _headContext.createChildObjectContext(f, false);\n            // Also: only need buffering if parent path to be included\n            if (_includePath) {\n                t = _nextTokenWithBuffering(_headContext);\n                if (t != null) {\n                    _currToken = t;\n                    return t;\n                }\n            }\n            // note: inclusion of surrounding Object handled separately via\n            // FIELD_NAME\n            break;\n\n        case ID_END_ARRAY:\n        case ID_END_OBJECT:\n            {\n                boolean returnEnd = _headContext.isStartHandled();\n                f = _headContext.getFilter();\n                if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {\n                    f.filterFinishArray();\n                }\n                _headContext = _headContext.getParent();\n                _itemFilter = _headContext.getFilter();\n                if (returnEnd) {\n                    return (_currToken = t);\n                }\n            }\n            break;\n\n        case ID_FIELD_NAME:\n            {\n                final String name = delegate.getCurrentName();\n                // note: this will also set 'needToHandleName'\n                f = _headContext.setFieldName(name);\n                if (f == TokenFilter.INCLUDE_ALL) {\n                    _itemFilter = f;\n                    if (!_includePath) {\n                        // Minor twist here: if parent NOT included, may need to induce output of\n                        // surrounding START_OBJECT/END_OBJECT\n                        if (_includeImmediateParent && !_headContext.isStartHandled()) {\n                            t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled\n                            _exposedContext = _headContext;\n                        }\n                    }\n                    return (_currToken = t);\n                }\n                if (f == null) {\n                    delegate.nextToken();\n                    delegate.skipChildren();\n                    break;\n                }\n                f = f.includeProperty(name);\n                if (f == null) {\n                    delegate.nextToken();\n                    delegate.skipChildren();\n                    break;\n                }\n                _itemFilter = f;\n                if (f == TokenFilter.INCLUDE_ALL) {\n                    if (_includePath) {\n                        return (_currToken = t);\n                    }\n                }\n                if (_includePath) {\n                    t = _nextTokenWithBuffering(_headContext);\n                    if (t != null) {\n                        _currToken = t;\n                        return t;\n                    }\n                }\n                break;\n            }\n\n        default: // scalar value\n            f = _itemFilter;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                return (_currToken = t);\n            }\n            if (f != null) {\n                f = _headContext.checkValue(f);\n                if ((f == TokenFilter.INCLUDE_ALL)\n                        || ((f != null) && f.includeValue(delegate))) {\n                    return (_currToken = t);\n                }\n            }\n            // Otherwise not included (leaves must be explicitly included)\n            break;\n        }\n\n        // We get here if token was not yet found; offlined handling\n        return _nextToken2();\n    }"
+ },
+ "fixed_methods": {
+  "nextToken()": "@Override\n    public JsonToken nextToken() throws IOException\n    {\n    \t//Check for _allowMultipleMatches - false and atleast there is one token - which is _currToken\n    \t// check for no buffered context _exposedContext - null\n    \t//If all the conditions matches then check for scalar / non-scalar property\n    \tif(!_allowMultipleMatches && _currToken != null && _exposedContext == null){\n    \t\t//if not scalar and ended successfully, then return null\n    \t\tif((_currToken.isStructEnd()  && _headContext.isStartHandled()) ){\n    \t\t\treturn (_currToken = null);\n    \t\t}\n    \t\t//else if scalar, and scalar not present in obj/array and !includePath and INCLUDE_ALL matched once\n    \t\t// then return null \n    \t\telse if(_currToken.isScalarValue() && !_headContext.isStartHandled() && !_includePath \n    \t\t\t\t&& _itemFilter == TokenFilter.INCLUDE_ALL) {\n    \t\t\treturn (_currToken = null);\n    \t\t}\n    \t}\n        // Anything buffered?\n        TokenFilterContext ctxt = _exposedContext;\n\n        if (ctxt != null) {\n            while (true) {\n                JsonToken t = ctxt.nextTokenToRead();\n                if (t != null) {\n                    _currToken = t;\n                    return t;\n                }\n                // all done with buffered stuff?\n                if (ctxt == _headContext) {\n                    _exposedContext = null;\n                    if (ctxt.inArray()) {\n                        t = delegate.getCurrentToken();\n// Is this guaranteed to work without further checks?\n//                        if (t != JsonToken.START_ARRAY) {\n                        _currToken = t;\n                        return t;\n                    }\n\n                    // Almost! Most likely still have the current token;\n                    // with the sole exception of \n                    /*\n                    t = delegate.getCurrentToken();\n                    if (t != JsonToken.FIELD_NAME) {\n                        _currToken = t;\n                        return t;\n                    }\n                    */\n                    break;\n                }\n                // If not, traverse down the context chain\n                ctxt = _headContext.findChildOf(ctxt);\n                _exposedContext = ctxt;\n                if (ctxt == null) { // should never occur\n                    throw _constructError(\"Unexpected problem: chain of filtered context broken\");\n                }\n            }\n        }\n\n        // If not, need to read more. If we got any:\n        JsonToken t = delegate.nextToken();\n        if (t == null) {\n            // no strict need to close, since we have no state here\n            return (_currToken = t);\n        }\n\n        // otherwise... to include or not?\n        TokenFilter f;\n        \n        switch (t.id()) {\n        case ID_START_ARRAY:\n            f = _itemFilter;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildArrayContext(f, true);\n                return (_currToken = t);\n            }\n            if (f == null) { // does this occur?\n                delegate.skipChildren();\n                break;\n            }\n            // Otherwise still iffy, need to check\n            f = _headContext.checkValue(f);\n            if (f == null) {\n                delegate.skipChildren();\n                break;\n            }\n            if (f != TokenFilter.INCLUDE_ALL) {\n                f = f.filterStartArray();\n            }\n            _itemFilter = f;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildArrayContext(f, true);\n                return (_currToken = t);\n            }\n            _headContext = _headContext.createChildArrayContext(f, false);\n            \n            // Also: only need buffering if parent path to be included\n            if (_includePath) {\n                t = _nextTokenWithBuffering(_headContext);\n                if (t != null) {\n                    _currToken = t;\n                    return t;\n                }\n            }\n            break;\n\n        case ID_START_OBJECT:\n            f = _itemFilter;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildObjectContext(f, true);\n                return (_currToken = t);\n            }\n            if (f == null) { // does this occur?\n                delegate.skipChildren();\n                break;\n            }\n            // Otherwise still iffy, need to check\n            f = _headContext.checkValue(f);\n            if (f == null) {\n                delegate.skipChildren();\n                break;\n            }\n            if (f != TokenFilter.INCLUDE_ALL) {\n                f = f.filterStartObject();\n            }\n            _itemFilter = f;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                _headContext = _headContext.createChildObjectContext(f, true);\n                return (_currToken = t);\n            }\n            _headContext = _headContext.createChildObjectContext(f, false);\n            // Also: only need buffering if parent path to be included\n            if (_includePath) {\n                t = _nextTokenWithBuffering(_headContext);\n                if (t != null) {\n                    _currToken = t;\n                    return t;\n                }\n            }\n            // note: inclusion of surrounding Object handled separately via\n            // FIELD_NAME\n            break;\n\n        case ID_END_ARRAY:\n        case ID_END_OBJECT:\n            {\n                boolean returnEnd = _headContext.isStartHandled();\n                f = _headContext.getFilter();\n                if ((f != null) && (f != TokenFilter.INCLUDE_ALL)) {\n                    f.filterFinishArray();\n                }\n                _headContext = _headContext.getParent();\n                _itemFilter = _headContext.getFilter();\n                if (returnEnd) {\n                    return (_currToken = t);\n                }\n            }\n            break;\n\n        case ID_FIELD_NAME:\n            {\n                final String name = delegate.getCurrentName();\n                // note: this will also set 'needToHandleName'\n                f = _headContext.setFieldName(name);\n                if (f == TokenFilter.INCLUDE_ALL) {\n                    _itemFilter = f;\n                    if (!_includePath) {\n                        // Minor twist here: if parent NOT included, may need to induce output of\n                        // surrounding START_OBJECT/END_OBJECT\n                        if (_includeImmediateParent && !_headContext.isStartHandled()) {\n                            t = _headContext.nextTokenToRead(); // returns START_OBJECT but also marks it handled\n                            _exposedContext = _headContext;\n                        }\n                    }\n                    return (_currToken = t);\n                }\n                if (f == null) {\n                    delegate.nextToken();\n                    delegate.skipChildren();\n                    break;\n                }\n                f = f.includeProperty(name);\n                if (f == null) {\n                    delegate.nextToken();\n                    delegate.skipChildren();\n                    break;\n                }\n                _itemFilter = f;\n                if (f == TokenFilter.INCLUDE_ALL) {\n                    if (_includePath) {\n                        return (_currToken = t);\n                    }\n                }\n                if (_includePath) {\n                    t = _nextTokenWithBuffering(_headContext);\n                    if (t != null) {\n                        _currToken = t;\n                        return t;\n                    }\n                }\n                break;\n            }\n\n        default: // scalar value\n            f = _itemFilter;\n            if (f == TokenFilter.INCLUDE_ALL) {\n                return (_currToken = t);\n            }\n            if (f != null) {\n                f = _headContext.checkValue(f);\n                if ((f == TokenFilter.INCLUDE_ALL)\n                        || ((f != null) && f.includeValue(delegate))) {\n                    return (_currToken = t);\n                }\n            }\n            // Otherwise not included (leaves must be explicitly included)\n            break;\n        }\n\n        // We get here if token was not yet found; offlined handling\n        return _nextToken2();\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "com.fasterxml.jackson.core.filter.BasicParserFilteringTest::testNotAllowMultipleMatches",
+   "error": "junit.framework.ComparisonFailure: expected:<3[]> but was:<3[ 4]>"
+  }
+ ],
+ "triggering_classes": [
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest"
+ ],
+ "loaded_classes": [
+  "com.fasterxml.jackson.core.base.GeneratorBase",
+  "com.fasterxml.jackson.core.base.ParserBase",
+  "com.fasterxml.jackson.core.base.ParserMinimalBase",
+  "com.fasterxml.jackson.core.filter.FilteringParserDelegate",
+  "com.fasterxml.jackson.core.filter.TokenFilter",
+  "com.fasterxml.jackson.core.filter.TokenFilterContext",
+  "com.fasterxml.jackson.core.io.CharTypes",
+  "com.fasterxml.jackson.core.io.IOContext",
+  "com.fasterxml.jackson.core.io.NumberInput",
+  "com.fasterxml.jackson.core.io.NumberOutput",
+  "com.fasterxml.jackson.core.io.SerializedString",
+  "com.fasterxml.jackson.core.io.UTF8Writer",
+  "com.fasterxml.jackson.core.json.JsonGeneratorImpl",
+  "com.fasterxml.jackson.core.json.JsonReadContext",
+  "com.fasterxml.jackson.core.json.JsonWriteContext",
+  "com.fasterxml.jackson.core.json.ReaderBasedJsonParser",
+  "com.fasterxml.jackson.core.json.UTF8JsonGenerator",
+  "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator",
+  "com.fasterxml.jackson.core.JsonFactory",
+  "com.fasterxml.jackson.core.JsonGenerationException",
+  "com.fasterxml.jackson.core.JsonGenerator",
+  "com.fasterxml.jackson.core.JsonParseException",
+  "com.fasterxml.jackson.core.JsonParser",
+  "com.fasterxml.jackson.core.JsonProcessingException",
+  "com.fasterxml.jackson.core.JsonStreamContext",
+  "com.fasterxml.jackson.core.JsonToken",
+  "com.fasterxml.jackson.core.PrettyPrinter",
+  "com.fasterxml.jackson.core.SerializableString",
+  "com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer",
+  "com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer",
+  "com.fasterxml.jackson.core.util.BufferRecycler",
+  "com.fasterxml.jackson.core.util.DefaultPrettyPrinter",
+  "com.fasterxml.jackson.core.util.Instantiatable",
+  "com.fasterxml.jackson.core.util.InternCache",
+  "com.fasterxml.jackson.core.util.JsonParserDelegate",
+  "com.fasterxml.jackson.core.util.TextBuffer",
+  "com.fasterxml.jackson.core.Versioned"
+ ],
+ "suite": [
+  "com.fasterxml.jackson.core.TestExceptions",
+  "com.fasterxml.jackson.core.TestJDKSerializability",
+  "com.fasterxml.jackson.core.TestJsonPointer",
+  "com.fasterxml.jackson.core.TestVersions",
+  "com.fasterxml.jackson.core.base64.TestBase64Codec",
+  "com.fasterxml.jackson.core.base64.TestBase64Generation",
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing",
+  "com.fasterxml.jackson.core.base64.TestJsonParserBinary",
+  "com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest",
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest",
+  "com.fasterxml.jackson.core.filter.JsonPointerGeneratorFilteringTest",
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest",
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection",
+  "com.fasterxml.jackson.core.io.SegmentedStringWriterTest",
+  "com.fasterxml.jackson.core.io.TestCharTypes",
+  "com.fasterxml.jackson.core.io.TestIOContext",
+  "com.fasterxml.jackson.core.io.TestJDKSerializable",
+  "com.fasterxml.jackson.core.io.TestJsonStringEncoder",
+  "com.fasterxml.jackson.core.io.TestMergedStream",
+  "com.fasterxml.jackson.core.io.UTF8WriterTest",
+  "com.fasterxml.jackson.core.json.GeneratorBasicTest",
+  "com.fasterxml.jackson.core.json.GeneratorFailTest",
+  "com.fasterxml.jackson.core.json.JsonFactoryTest",
+  "com.fasterxml.jackson.core.json.LocationInArrayTest",
+  "com.fasterxml.jackson.core.json.LocationInObjectTest",
+  "com.fasterxml.jackson.core.json.ParserSequenceTest",
+  "com.fasterxml.jackson.core.json.StringGenerationTest",
+  "com.fasterxml.jackson.core.json.TestCharEscaping",
+  "com.fasterxml.jackson.core.json.TestComments",
+  "com.fasterxml.jackson.core.json.TestCustomEscaping",
+  "com.fasterxml.jackson.core.json.TestDecorators",
+  "com.fasterxml.jackson.core.json.TestGeneratorDupHandling",
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString",
+  "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures",
+  "com.fasterxml.jackson.core.json.TestJsonParser",
+  "com.fasterxml.jackson.core.json.TestLocation",
+  "com.fasterxml.jackson.core.json.TestNextXxx",
+  "com.fasterxml.jackson.core.json.TestNumericValues",
+  "com.fasterxml.jackson.core.json.TestParserDupHandling",
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling",
+  "com.fasterxml.jackson.core.json.TestParserNonStandard",
+  "com.fasterxml.jackson.core.json.TestParserOverrides",
+  "com.fasterxml.jackson.core.json.TestParserSymbols",
+  "com.fasterxml.jackson.core.json.TestRootValues",
+  "com.fasterxml.jackson.core.json.TestUnicode",
+  "com.fasterxml.jackson.core.json.TestUtf8Generator",
+  "com.fasterxml.jackson.core.json.TestUtf8Parser",
+  "com.fasterxml.jackson.core.json.TestValueConversions",
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols",
+  "com.fasterxml.jackson.core.main.TestArrayParsing",
+  "com.fasterxml.jackson.core.main.TestGeneratorArray",
+  "com.fasterxml.jackson.core.main.TestGeneratorClosing",
+  "com.fasterxml.jackson.core.main.TestGeneratorCopy",
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc",
+  "com.fasterxml.jackson.core.main.TestGeneratorObject",
+  "com.fasterxml.jackson.core.main.TestNumberParsing",
+  "com.fasterxml.jackson.core.main.TestParserClosing",
+  "com.fasterxml.jackson.core.main.TestParserFeatures",
+  "com.fasterxml.jackson.core.main.TestParserLinefeeds",
+  "com.fasterxml.jackson.core.main.TestParserWithObjects",
+  "com.fasterxml.jackson.core.main.TestPrettyPrinter",
+  "com.fasterxml.jackson.core.main.TestRawStringWriting",
+  "com.fasterxml.jackson.core.main.TestScopeMatching",
+  "com.fasterxml.jackson.core.sym.SymbolTableMergingTest",
+  "com.fasterxml.jackson.core.sym.SymbolsViaParserTest",
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols",
+  "com.fasterxml.jackson.core.sym.TestHashCollisionChars",
+  "com.fasterxml.jackson.core.sym.TestSymbolTables",
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem",
+  "com.fasterxml.jackson.core.type.TypeReferenceTest",
+  "com.fasterxml.jackson.core.util.ByteArrayBuilderTest",
+  "com.fasterxml.jackson.core.util.TestCharTypes",
+  "com.fasterxml.jackson.core.util.TestDefaultPrettyPrinter",
+  "com.fasterxml.jackson.core.util.TestDelegates",
+  "com.fasterxml.jackson.core.util.TestNumberPrinting",
+  "com.fasterxml.jackson.core.util.TestSerializedString",
+  "com.fasterxml.jackson.core.util.TestTextBuffer",
+  "com.fasterxml.jackson.core.util.TestVersionUtil"
+ ],
+ "flaky": [],
+ "ci": {
+  "com.fasterxml.jackson.core.TestExceptions": {
+   "wall": 0.09353199999999999,
+   "cpu": 0.091632,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.TestJDKSerializability": {
+   "wall": 0.047291,
+   "cpu": 0.053507,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.TestJsonPointer": {
+   "wall": 0.004541000000000001,
+   "cpu": 0.009837,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.TestVersions": {
+   "wall": 0.003478,
+   "cpu": 0.006101,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestBase64Codec": {
+   "wall": 0.0035499999999999998,
+   "cpu": 0.009231,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestBase64Generation": {
+   "wall": 0.007378999999999999,
+   "cpu": 0.015022,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing": {
+   "wall": 0.047217,
+   "cpu": 0.069228,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestJsonParserBinary": {
+   "wall": 0.001998,
+   "cpu": 0.003381,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest": {
+   "wall": 0.016279,
+   "cpu": 0.012192,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest": {
+   "wall": 0.01357,
+   "cpu": 0.010335,
+   "status": "fail"
+  },
+  "com.fasterxml.jackson.core.filter.JsonPointerGeneratorFilteringTest": {
+   "wall": 0.002543,
+   "cpu": 0.003985,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest": {
+   "wall": 0.002134,
+   "cpu": 0.003496,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection": {
+   "wall": 0.009680999999999999,
+   "cpu": 0.005205,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.SegmentedStringWriterTest": {
+   "wall": 0.0037930000000000004,
+   "cpu": 0.002323,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestCharTypes": {
+   "wall": 0.000475,
+   "cpu": 0.000532,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestIOContext": {
+   "wall": 0.0005380000000000001,
+   "cpu": 0.000941,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestJDKSerializable": {
+   "wall": 0.0008449999999999999,
+   "cpu": 0.002576,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestJsonStringEncoder": {
+   "wall": 0.038638,
+   "cpu": 0.053039,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestMergedStream": {
+   "wall": 0.000656,
+   "cpu": 0.0007650000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.UTF8WriterTest": {
+   "wall": 0.001342,
+   "cpu": 0.0031680000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.GeneratorBasicTest": {
+   "wall": 0.002493,
+   "cpu": 0.006059999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.GeneratorFailTest": {
+   "wall": 0.0037839999999999996,
+   "cpu": 0.014115,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.JsonFactoryTest": {
+   "wall": 0.020467,
+   "cpu": 0.025906,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.LocationInArrayTest": {
+   "wall": 0.000734,
+   "cpu": 0.001516,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.LocationInObjectTest": {
+   "wall": 0.0014910000000000001,
+   "cpu": 0.004362,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.ParserSequenceTest": {
+   "wall": 0.0022480000000000004,
+   "cpu": 0.003231,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.StringGenerationTest": {
+   "wall": 0.88229,
+   "cpu": 1.066461,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestCharEscaping": {
+   "wall": 0.002411,
+   "cpu": 0.005965,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestComments": {
+   "wall": 0.006647,
+   "cpu": 0.011182000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestCustomEscaping": {
+   "wall": 0.001847,
+   "cpu": 0.003236,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestDecorators": {
+   "wall": 0.004392,
+   "cpu": 0.0023740000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestGeneratorDupHandling": {
+   "wall": 0.001961,
+   "cpu": 0.0034300000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString": {
+   "wall": 0.0005600000000000001,
+   "cpu": 0.0008219999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures": {
+   "wall": 0.002383,
+   "cpu": 0.0031469999999999996,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestJsonParser": {
+   "wall": 0.031965,
+   "cpu": 0.061015,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestLocation": {
+   "wall": 0.0010860000000000002,
+   "cpu": 0.002337,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestNextXxx": {
+   "wall": 0.233137,
+   "cpu": 0.47999200000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestNumericValues": {
+   "wall": 0.088863,
+   "cpu": 0.163601,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserDupHandling": {
+   "wall": 0.000937,
+   "cpu": 0.002438,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling": {
+   "wall": 0.001633,
+   "cpu": 0.003539,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserNonStandard": {
+   "wall": 0.004383,
+   "cpu": 0.012626,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserOverrides": {
+   "wall": 0.000383,
+   "cpu": 0.001506,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserSymbols": {
+   "wall": 0.000364,
+   "cpu": 0.000555,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestRootValues": {
+   "wall": 0.001082,
+   "cpu": 0.002919,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestUnicode": {
+   "wall": 0.0005200000000000001,
+   "cpu": 0.001186,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestUtf8Generator": {
+   "wall": 0.001589,
+   "cpu": 0.0046040000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestUtf8Parser": {
+   "wall": 0.001003,
+   "cpu": 0.002331,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestValueConversions": {
+   "wall": 0.0005570000000000001,
+   "cpu": 0.00214,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols": {
+   "wall": 0.024395,
+   "cpu": 0.058327,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestArrayParsing": {
+   "wall": 0.001328,
+   "cpu": 0.002475,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorArray": {
+   "wall": 0.00125,
+   "cpu": 0.002191,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorClosing": {
+   "wall": 0.003194,
+   "cpu": 0.005658000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorCopy": {
+   "wall": 0.001108,
+   "cpu": 0.0014579999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc": {
+   "wall": 0.339881,
+   "cpu": 0.683609,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorObject": {
+   "wall": 0.000728,
+   "cpu": 0.001042,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestNumberParsing": {
+   "wall": 0.160673,
+   "cpu": 0.30811099999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserClosing": {
+   "wall": 0.0035499999999999998,
+   "cpu": 0.005867,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserFeatures": {
+   "wall": 0.000991,
+   "cpu": 0.002326,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserLinefeeds": {
+   "wall": 0.000709,
+   "cpu": 0.001595,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserWithObjects": {
+   "wall": 0.000575,
+   "cpu": 0.000555,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestPrettyPrinter": {
+   "wall": 0.002762,
+   "cpu": 0.0050490000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestRawStringWriting": {
+   "wall": 0.056348999999999996,
+   "cpu": 0.121584,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestScopeMatching": {
+   "wall": 0.0011870000000000001,
+   "cpu": 0.002997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.SymbolTableMergingTest": {
+   "wall": 0.002689,
+   "cpu": 0.003384,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.SymbolsViaParserTest": {
+   "wall": 0.001944,
+   "cpu": 0.004677,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols": {
+   "wall": 0.001127,
+   "cpu": 0.002462,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestHashCollisionChars": {
+   "wall": 0.002157,
+   "cpu": 0.005026,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestSymbolTables": {
+   "wall": 0.142565,
+   "cpu": 0.289038,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem": {
+   "wall": 0.000879,
+   "cpu": 0.0013859999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.type.TypeReferenceTest": {
+   "wall": 0.009621000000000001,
+   "cpu": 0.011499,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.ByteArrayBuilderTest": {
+   "wall": 0.001108,
+   "cpu": 0.0016970000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestCharTypes": {
+   "wall": 0.000679,
+   "cpu": 0.000704,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestDefaultPrettyPrinter": {
+   "wall": 0.0007840000000000001,
+   "cpu": 0.003097,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestDelegates": {
+   "wall": 0.001423,
+   "cpu": 0.0022280000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestNumberPrinting": {
+   "wall": 0.132165,
+   "cpu": 0.231549,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestSerializedString": {
+   "wall": 0.000584,
+   "cpu": 0.001353,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestTextBuffer": {
+   "wall": 0.006526,
+   "cpu": 0.014025000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestVersionUtil": {
+   "wall": 0.003866,
+   "cpu": 0.007486,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.38882891599754776,
+  "cpu": 0.3554700000000004
+ },
+ "fixed_suite_seconds": [
+  2.15,
+  2.16,
+  2.83
+ ],
+ "covering": [
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest",
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest"
+ ],
+ "sizes": {
+  "com.fasterxml.jackson.core.TestExceptions": 1464,
+  "com.fasterxml.jackson.core.TestJDKSerializability": 3422,
+  "com.fasterxml.jackson.core.TestJsonPointer": 5784,
+  "com.fasterxml.jackson.core.TestVersions": 1220,
+  "com.fasterxml.jackson.core.base64.TestBase64Codec": 2076,
+  "com.fasterxml.jackson.core.base64.TestBase64Generation": 4158,
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing": 5030,
+  "com.fasterxml.jackson.core.base64.TestJsonParserBinary": 5180,
+  "com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest": 11294,
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest": 7009,
+  "com.fasterxml.jackson.core.filter.JsonPointerGeneratorFilteringTest": 4026,
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest": 2995,
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection": 3966,
+  "com.fasterxml.jackson.core.io.SegmentedStringWriterTest": 1384,
+  "com.fasterxml.jackson.core.io.TestCharTypes": 802,
+  "com.fasterxml.jackson.core.io.TestIOContext": 2785,
+  "com.fasterxml.jackson.core.io.TestJDKSerializable": 1027,
+  "com.fasterxml.jackson.core.io.TestJsonStringEncoder": 3565,
+  "com.fasterxml.jackson.core.io.TestMergedStream": 1994,
+  "com.fasterxml.jackson.core.io.UTF8WriterTest": 2364,
+  "com.fasterxml.jackson.core.json.GeneratorBasicTest": 11616,
+  "com.fasterxml.jackson.core.json.GeneratorFailTest": 2985,
+  "com.fasterxml.jackson.core.json.JsonFactoryTest": 5077,
+  "com.fasterxml.jackson.core.json.LocationInArrayTest": 2439,
+  "com.fasterxml.jackson.core.json.LocationInObjectTest": 4331,
+  "com.fasterxml.jackson.core.json.ParserSequenceTest": 1801,
+  "com.fasterxml.jackson.core.json.StringGenerationTest": 10407,
+  "com.fasterxml.jackson.core.json.TestCharEscaping": 5463,
+  "com.fasterxml.jackson.core.json.TestComments": 9698,
+  "com.fasterxml.jackson.core.json.TestCustomEscaping": 5880,
+  "com.fasterxml.jackson.core.json.TestDecorators": 3482,
+  "com.fasterxml.jackson.core.json.TestGeneratorDupHandling": 3313,
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString": 3351,
+  "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures": 7498,
+  "com.fasterxml.jackson.core.json.TestJsonParser": 21901,
+  "com.fasterxml.jackson.core.json.TestLocation": 2527,
+  "com.fasterxml.jackson.core.json.TestNextXxx": 20003,
+  "com.fasterxml.jackson.core.json.TestNumericValues": 21065,
+  "com.fasterxml.jackson.core.json.TestParserDupHandling": 3194,
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling": 3894,
+  "com.fasterxml.jackson.core.json.TestParserNonStandard": 19294,
+  "com.fasterxml.jackson.core.json.TestParserOverrides": 3604,
+  "com.fasterxml.jackson.core.json.TestParserSymbols": 2053,
+  "com.fasterxml.jackson.core.json.TestRootValues": 3138,
+  "com.fasterxml.jackson.core.json.TestUnicode": 1189,
+  "com.fasterxml.jackson.core.json.TestUtf8Generator": 2163,
+  "com.fasterxml.jackson.core.json.TestUtf8Parser": 7028,
+  "com.fasterxml.jackson.core.json.TestValueConversions": 8218,
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols": 2360,
+  "com.fasterxml.jackson.core.main.TestArrayParsing": 2156,
+  "com.fasterxml.jackson.core.main.TestGeneratorArray": 3744,
+  "com.fasterxml.jackson.core.main.TestGeneratorClosing": 6831,
+  "com.fasterxml.jackson.core.main.TestGeneratorCopy": 2623,
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc": 10981,
+  "com.fasterxml.jackson.core.main.TestGeneratorObject": 7439,
+  "com.fasterxml.jackson.core.main.TestNumberParsing": 4914,
+  "com.fasterxml.jackson.core.main.TestParserClosing": 5612,
+  "com.fasterxml.jackson.core.main.TestParserFeatures": 3544,
+  "com.fasterxml.jackson.core.main.TestParserLinefeeds": 1949,
+  "com.fasterxml.jackson.core.main.TestParserWithObjects": 6089,
+  "com.fasterxml.jackson.core.main.TestPrettyPrinter": 7686,
+  "com.fasterxml.jackson.core.main.TestRawStringWriting": 6099,
+  "com.fasterxml.jackson.core.main.TestScopeMatching": 4826,
+  "com.fasterxml.jackson.core.sym.SymbolTableMergingTest": 3844,
+  "com.fasterxml.jackson.core.sym.SymbolsViaParserTest": 3113,
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols": 5512,
+  "com.fasterxml.jackson.core.sym.TestHashCollisionChars": 5218,
+  "com.fasterxml.jackson.core.sym.TestSymbolTables": 14716,
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem": 3447,
+  "com.fasterxml.jackson.core.type.TypeReferenceTest": 737,
+  "com.fasterxml.jackson.core.util.ByteArrayBuilderTest": 763,
+  "com.fasterxml.jackson.core.util.TestCharTypes": 474,
+  "com.fasterxml.jackson.core.util.TestDefaultPrettyPrinter": 5192,
+  "com.fasterxml.jackson.core.util.TestDelegates": 3556,
+  "com.fasterxml.jackson.core.util.TestNumberPrinting": 3011,
+  "com.fasterxml.jackson.core.util.TestSerializedString": 2247,
+  "com.fasterxml.jackson.core.util.TestTextBuffer": 2663,
+  "com.fasterxml.jackson.core.util.TestVersionUtil": 1438
+ }
+}

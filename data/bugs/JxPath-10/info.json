@@ -1,0 +1,257 @@
+{
+ "bug": "JxPath-10",
+ "pid": "JxPath",
+ "bid": 10,
+ "modified_class": "org.apache.commons.jxpath.ri.compiler.CoreOperationRelationalExpression",
+ "src_file": "src/java/org/apache/commons/jxpath/ri/compiler/CoreOperationRelationalExpression.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/src/java:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/commons-beanutils-1.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/commons-collections-2.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/commons-logging-1.0.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/jdom-1.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/junit-3.8.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/mockrunner-0.4.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/servletapi-2.2.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/xerces-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/xml-apis-2.0.2.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/src/test:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/src/java:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/commons-beanutils-1.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/commons-collections-2.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/commons-logging-1.0.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/jdom-1.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/junit-3.8.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/mockrunner-0.4.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/servletapi-2.2.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/xerces-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/xml-apis-2.0.2.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/src/test:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/src/java:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/commons-beanutils-1.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/commons-collections-2.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/commons-logging-1.0.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/jdom-1.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/junit-3.8.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/mockrunner-0.4.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/servletapi-2.2.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/xerces-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/b/target/lib/xml-apis-2.0.2.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/src/java:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/commons-beanutils-1.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/commons-collections-2.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/commons-logging-1.0.4.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/jdom-1.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/junit-3.8.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/mockrunner-0.4.1.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/servletapi-2.2.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/xerces-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JxPath-10/f/target/lib/xml-apis-2.0.2.jar"
+ },
+ "faulty": [
+  {
+   "key": "computeValue(EvalContext)",
+   "name": "computeValue",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "computeValue(EvalContext)": "public final Object computeValue(EvalContext context) {\n        return compute(args[0].computeValue(context), args[1].computeValue(context)) \n                ? Boolean.TRUE : Boolean.FALSE;\n    }"
+ },
+ "fixed_methods": {
+  "computeValue(EvalContext)": "public final Object computeValue(EvalContext context) {\n        return compute(args[0].compute(context), args[1].compute(context))\n                ? Boolean.TRUE : Boolean.FALSE;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.jxpath.ri.compiler.CoreOperationTest::testEmptyNodeSetOperations",
+   "error": "junit.framework.AssertionFailedError: Evaluating </idonotexist >= 0> expected:<false> but was:<true>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.jxpath.BasicVariables",
+  "org.apache.commons.jxpath.CompiledExpression",
+  "org.apache.commons.jxpath.Container",
+  "org.apache.commons.jxpath.ExpressionContext",
+  "org.apache.commons.jxpath.Function",
+  "org.apache.commons.jxpath.Functions",
+  "org.apache.commons.jxpath.JXPathAbstractFactoryException",
+  "org.apache.commons.jxpath.JXPathContext",
+  "org.apache.commons.jxpath.JXPathContextFactory",
+  "org.apache.commons.jxpath.JXPathContextFactoryConfigurationError",
+  "org.apache.commons.jxpath.JXPathException",
+  "org.apache.commons.jxpath.JXPathFunctionNotFoundException",
+  "org.apache.commons.jxpath.JXPathInvalidAccessException",
+  "org.apache.commons.jxpath.JXPathInvalidSyntaxException",
+  "org.apache.commons.jxpath.JXPathNotFoundException",
+  "org.apache.commons.jxpath.JXPathTypeConversionException",
+  "org.apache.commons.jxpath.NodeSet",
+  "org.apache.commons.jxpath.PackageFunctions",
+  "org.apache.commons.jxpath.Pointer",
+  "org.apache.commons.jxpath.ri.axes.AncestorContext",
+  "org.apache.commons.jxpath.ri.axes.AttributeContext",
+  "org.apache.commons.jxpath.ri.axes.ChildContext",
+  "org.apache.commons.jxpath.ri.axes.DescendantContext",
+  "org.apache.commons.jxpath.ri.axes.InitialContext",
+  "org.apache.commons.jxpath.ri.axes.NamespaceContext",
+  "org.apache.commons.jxpath.ri.axes.NodeSetContext",
+  "org.apache.commons.jxpath.ri.axes.ParentContext",
+  "org.apache.commons.jxpath.ri.axes.PrecedingOrFollowingContext",
+  "org.apache.commons.jxpath.ri.axes.PredicateContext",
+  "org.apache.commons.jxpath.ri.axes.RootContext",
+  "org.apache.commons.jxpath.ri.axes.SelfContext",
+  "org.apache.commons.jxpath.ri.axes.UnionContext",
+  "org.apache.commons.jxpath.ri.Compiler",
+  "org.apache.commons.jxpath.ri.compiler.Constant",
+  "org.apache.commons.jxpath.ri.compiler.CoreFunction",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperation",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationCompare",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationEqual",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationGreaterThan",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationGreaterThanOrEqual",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationLessThan",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationLessThanOrEqual",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationNotEqual",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationRelationalExpression",
+  "org.apache.commons.jxpath.ri.compiler.Expression",
+  "org.apache.commons.jxpath.ri.compiler.ExpressionPath",
+  "org.apache.commons.jxpath.ri.compiler.LocationPath",
+  "org.apache.commons.jxpath.ri.compiler.NameAttributeTest",
+  "org.apache.commons.jxpath.ri.compiler.NodeNameTest",
+  "org.apache.commons.jxpath.ri.compiler.NodeTest",
+  "org.apache.commons.jxpath.ri.compiler.Operation",
+  "org.apache.commons.jxpath.ri.compiler.Path",
+  "org.apache.commons.jxpath.ri.compiler.Step",
+  "org.apache.commons.jxpath.ri.compiler.TreeCompiler",
+  "org.apache.commons.jxpath.ri.compiler.VariableReference",
+  "org.apache.commons.jxpath.ri.EvalContext",
+  "org.apache.commons.jxpath.ri.InfoSetUtil",
+  "org.apache.commons.jxpath.ri.JXPathContextFactoryReferenceImpl",
+  "org.apache.commons.jxpath.ri.JXPathContextReferenceImpl",
+  "org.apache.commons.jxpath.ri.model.beans.BeanPointer",
+  "org.apache.commons.jxpath.ri.model.beans.BeanPointerFactory",
+  "org.apache.commons.jxpath.ri.model.beans.CollectionPointer",
+  "org.apache.commons.jxpath.ri.model.beans.CollectionPointerFactory",
+  "org.apache.commons.jxpath.ri.model.beans.NullPointer",
+  "org.apache.commons.jxpath.ri.model.beans.NullPropertyPointer",
+  "org.apache.commons.jxpath.ri.model.beans.PropertyOwnerPointer",
+  "org.apache.commons.jxpath.ri.model.beans.PropertyPointer",
+  "org.apache.commons.jxpath.ri.model.container.ContainerPointer",
+  "org.apache.commons.jxpath.ri.model.container.ContainerPointerFactory",
+  "org.apache.commons.jxpath.ri.model.dom.DOMNodePointer",
+  "org.apache.commons.jxpath.ri.model.dom.DOMPointerFactory",
+  "org.apache.commons.jxpath.ri.model.dynabeans.DynaBeanPointer",
+  "org.apache.commons.jxpath.ri.model.dynabeans.DynaBeanPointerFactory",
+  "org.apache.commons.jxpath.ri.model.dynamic.DynamicPointer",
+  "org.apache.commons.jxpath.ri.model.dynamic.DynamicPointerFactory",
+  "org.apache.commons.jxpath.ri.model.jdom.JDOMNodePointer",
+  "org.apache.commons.jxpath.ri.model.jdom.JDOMPointerFactory",
+  "org.apache.commons.jxpath.ri.model.NodeIterator",
+  "org.apache.commons.jxpath.ri.model.NodePointer",
+  "org.apache.commons.jxpath.ri.model.NodePointerFactory",
+  "org.apache.commons.jxpath.ri.model.VariablePointer",
+  "org.apache.commons.jxpath.ri.NamespaceResolver",
+  "org.apache.commons.jxpath.ri.Parser",
+  "org.apache.commons.jxpath.ri.parser.ParseException",
+  "org.apache.commons.jxpath.ri.parser.SimpleCharStream",
+  "org.apache.commons.jxpath.ri.parser.Token",
+  "org.apache.commons.jxpath.ri.parser.TokenMgrError",
+  "org.apache.commons.jxpath.ri.parser.XPathParser",
+  "org.apache.commons.jxpath.ri.parser.XPathParserConstants",
+  "org.apache.commons.jxpath.ri.parser.XPathParserTokenManager",
+  "org.apache.commons.jxpath.ri.QName",
+  "org.apache.commons.jxpath.util.BasicTypeConverter",
+  "org.apache.commons.jxpath.util.TypeConverter",
+  "org.apache.commons.jxpath.util.TypeUtils",
+  "org.apache.commons.jxpath.util.ValueUtils",
+  "org.apache.commons.jxpath.Variables"
+ ],
+ "suite": [
+  "org.apache.commons.jxpath.ri.JXPathCompiledExpressionTest",
+  "org.apache.commons.jxpath.ri.StressTest",
+  "org.apache.commons.jxpath.ri.axes.RecursiveAxesTest",
+  "org.apache.commons.jxpath.ri.compiler.ContextDependencyTest",
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationTest",
+  "org.apache.commons.jxpath.ri.compiler.ExtensionFunctionTest",
+  "org.apache.commons.jxpath.ri.model.beans.BadlyImplementedFactoryTest",
+  "org.apache.commons.jxpath.ri.model.beans.BeanModelTest",
+  "org.apache.commons.jxpath.ri.model.container.ContainerModelTest",
+  "org.apache.commons.jxpath.ri.model.dynabeans.DynaBeanModelTest",
+  "org.apache.commons.jxpath.ri.model.dynamic.DynamicPropertiesModelTest",
+  "org.apache.commons.jxpath.ri.model.jdom.JDOMModelTest",
+  "org.apache.commons.jxpath.util.BasicTypeConverterTest"
+ ],
+ "flaky": [
+  "org.apache.commons.jxpath.ri.axes.SimplePathInterpreterTest",
+  "org.apache.commons.jxpath.ri.compiler.CoreFunctionTest",
+  "org.apache.commons.jxpath.ri.compiler.VariableTest",
+  "org.apache.commons.jxpath.ri.model.MixedModelTest",
+  "org.apache.commons.jxpath.ri.model.XMLPreserveSpaceTest",
+  "org.apache.commons.jxpath.ri.model.XMLSpaceTest",
+  "org.apache.commons.jxpath.ri.model.dom.DOMModelTest"
+ ],
+ "ci": {
+  "org.apache.commons.jxpath.ri.JXPathCompiledExpressionTest": {
+   "wall": 0.178235,
+   "cpu": 0.16447900000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.StressTest": {
+   "wall": 0.9620019999999999,
+   "cpu": 2.3877420000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.axes.RecursiveAxesTest": {
+   "wall": 0.032244,
+   "cpu": 0.053622,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.compiler.ContextDependencyTest": {
+   "wall": 0.0015589999999999998,
+   "cpu": 0.002643,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationTest": {
+   "wall": 0.013792,
+   "cpu": 0.027037,
+   "status": "fail"
+  },
+  "org.apache.commons.jxpath.ri.compiler.ExtensionFunctionTest": {
+   "wall": 0.080509,
+   "cpu": 0.179186,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.model.beans.BadlyImplementedFactoryTest": {
+   "wall": 0.0012410000000000001,
+   "cpu": 0.0009419999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.model.beans.BeanModelTest": {
+   "wall": 0.027065000000000002,
+   "cpu": 0.060479,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.model.container.ContainerModelTest": {
+   "wall": 0.004233,
+   "cpu": 0.005657,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.model.dynabeans.DynaBeanModelTest": {
+   "wall": 0.026751999999999998,
+   "cpu": 0.06745699999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.model.dynamic.DynamicPropertiesModelTest": {
+   "wall": 0.007627,
+   "cpu": 0.016315,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.ri.model.jdom.JDOMModelTest": {
+   "wall": 0.050577,
+   "cpu": 0.140403,
+   "status": "pass"
+  },
+  "org.apache.commons.jxpath.util.BasicTypeConverterTest": {
+   "wall": 0.005254,
+   "cpu": 0.009227,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.22091145799775713,
+  "cpu": 0.24204599999999488
+ },
+ "fixed_suite_seconds": [
+  2.13,
+  1.63,
+  1.94
+ ],
+ "covering": [
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationTest",
+  "org.apache.commons.jxpath.ri.model.beans.BeanModelTest",
+  "org.apache.commons.jxpath.ri.model.dynabeans.DynaBeanModelTest"
+ ],
+ "sizes": {
+  "org.apache.commons.jxpath.ri.JXPathCompiledExpressionTest": 15415,
+  "org.apache.commons.jxpath.ri.StressTest": 2988,
+  "org.apache.commons.jxpath.ri.axes.RecursiveAxesTest": 2065,
+  "org.apache.commons.jxpath.ri.compiler.ContextDependencyTest": 2076,
+  "org.apache.commons.jxpath.ri.compiler.CoreOperationTest": 7918,
+  "org.apache.commons.jxpath.ri.compiler.ExtensionFunctionTest": 14237,
+  "org.apache.commons.jxpath.ri.model.beans.BadlyImplementedFactoryTest": 2312,
+  "org.apache.commons.jxpath.ri.model.beans.BeanModelTest": 2087,
+  "org.apache.commons.jxpath.ri.model.container.ContainerModelTest": 5634,
+  "org.apache.commons.jxpath.ri.model.dynabeans.DynaBeanModelTest": 1771,
+  "org.apache.commons.jxpath.ri.model.dynamic.DynamicPropertiesModelTest": 11352,
+  "org.apache.commons.jxpath.ri.model.jdom.JDOMModelTest": 4408,
+  "org.apache.commons.jxpath.util.BasicTypeConverterTest": 5384
+ }
+}

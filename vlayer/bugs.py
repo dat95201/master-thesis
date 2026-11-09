@@ -50,6 +50,19 @@ def ensure_checkout(info: dict, version: str) -> Path:
     return w
 
 
+def source_path(w: Path, src_dir: str, cls: str) -> str:
+    """Source file of a class. '$' marks a nested class, but a class name may
+    also contain '$' itself (Gson's `$Gson$Types`), so drop nested parts from
+    the right only until the file exists."""
+    name = cls.replace(".", "/")
+    while True:
+        rel = f"{src_dir}/{name}.java"
+        simple = name.rsplit("/", 1)[-1]
+        if (w / rel).exists() or "$" not in simple[1:]:
+            return rel
+        name = name[:name.rindex("$")]
+
+
 def metadata_ok(pid: str, bid: int):
     if len(d4j.modified_classes(pid, bid)) != 1:
         return False, "fix modifies more than one class"
@@ -84,7 +97,7 @@ def prepare(bug: str, settings: dict, force=False):
 
     mod = d4j.modified_classes(pid, bid)[0]
     src_dir = d4j.export(wb, "dir.src.classes")
-    rel_src = f"{src_dir}/{mod.split('$')[0].replace('.', '/')}.java"
+    rel_src = source_path(wb, src_dir, mod)
     if not (wb / rel_src).exists():
         return None, f"source file not found: {rel_src}"
     buggy_text = (wb / rel_src).read_text(errors="replace")

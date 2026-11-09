@@ -1,0 +1,778 @@
+{
+ "bug": "Gson-14",
+ "pid": "Gson",
+ "bid": 14,
+ "modified_class": "com.google.gson.internal.$Gson$Types",
+ "src_file": "gson/src/main/java/com/google/gson/internal/$Gson$Types.java",
+ "test_dir": "gson/src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Gson-14/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Gson-14/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/junit/junit/3.8.2/junit-3.8.2.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Gson-14/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Gson-14/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/com/google/code/findbugs/jsr305/3.0.0/jsr305-3.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Gson/lib/junit/junit/3.8.2/junit-3.8.2.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Gson-14/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Gson-14/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "subtypeOf(Type)",
+   "name": "subtypeOf",
+   "nparams": 1
+  },
+  {
+   "key": "supertypeOf(Type)",
+   "name": "supertypeOf",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "subtypeOf(Type)": "public static WildcardType subtypeOf(Type bound) {\n    Type[] upperBounds;\n      upperBounds = new Type[] { bound };\n    return new WildcardTypeImpl(upperBounds, EMPTY_TYPE_ARRAY);\n  }",
+  "supertypeOf(Type)": "public static WildcardType supertypeOf(Type bound) {\n    Type[] lowerBounds;\n      lowerBounds = new Type[] { bound };\n    return new WildcardTypeImpl(new Type[] { Object.class }, lowerBounds);\n  }"
+ },
+ "fixed_methods": {
+  "subtypeOf(Type)": "public static WildcardType subtypeOf(Type bound) {\n    Type[] upperBounds;\n    if (bound instanceof WildcardType) {\n      upperBounds = ((WildcardType) bound).getUpperBounds();\n    } else {\n      upperBounds = new Type[] { bound };\n    }\n    return new WildcardTypeImpl(upperBounds, EMPTY_TYPE_ARRAY);\n  }",
+  "supertypeOf(Type)": "public static WildcardType supertypeOf(Type bound) {\n    Type[] lowerBounds;\n    if (bound instanceof WildcardType) {\n      lowerBounds = ((WildcardType) bound).getLowerBounds();\n    } else {\n      lowerBounds = new Type[] { bound };\n    }\n    return new WildcardTypeImpl(new Type[] { Object.class }, lowerBounds);\n  }"
+ },
+ "trigger_tests": [
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testDoubleSupertype",
+   "error": "junit.framework.AssertionFailedError: expected:<? super java.lang.Number> but was:<? super ? super java.lang.Number>"
+  },
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testIssue440WeakReference",
+   "error": "java.lang.StackOverflowError"
+  },
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testSubSupertype",
+   "error": "junit.framework.AssertionFailedError: expected:<?> but was:<? extends ? super java.lang.Number>"
+  },
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testDoubleSubtype",
+   "error": "junit.framework.AssertionFailedError: expected:<? extends java.lang.Number> but was:<? extends ? extends java.lang.Number>"
+  },
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testIssue603PrintStream",
+   "error": "java.lang.StackOverflowError"
+  },
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testSuperSubtype",
+   "error": "junit.framework.AssertionFailedError: expected:<?> but was:<? super ? extends java.lang.Number>"
+  },
+  {
+   "test": "com.google.gson.internal.bind.RecursiveTypesResolveTest::testRecursiveResolveSimple",
+   "error": "java.lang.StackOverflowError"
+  }
+ ],
+ "triggering_classes": [
+  "com.google.gson.internal.bind.RecursiveTypesResolveTest"
+ ],
+ "loaded_classes": [
+  "com.google.gson.annotations.JsonAdapter",
+  "com.google.gson.annotations.SerializedName",
+  "com.google.gson.FieldNamingPolicy",
+  "com.google.gson.FieldNamingStrategy",
+  "com.google.gson.Gson",
+  "com.google.gson.internal.$Gson$Preconditions",
+  "com.google.gson.internal.$Gson$Types",
+  "com.google.gson.internal.bind.ArrayTypeAdapter",
+  "com.google.gson.internal.bind.CollectionTypeAdapterFactory",
+  "com.google.gson.internal.bind.DateTypeAdapter",
+  "com.google.gson.internal.bind.JsonAdapterAnnotationTypeAdapterFactory",
+  "com.google.gson.internal.bind.JsonTreeReader",
+  "com.google.gson.internal.bind.JsonTreeWriter",
+  "com.google.gson.internal.bind.MapTypeAdapterFactory",
+  "com.google.gson.internal.bind.ObjectTypeAdapter",
+  "com.google.gson.internal.bind.ReflectiveTypeAdapterFactory",
+  "com.google.gson.internal.bind.SqlDateTypeAdapter",
+  "com.google.gson.internal.bind.TimeTypeAdapter",
+  "com.google.gson.internal.bind.TreeTypeAdapter",
+  "com.google.gson.internal.bind.TypeAdapterRuntimeTypeWrapper",
+  "com.google.gson.internal.bind.TypeAdapters",
+  "com.google.gson.internal.ConstructorConstructor",
+  "com.google.gson.internal.Excluder",
+  "com.google.gson.internal.LazilyParsedNumber",
+  "com.google.gson.internal.ObjectConstructor",
+  "com.google.gson.internal.Primitives",
+  "com.google.gson.internal.UnsafeAllocator",
+  "com.google.gson.JsonArray",
+  "com.google.gson.JsonElement",
+  "com.google.gson.JsonIOException",
+  "com.google.gson.JsonNull",
+  "com.google.gson.JsonObject",
+  "com.google.gson.JsonParseException",
+  "com.google.gson.JsonPrimitive",
+  "com.google.gson.JsonSyntaxException",
+  "com.google.gson.LongSerializationPolicy",
+  "com.google.gson.reflect.TypeToken",
+  "com.google.gson.stream.JsonReader",
+  "com.google.gson.stream.JsonWriter",
+  "com.google.gson.stream.MalformedJsonException",
+  "com.google.gson.TypeAdapter",
+  "com.google.gson.TypeAdapterFactory"
+ ],
+ "suite": [
+  "com.google.gson.CommentsTest",
+  "com.google.gson.DefaultDateTypeAdapterTest",
+  "com.google.gson.DefaultInetAddressTypeAdapterTest",
+  "com.google.gson.DefaultMapJsonSerializerTest",
+  "com.google.gson.ExposeAnnotationExclusionStrategyTest",
+  "com.google.gson.FieldAttributesTest",
+  "com.google.gson.GenericArrayTypeTest",
+  "com.google.gson.GsonBuilderTest",
+  "com.google.gson.GsonTest",
+  "com.google.gson.GsonTypeAdapterTest",
+  "com.google.gson.InnerClassExclusionStrategyTest",
+  "com.google.gson.JavaSerializationTest",
+  "com.google.gson.JsonArrayTest",
+  "com.google.gson.JsonNullTest",
+  "com.google.gson.JsonObjectTest",
+  "com.google.gson.JsonParserTest",
+  "com.google.gson.JsonPrimitiveTest",
+  "com.google.gson.JsonStreamParserTest",
+  "com.google.gson.LongSerializationPolicyTest",
+  "com.google.gson.MixedStreamTest",
+  "com.google.gson.ObjectTypeAdapterTest",
+  "com.google.gson.OverrideCoreTypeAdaptersTest",
+  "com.google.gson.ParameterizedTypeTest",
+  "com.google.gson.VersionExclusionStrategyTest",
+  "com.google.gson.functional.ArrayTest",
+  "com.google.gson.functional.CircularReferenceTest",
+  "com.google.gson.functional.CollectionTest",
+  "com.google.gson.functional.ConcurrencyTest",
+  "com.google.gson.functional.CustomDeserializerTest",
+  "com.google.gson.functional.CustomSerializerTest",
+  "com.google.gson.functional.CustomTypeAdaptersTest",
+  "com.google.gson.functional.DefaultTypeAdaptersTest",
+  "com.google.gson.functional.DelegateTypeAdapterTest",
+  "com.google.gson.functional.EnumTest",
+  "com.google.gson.functional.EscapingTest",
+  "com.google.gson.functional.ExclusionStrategyFunctionalTest",
+  "com.google.gson.functional.ExposeFieldsTest",
+  "com.google.gson.functional.FieldExclusionTest",
+  "com.google.gson.functional.FieldNamingTest",
+  "com.google.gson.functional.InheritanceTest",
+  "com.google.gson.functional.InstanceCreatorTest",
+  "com.google.gson.functional.InterfaceTest",
+  "com.google.gson.functional.InternationalizationTest",
+  "com.google.gson.functional.JavaUtilConcurrentAtomicTest",
+  "com.google.gson.functional.JavaUtilTest",
+  "com.google.gson.functional.JsonAdapterAnnotationOnClassesTest",
+  "com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest",
+  "com.google.gson.functional.JsonAdapterSerializerDeserializerTest",
+  "com.google.gson.functional.JsonArrayTest",
+  "com.google.gson.functional.JsonParserTest",
+  "com.google.gson.functional.JsonTreeTest",
+  "com.google.gson.functional.LeniencyTest",
+  "com.google.gson.functional.MapAsArrayTypeAdapterTest",
+  "com.google.gson.functional.MapTest",
+  "com.google.gson.functional.MoreSpecificTypeSerializationTest",
+  "com.google.gson.functional.NamingPolicyTest",
+  "com.google.gson.functional.NullObjectAndFieldTest",
+  "com.google.gson.functional.ObjectTest",
+  "com.google.gson.functional.ParameterizedTypesTest",
+  "com.google.gson.functional.PrettyPrintingTest",
+  "com.google.gson.functional.PrimitiveCharacterTest",
+  "com.google.gson.functional.PrimitiveTest",
+  "com.google.gson.functional.PrintFormattingTest",
+  "com.google.gson.functional.RawSerializationTest",
+  "com.google.gson.functional.ReadersWritersTest",
+  "com.google.gson.functional.RuntimeTypeAdapterFactoryFunctionalTest",
+  "com.google.gson.functional.SecurityTest",
+  "com.google.gson.functional.SerializedNameTest",
+  "com.google.gson.functional.StreamingTypeAdaptersTest",
+  "com.google.gson.functional.StringTest",
+  "com.google.gson.functional.ThrowableFunctionalTest",
+  "com.google.gson.functional.TreeTypeAdaptersTest",
+  "com.google.gson.functional.TypeAdapterPrecedenceTest",
+  "com.google.gson.functional.TypeHierarchyAdapterTest",
+  "com.google.gson.functional.TypeVariableTest",
+  "com.google.gson.functional.UncategorizedTest",
+  "com.google.gson.functional.VersioningTest",
+  "com.google.gson.internal.GsonTypesTest",
+  "com.google.gson.internal.LazilyParsedNumberTest",
+  "com.google.gson.internal.LinkedHashTreeMapTest",
+  "com.google.gson.internal.LinkedTreeMapTest",
+  "com.google.gson.internal.UnsafeAllocatorInstantiationTest",
+  "com.google.gson.internal.bind.JsonElementReaderTest",
+  "com.google.gson.internal.bind.JsonTreeReaderTest",
+  "com.google.gson.internal.bind.JsonTreeWriterTest",
+  "com.google.gson.internal.bind.RecursiveTypesResolveTest",
+  "com.google.gson.metrics.PerformanceTest",
+  "com.google.gson.reflect.TypeTokenTest",
+  "com.google.gson.regression.JsonAdapterNullSafeTest",
+  "com.google.gson.stream.JsonReaderPathTest",
+  "com.google.gson.stream.JsonReaderTest",
+  "com.google.gson.stream.JsonWriterTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "com.google.gson.CommentsTest": {
+   "wall": 0.08526399999999999,
+   "cpu": 0.130898,
+   "status": "pass"
+  },
+  "com.google.gson.DefaultDateTypeAdapterTest": {
+   "wall": 0.107199,
+   "cpu": 0.269978,
+   "status": "pass"
+  },
+  "com.google.gson.DefaultInetAddressTypeAdapterTest": {
+   "wall": 0.006221,
+   "cpu": 0.013585000000000002,
+   "status": "pass"
+  },
+  "com.google.gson.DefaultMapJsonSerializerTest": {
+   "wall": 0.00792,
+   "cpu": 0.014317,
+   "status": "pass"
+  },
+  "com.google.gson.ExposeAnnotationExclusionStrategyTest": {
+   "wall": 0.002597,
+   "cpu": 0.005668,
+   "status": "pass"
+  },
+  "com.google.gson.FieldAttributesTest": {
+   "wall": 0.0018080000000000001,
+   "cpu": 0.003492,
+   "status": "pass"
+  },
+  "com.google.gson.GenericArrayTypeTest": {
+   "wall": 0.002185,
+   "cpu": 0.0036,
+   "status": "pass"
+  },
+  "com.google.gson.GsonBuilderTest": {
+   "wall": 0.004207,
+   "cpu": 0.00656,
+   "status": "pass"
+  },
+  "com.google.gson.GsonTest": {
+   "wall": 0.000963,
+   "cpu": 0.001671,
+   "status": "pass"
+  },
+  "com.google.gson.GsonTypeAdapterTest": {
+   "wall": 0.004961999999999999,
+   "cpu": 0.008772,
+   "status": "pass"
+  },
+  "com.google.gson.InnerClassExclusionStrategyTest": {
+   "wall": 0.0011619999999999998,
+   "cpu": 0.001488,
+   "status": "pass"
+  },
+  "com.google.gson.JavaSerializationTest": {
+   "wall": 0.013815,
+   "cpu": 0.032043,
+   "status": "pass"
+  },
+  "com.google.gson.JsonArrayTest": {
+   "wall": 0.001461,
+   "cpu": 0.0026869999999999997,
+   "status": "pass"
+  },
+  "com.google.gson.JsonNullTest": {
+   "wall": 0.000708,
+   "cpu": 0.001495,
+   "status": "pass"
+  },
+  "com.google.gson.JsonObjectTest": {
+   "wall": 0.00394,
+   "cpu": 0.01651,
+   "status": "pass"
+  },
+  "com.google.gson.JsonParserTest": {
+   "wall": 0.002718,
+   "cpu": 0.007064,
+   "status": "pass"
+  },
+  "com.google.gson.JsonPrimitiveTest": {
+   "wall": 0.001796,
+   "cpu": 0.005031,
+   "status": "pass"
+  },
+  "com.google.gson.JsonStreamParserTest": {
+   "wall": 0.001196,
+   "cpu": 0.001638,
+   "status": "pass"
+  },
+  "com.google.gson.LongSerializationPolicyTest": {
+   "wall": 0.000949,
+   "cpu": 0.002541,
+   "status": "pass"
+  },
+  "com.google.gson.MixedStreamTest": {
+   "wall": 0.0029860000000000004,
+   "cpu": 0.006844,
+   "status": "pass"
+  },
+  "com.google.gson.ObjectTypeAdapterTest": {
+   "wall": 0.005551,
+   "cpu": 0.010029999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.OverrideCoreTypeAdaptersTest": {
+   "wall": 0.001547,
+   "cpu": 0.003049,
+   "status": "pass"
+  },
+  "com.google.gson.ParameterizedTypeTest": {
+   "wall": 0.0017909999999999998,
+   "cpu": 0.004543999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.VersionExclusionStrategyTest": {
+   "wall": 0.002637,
+   "cpu": 0.004636,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ArrayTest": {
+   "wall": 0.004797,
+   "cpu": 0.011726,
+   "status": "pass"
+  },
+  "com.google.gson.functional.CircularReferenceTest": {
+   "wall": 0.023985,
+   "cpu": 0.054667,
+   "status": "pass"
+  },
+  "com.google.gson.functional.CollectionTest": {
+   "wall": 0.017315,
+   "cpu": 0.036732,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ConcurrencyTest": {
+   "wall": 0.0068520000000000005,
+   "cpu": 0.017167,
+   "status": "pass"
+  },
+  "com.google.gson.functional.CustomDeserializerTest": {
+   "wall": 0.009707,
+   "cpu": 0.016912,
+   "status": "pass"
+  },
+  "com.google.gson.functional.CustomSerializerTest": {
+   "wall": 0.006775000000000001,
+   "cpu": 0.012273999999999998,
+   "status": "pass"
+  },
+  "com.google.gson.functional.CustomTypeAdaptersTest": {
+   "wall": 0.010765,
+   "cpu": 0.022576,
+   "status": "pass"
+  },
+  "com.google.gson.functional.DefaultTypeAdaptersTest": {
+   "wall": 0.012196,
+   "cpu": 0.033756999999999995,
+   "status": "pass"
+  },
+  "com.google.gson.functional.DelegateTypeAdapterTest": {
+   "wall": 0.001766,
+   "cpu": 0.003479,
+   "status": "pass"
+  },
+  "com.google.gson.functional.EnumTest": {
+   "wall": 0.00713,
+   "cpu": 0.015334,
+   "status": "pass"
+  },
+  "com.google.gson.functional.EscapingTest": {
+   "wall": 0.000997,
+   "cpu": 0.000856,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ExclusionStrategyFunctionalTest": {
+   "wall": 0.0032839999999999996,
+   "cpu": 0.00967,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ExposeFieldsTest": {
+   "wall": 0.006893,
+   "cpu": 0.012491,
+   "status": "pass"
+  },
+  "com.google.gson.functional.FieldExclusionTest": {
+   "wall": 0.001893,
+   "cpu": 0.003512,
+   "status": "pass"
+  },
+  "com.google.gson.functional.FieldNamingTest": {
+   "wall": 0.002166,
+   "cpu": 0.0044329999999999994,
+   "status": "pass"
+  },
+  "com.google.gson.functional.InheritanceTest": {
+   "wall": 0.003783,
+   "cpu": 0.00996,
+   "status": "pass"
+  },
+  "com.google.gson.functional.InstanceCreatorTest": {
+   "wall": 0.004828000000000001,
+   "cpu": 0.010465,
+   "status": "pass"
+  },
+  "com.google.gson.functional.InterfaceTest": {
+   "wall": 0.002342,
+   "cpu": 0.005077,
+   "status": "pass"
+  },
+  "com.google.gson.functional.InternationalizationTest": {
+   "wall": 0.000979,
+   "cpu": 0.002156,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JavaUtilConcurrentAtomicTest": {
+   "wall": 0.002352,
+   "cpu": 0.005979,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JavaUtilTest": {
+   "wall": 0.001508,
+   "cpu": 0.0032949999999999998,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JsonAdapterAnnotationOnClassesTest": {
+   "wall": 0.008167,
+   "cpu": 0.015514,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest": {
+   "wall": 0.009031,
+   "cpu": 0.019173,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JsonAdapterSerializerDeserializerTest": {
+   "wall": 13.406398,
+   "cpu": 0.019216,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JsonArrayTest": {
+   "wall": 0.0009270000000000001,
+   "cpu": 0.001204,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JsonParserTest": {
+   "wall": 0.00449,
+   "cpu": 0.00726,
+   "status": "pass"
+  },
+  "com.google.gson.functional.JsonTreeTest": {
+   "wall": 0.00225,
+   "cpu": 0.003634,
+   "status": "pass"
+  },
+  "com.google.gson.functional.LeniencyTest": {
+   "wall": 0.003686,
+   "cpu": 0.002404,
+   "status": "pass"
+  },
+  "com.google.gson.functional.MapAsArrayTypeAdapterTest": {
+   "wall": 0.017272,
+   "cpu": 0.020707,
+   "status": "pass"
+  },
+  "com.google.gson.functional.MapTest": {
+   "wall": 0.071213,
+   "cpu": 0.073931,
+   "status": "pass"
+  },
+  "com.google.gson.functional.MoreSpecificTypeSerializationTest": {
+   "wall": 0.010798,
+   "cpu": 0.015477000000000001,
+   "status": "pass"
+  },
+  "com.google.gson.functional.NamingPolicyTest": {
+   "wall": 0.003235,
+   "cpu": 0.005793,
+   "status": "pass"
+  },
+  "com.google.gson.functional.NullObjectAndFieldTest": {
+   "wall": 0.0094,
+   "cpu": 0.012547,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ObjectTest": {
+   "wall": 0.029658,
+   "cpu": 0.045969,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ParameterizedTypesTest": {
+   "wall": 0.052215000000000004,
+   "cpu": 0.05271,
+   "status": "pass"
+  },
+  "com.google.gson.functional.PrettyPrintingTest": {
+   "wall": 0.002275,
+   "cpu": 0.0015869999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.functional.PrimitiveCharacterTest": {
+   "wall": 0.000782,
+   "cpu": 0.0012569999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.functional.PrimitiveTest": {
+   "wall": 0.006602,
+   "cpu": 0.010811,
+   "status": "pass"
+  },
+  "com.google.gson.functional.PrintFormattingTest": {
+   "wall": 0.002063,
+   "cpu": 0.002682,
+   "status": "pass"
+  },
+  "com.google.gson.functional.RawSerializationTest": {
+   "wall": 0.00718,
+   "cpu": 0.007636,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ReadersWritersTest": {
+   "wall": 0.001955,
+   "cpu": 0.003644,
+   "status": "pass"
+  },
+  "com.google.gson.functional.RuntimeTypeAdapterFactoryFunctionalTest": {
+   "wall": 0.0076630000000000005,
+   "cpu": 0.00795,
+   "status": "pass"
+  },
+  "com.google.gson.functional.SecurityTest": {
+   "wall": 0.004426,
+   "cpu": 0.010103,
+   "status": "pass"
+  },
+  "com.google.gson.functional.SerializedNameTest": {
+   "wall": 0.001469,
+   "cpu": 0.000996,
+   "status": "pass"
+  },
+  "com.google.gson.functional.StreamingTypeAdaptersTest": {
+   "wall": 0.020279,
+   "cpu": 0.016986,
+   "status": "pass"
+  },
+  "com.google.gson.functional.StringTest": {
+   "wall": 0.001938,
+   "cpu": 0.001751,
+   "status": "pass"
+  },
+  "com.google.gson.functional.ThrowableFunctionalTest": {
+   "wall": 0.0034609999999999997,
+   "cpu": 0.006311,
+   "status": "pass"
+  },
+  "com.google.gson.functional.TreeTypeAdaptersTest": {
+   "wall": 0.00757,
+   "cpu": 0.008107,
+   "status": "pass"
+  },
+  "com.google.gson.functional.TypeAdapterPrecedenceTest": {
+   "wall": 0.005065,
+   "cpu": 0.006198,
+   "status": "pass"
+  },
+  "com.google.gson.functional.TypeHierarchyAdapterTest": {
+   "wall": 0.0054340000000000005,
+   "cpu": 0.007339,
+   "status": "pass"
+  },
+  "com.google.gson.functional.TypeVariableTest": {
+   "wall": 0.004036,
+   "cpu": 0.005237,
+   "status": "pass"
+  },
+  "com.google.gson.functional.UncategorizedTest": {
+   "wall": 0.003245,
+   "cpu": 0.0039310000000000005,
+   "status": "pass"
+  },
+  "com.google.gson.functional.VersioningTest": {
+   "wall": 0.008788,
+   "cpu": 0.013212999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.internal.GsonTypesTest": {
+   "wall": 0.004148,
+   "cpu": 0.0031179999999999997,
+   "status": "pass"
+  },
+  "com.google.gson.internal.LazilyParsedNumberTest": {
+   "wall": 0.000683,
+   "cpu": 0.0006929999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.internal.LinkedHashTreeMapTest": {
+   "wall": 0.015202,
+   "cpu": 0.018989000000000002,
+   "status": "pass"
+  },
+  "com.google.gson.internal.LinkedTreeMapTest": {
+   "wall": 0.002539,
+   "cpu": 0.005652999999999999,
+   "status": "pass"
+  },
+  "com.google.gson.internal.UnsafeAllocatorInstantiationTest": {
+   "wall": 0.002191,
+   "cpu": 0.003877,
+   "status": "pass"
+  },
+  "com.google.gson.internal.bind.JsonElementReaderTest": {
+   "wall": 0.001338,
+   "cpu": 0.002599,
+   "status": "pass"
+  },
+  "com.google.gson.internal.bind.JsonTreeReaderTest": {
+   "wall": 0.00034100000000000005,
+   "cpu": 0.000368,
+   "status": "pass"
+  },
+  "com.google.gson.internal.bind.JsonTreeWriterTest": {
+   "wall": 0.0013260000000000001,
+   "cpu": 0.00214,
+   "status": "pass"
+  },
+  "com.google.gson.internal.bind.RecursiveTypesResolveTest": {
+   "wall": 0.622599,
+   "cpu": 1.059112,
+   "status": "fail"
+  },
+  "com.google.gson.metrics.PerformanceTest": {
+   "wall": 0.001256,
+   "cpu": 0.00172,
+   "status": "pass"
+  },
+  "com.google.gson.reflect.TypeTokenTest": {
+   "wall": 0.005089000000000001,
+   "cpu": 0.007726,
+   "status": "pass"
+  },
+  "com.google.gson.regression.JsonAdapterNullSafeTest": {
+   "wall": 0.002285,
+   "cpu": 0.0037040000000000003,
+   "status": "pass"
+  },
+  "com.google.gson.stream.JsonReaderPathTest": {
+   "wall": 0.029398,
+   "cpu": 0.053308999999999995,
+   "status": "pass"
+  },
+  "com.google.gson.stream.JsonReaderTest": {
+   "wall": 0.012849000000000001,
+   "cpu": 0.025465,
+   "status": "pass"
+  },
+  "com.google.gson.stream.JsonWriterTest": {
+   "wall": 0.003798,
+   "cpu": 0.008146,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2371205420014597,
+  "cpu": 0.334123999999997
+ },
+ "fixed_suite_seconds": [
+  1.21,
+  0.89,
+  0.85
+ ],
+ "covering": [
+  "com.google.gson.functional.ParameterizedTypesTest",
+  "com.google.gson.internal.bind.RecursiveTypesResolveTest"
+ ],
+ "sizes": {
+  "com.google.gson.CommentsTest": 1293,
+  "com.google.gson.DefaultDateTypeAdapterTest": 7361,
+  "com.google.gson.DefaultInetAddressTypeAdapterTest": 1356,
+  "com.google.gson.DefaultMapJsonSerializerTest": 2255,
+  "com.google.gson.ExposeAnnotationExclusionStrategyTest": 2981,
+  "com.google.gson.FieldAttributesTest": 2546,
+  "com.google.gson.GenericArrayTypeTest": 1930,
+  "com.google.gson.GsonBuilderTest": 2469,
+  "com.google.gson.GsonTest": 1800,
+  "com.google.gson.GsonTypeAdapterTest": 5587,
+  "com.google.gson.InnerClassExclusionStrategyTest": 1838,
+  "com.google.gson.JavaSerializationTest": 2876,
+  "com.google.gson.JsonArrayTest": 2847,
+  "com.google.gson.JsonNullTest": 1312,
+  "com.google.gson.JsonObjectTest": 5819,
+  "com.google.gson.JsonParserTest": 4176,
+  "com.google.gson.JsonPrimitiveTest": 9251,
+  "com.google.gson.JsonStreamParserTest": 2133,
+  "com.google.gson.LongSerializationPolicyTest": 2274,
+  "com.google.gson.MixedStreamTest": 7377,
+  "com.google.gson.ObjectTypeAdapterTest": 2182,
+  "com.google.gson.OverrideCoreTypeAdaptersTest": 2898,
+  "com.google.gson.ParameterizedTypeTest": 1925,
+  "com.google.gson.VersionExclusionStrategyTest": 1915,
+  "com.google.gson.functional.ArrayTest": 9156,
+  "com.google.gson.functional.CircularReferenceTest": 4269,
+  "com.google.gson.functional.CollectionTest": 14325,
+  "com.google.gson.functional.ConcurrencyTest": 4185,
+  "com.google.gson.functional.CustomDeserializerTest": 6947,
+  "com.google.gson.functional.CustomSerializerTest": 4227,
+  "com.google.gson.functional.CustomTypeAdaptersTest": 17179,
+  "com.google.gson.functional.DefaultTypeAdaptersTest": 27415,
+  "com.google.gson.functional.DelegateTypeAdapterTest": 2986,
+  "com.google.gson.functional.EnumTest": 6858,
+  "com.google.gson.functional.EscapingTest": 3470,
+  "com.google.gson.functional.ExclusionStrategyFunctionalTest": 7598,
+  "com.google.gson.functional.ExposeFieldsTest": 5254,
+  "com.google.gson.functional.FieldExclusionTest": 2628,
+  "com.google.gson.functional.FieldNamingTest": 3702,
+  "com.google.gson.functional.InheritanceTest": 9266,
+  "com.google.gson.functional.InstanceCreatorTest": 4467,
+  "com.google.gson.functional.InterfaceTest": 1968,
+  "com.google.gson.functional.InternationalizationTest": 2309,
+  "com.google.gson.functional.JavaUtilConcurrentAtomicTest": 3793,
+  "com.google.gson.functional.JavaUtilTest": 1875,
+  "com.google.gson.functional.JsonAdapterAnnotationOnClassesTest": 8780,
+  "com.google.gson.functional.JsonAdapterAnnotationOnFieldsTest": 11196,
+  "com.google.gson.functional.JsonAdapterSerializerDeserializerTest": 5875,
+  "com.google.gson.functional.JsonArrayTest": 4117,
+  "com.google.gson.functional.JsonParserTest": 4544,
+  "com.google.gson.functional.JsonTreeTest": 2998,
+  "com.google.gson.functional.LeniencyTest": 1355,
+  "com.google.gson.functional.MapAsArrayTypeAdapterTest": 5160,
+  "com.google.gson.functional.MapTest": 23588,
+  "com.google.gson.functional.MoreSpecificTypeSerializationTest": 5805,
+  "com.google.gson.functional.NamingPolicyTest": 7248,
+  "com.google.gson.functional.NullObjectAndFieldTest": 8796,
+  "com.google.gson.functional.ObjectTest": 17825,
+  "com.google.gson.functional.ParameterizedTypesTest": 18810,
+  "com.google.gson.functional.PrettyPrintingTest": 3912,
+  "com.google.gson.functional.PrimitiveCharacterTest": 1572,
+  "com.google.gson.functional.PrimitiveTest": 27555,
+  "com.google.gson.functional.PrintFormattingTest": 2513,
+  "com.google.gson.functional.RawSerializationTest": 3289,
+  "com.google.gson.functional.ReadersWritersTest": 4875,
+  "com.google.gson.functional.RuntimeTypeAdapterFactoryFunctionalTest": 8010,
+  "com.google.gson.functional.SecurityTest": 3138,
+  "com.google.gson.functional.SerializedNameTest": 1948,
+  "com.google.gson.functional.StreamingTypeAdaptersTest": 9182,
+  "com.google.gson.functional.StringTest": 4574,
+  "com.google.gson.functional.ThrowableFunctionalTest": 2430,
+  "com.google.gson.functional.TreeTypeAdaptersTest": 5700,
+  "com.google.gson.functional.TypeAdapterPrecedenceTest": 6457,
+  "com.google.gson.functional.TypeHierarchyAdapterTest": 7555,
+  "com.google.gson.functional.TypeVariableTest": 3866,
+  "com.google.gson.functional.UncategorizedTest": 4670,
+  "com.google.gson.functional.VersioningTest": 5443,
+  "com.google.gson.internal.GsonTypesTest": 2532,
+  "com.google.gson.internal.LazilyParsedNumberTest": 1157,
+  "com.google.gson.internal.LinkedHashTreeMapTest": 10232,
+  "com.google.gson.internal.LinkedTreeMapTest": 4653,
+  "com.google.gson.internal.UnsafeAllocatorInstantiationTest": 2149,
+  "com.google.gson.internal.bind.JsonElementReaderTest": 9487,
+  "com.google.gson.internal.bind.JsonTreeReaderTest": 1795,
+  "com.google.gson.internal.bind.JsonTreeWriterTest": 5011,
+  "com.google.gson.internal.bind.RecursiveTypesResolveTest": 2882,
+  "com.google.gson.metrics.PerformanceTest": 10750,
+  "com.google.gson.reflect.TypeTokenTest": 4649,
+  "com.google.gson.regression.JsonAdapterNullSafeTest": 2204,
+  "com.google.gson.stream.JsonReaderPathTest": 7794,
+  "com.google.gson.stream.JsonReaderTest": 55892,
+  "com.google.gson.stream.JsonWriterTest": 18960
+ }
+}

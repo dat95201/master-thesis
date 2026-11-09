@@ -1,0 +1,261 @@
+{
+ "bug": "Cli-40",
+ "pid": "Cli",
+ "bid": 40,
+ "modified_class": "org.apache.commons.cli.TypeHandler",
+ "src_file": "src/main/java/org/apache/commons/cli/TypeHandler.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Cli/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Cli/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-40/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-40/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Cli/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Cli/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-40/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-40/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-40/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-40/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "createValue(String,Class<T>)",
+   "name": "createValue",
+   "nparams": 2
+  }
+ ],
+ "buggy_methods": {
+  "createValue(String,Class<T>)": "@SuppressWarnings(\"unchecked\") // returned value will have type T because it is fixed by clazz\n    public static <T> T createValue(final String str, final Class<T> clazz) throws ParseException\n    {\n        if (PatternOptionBuilder.STRING_VALUE == clazz)\n        {\n            return (T) str;\n        }\n        else if (PatternOptionBuilder.OBJECT_VALUE == clazz)\n        {\n            return (T) createObject(str);\n        }\n        else if (PatternOptionBuilder.NUMBER_VALUE == clazz)\n        {\n            return (T) createNumber(str);\n        }\n        else if (PatternOptionBuilder.DATE_VALUE == clazz)\n        {\n            return (T) createDate(str);\n        }\n        else if (PatternOptionBuilder.CLASS_VALUE == clazz)\n        {\n            return (T) createClass(str);\n        }\n        else if (PatternOptionBuilder.FILE_VALUE == clazz)\n        {\n            return (T) createFile(str);\n        }\n        else if (PatternOptionBuilder.EXISTING_FILE_VALUE == clazz)\n        {\n            return (T) openFile(str);\n        }\n        else if (PatternOptionBuilder.FILES_VALUE == clazz)\n        {\n            return (T) createFiles(str);\n        }\n        else if (PatternOptionBuilder.URL_VALUE == clazz)\n        {\n            return (T) createURL(str);\n        }\n        else\n        {\n            return null;\n        }\n    }"
+ },
+ "fixed_methods": {
+  "createValue(String,Class<T>)": "@SuppressWarnings(\"unchecked\") // returned value will have type T because it is fixed by clazz\n    public static <T> T createValue(final String str, final Class<T> clazz) throws ParseException\n    {\n        if (PatternOptionBuilder.STRING_VALUE == clazz)\n        {\n            return (T) str;\n        }\n        else if (PatternOptionBuilder.OBJECT_VALUE == clazz)\n        {\n            return (T) createObject(str);\n        }\n        else if (PatternOptionBuilder.NUMBER_VALUE == clazz)\n        {\n            return (T) createNumber(str);\n        }\n        else if (PatternOptionBuilder.DATE_VALUE == clazz)\n        {\n            return (T) createDate(str);\n        }\n        else if (PatternOptionBuilder.CLASS_VALUE == clazz)\n        {\n            return (T) createClass(str);\n        }\n        else if (PatternOptionBuilder.FILE_VALUE == clazz)\n        {\n            return (T) createFile(str);\n        }\n        else if (PatternOptionBuilder.EXISTING_FILE_VALUE == clazz)\n        {\n            return (T) openFile(str);\n        }\n        else if (PatternOptionBuilder.FILES_VALUE == clazz)\n        {\n            return (T) createFiles(str);\n        }\n        else if (PatternOptionBuilder.URL_VALUE == clazz)\n        {\n            return (T) createURL(str);\n        }\n        else\n        {\n            throw new ParseException(\"Unable to handle the class: \" + clazz);\n        }\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.cli.TypeHandlerTest::testCreateValueInteger_failure",
+   "error": "junit.framework.AssertionFailedError: Expected exception: org.apache.commons.cli.ParseException"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.cli.TypeHandlerTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.cli.PatternOptionBuilder",
+  "org.apache.commons.cli.ParseException",
+  "org.apache.commons.cli.TypeHandler"
+ ],
+ "suite": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.ArgumentIsOptionTest",
+  "org.apache.commons.cli.BasicParserTest",
+  "org.apache.commons.cli.CommandLineTest",
+  "org.apache.commons.cli.DefaultParserTest",
+  "org.apache.commons.cli.DisablePartialMatchingTest",
+  "org.apache.commons.cli.GnuParserTest",
+  "org.apache.commons.cli.HelpFormatterTest",
+  "org.apache.commons.cli.OptionBuilderTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.OptionTest",
+  "org.apache.commons.cli.OptionsTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.PosixParserTest",
+  "org.apache.commons.cli.TypeHandlerTest",
+  "org.apache.commons.cli.UtilTest",
+  "org.apache.commons.cli.ValueTest",
+  "org.apache.commons.cli.ValuesTest",
+  "org.apache.commons.cli.bug.BugCLI133Test",
+  "org.apache.commons.cli.bug.BugCLI13Test",
+  "org.apache.commons.cli.bug.BugCLI148Test",
+  "org.apache.commons.cli.bug.BugCLI162Test",
+  "org.apache.commons.cli.bug.BugCLI18Test",
+  "org.apache.commons.cli.bug.BugCLI252Test",
+  "org.apache.commons.cli.bug.BugCLI265Test",
+  "org.apache.commons.cli.bug.BugCLI266Test",
+  "org.apache.commons.cli.bug.BugCLI71Test",
+  "org.apache.commons.cli.bug.BugsTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.cli.ApplicationTest": {
+   "wall": 0.101006,
+   "cpu": 0.13593799999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ArgumentIsOptionTest": {
+   "wall": 0.006769,
+   "cpu": 0.002876,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BasicParserTest": {
+   "wall": 0.04593,
+   "cpu": 0.026317,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.CommandLineTest": {
+   "wall": 0.055638,
+   "cpu": 0.016510999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.DefaultParserTest": {
+   "wall": 0.009557,
+   "cpu": 0.017421,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.DisablePartialMatchingTest": {
+   "wall": 0.0008629999999999999,
+   "cpu": 0.001445,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.GnuParserTest": {
+   "wall": 0.007485,
+   "cpu": 0.014173999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.HelpFormatterTest": {
+   "wall": 0.014301,
+   "cpu": 0.012336,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionBuilderTest": {
+   "wall": 0.003449,
+   "cpu": 0.002443,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionGroupTest": {
+   "wall": 0.003939,
+   "cpu": 0.004609,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionTest": {
+   "wall": 0.018686,
+   "cpu": 0.009077,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionsTest": {
+   "wall": 0.002282,
+   "cpu": 0.0027949999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PatternOptionBuilderTest": {
+   "wall": 0.029303,
+   "cpu": 0.025675999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PosixParserTest": {
+   "wall": 0.003645,
+   "cpu": 0.00809,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.TypeHandlerTest": {
+   "wall": 0.020495,
+   "cpu": 0.012805,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.UtilTest": {
+   "wall": 0.001768,
+   "cpu": 0.0012629999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValueTest": {
+   "wall": 0.006796,
+   "cpu": 0.010763,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValuesTest": {
+   "wall": 0.0046879999999999995,
+   "cpu": 0.008128999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI133Test": {
+   "wall": 0.0008810000000000001,
+   "cpu": 0.001627,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI13Test": {
+   "wall": 0.000513,
+   "cpu": 0.001037,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI148Test": {
+   "wall": 0.0006680000000000001,
+   "cpu": 0.001123,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI162Test": {
+   "wall": 0.001676,
+   "cpu": 0.003069,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI18Test": {
+   "wall": 0.000653,
+   "cpu": 0.000889,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI252Test": {
+   "wall": 0.000968,
+   "cpu": 0.001157,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI265Test": {
+   "wall": 0.001397,
+   "cpu": 0.001479,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI266Test": {
+   "wall": 0.001119,
+   "cpu": 0.002331,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI71Test": {
+   "wall": 0.000986,
+   "cpu": 0.00122,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugsTest": {
+   "wall": 0.0011899999999999999,
+   "cpu": 0.00158,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.3320375000001348,
+  "cpu": 0.2492449999999981
+ },
+ "fixed_suite_seconds": [
+  0.31,
+  0.32,
+  0.51
+ ],
+ "covering": [
+  "org.apache.commons.cli.CommandLineTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.TypeHandlerTest"
+ ],
+ "sizes": {
+  "org.apache.commons.cli.ApplicationTest": 17434,
+  "org.apache.commons.cli.ArgumentIsOptionTest": 2896,
+  "org.apache.commons.cli.BasicParserTest": 4507,
+  "org.apache.commons.cli.CommandLineTest": 6991,
+  "org.apache.commons.cli.DefaultParserTest": 1027,
+  "org.apache.commons.cli.DisablePartialMatchingTest": 2687,
+  "org.apache.commons.cli.GnuParserTest": 4071,
+  "org.apache.commons.cli.HelpFormatterTest": 23637,
+  "org.apache.commons.cli.OptionBuilderTest": 6935,
+  "org.apache.commons.cli.OptionGroupTest": 9793,
+  "org.apache.commons.cli.OptionTest": 8822,
+  "org.apache.commons.cli.OptionsTest": 6327,
+  "org.apache.commons.cli.PatternOptionBuilderTest": 8627,
+  "org.apache.commons.cli.PosixParserTest": 2430,
+  "org.apache.commons.cli.TypeHandlerTest": 5115,
+  "org.apache.commons.cli.UtilTest": 1782,
+  "org.apache.commons.cli.ValueTest": 11808,
+  "org.apache.commons.cli.ValuesTest": 6862,
+  "org.apache.commons.cli.bug.BugCLI133Test": 1596,
+  "org.apache.commons.cli.bug.BugCLI13Test": 2115,
+  "org.apache.commons.cli.bug.BugCLI148Test": 2244,
+  "org.apache.commons.cli.bug.BugCLI162Test": 18111,
+  "org.apache.commons.cli.bug.BugCLI18Test": 1967,
+  "org.apache.commons.cli.bug.BugCLI252Test": 1742,
+  "org.apache.commons.cli.bug.BugCLI265Test": 3476,
+  "org.apache.commons.cli.bug.BugCLI266Test": 4193,
+  "org.apache.commons.cli.bug.BugCLI71Test": 3426,
+  "org.apache.commons.cli.bug.BugsTest": 12778
+ }
+}

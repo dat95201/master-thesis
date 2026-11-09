@@ -1,0 +1,226 @@
+{
+ "bug": "Codec-3",
+ "pid": "Codec",
+ "bid": 3,
+ "modified_class": "org.apache.commons.codec.language.DoubleMetaphone",
+ "src_file": "src/java/org/apache/commons/codec/language/DoubleMetaphone.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-3/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-3/b/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-3/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-3/f/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-3/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-3/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "handleG(String,DoubleMetaphoneResult,int,boolean)",
+   "name": "handleG",
+   "nparams": 4
+  }
+ ],
+ "buggy_methods": {
+  "handleG(String,DoubleMetaphoneResult,int,boolean)": "private int handleG(String value, \n                        DoubleMetaphoneResult result, \n                        int index, \n                        boolean slavoGermanic) {\n        if (charAt(value, index + 1) == 'H') {\n            index = handleGH(value, result, index);\n        } else if (charAt(value, index + 1) == 'N') {\n            if (index == 1 && isVowel(charAt(value, 0)) && !slavoGermanic) {\n                result.append(\"KN\", \"N\");\n            } else if (!contains(value, index + 2, 2, \"EY\") && \n                       charAt(value, index + 1) != 'Y' && !slavoGermanic) {\n                result.append(\"N\", \"KN\");\n            } else {\n                result.append(\"KN\");\n            }\n            index = index + 2;\n        } else if (contains(value, index + 1, 2, \"LI\") && !slavoGermanic) {\n            result.append(\"KL\", \"L\");\n            index += 2;\n        } else if (index == 0 && (charAt(value, index + 1) == 'Y' || contains(value, index + 1, 2, ES_EP_EB_EL_EY_IB_IL_IN_IE_EI_ER))) {\n            //-- -ges-, -gep-, -gel-, -gie- at beginning --//\n            result.append('K', 'J');\n            index += 2;\n        } else if ((contains(value, index + 1, 2, \"ER\") || \n                    charAt(value, index + 1) == 'Y') &&\n                   !contains(value, 0, 6, \"DANGER\", \"RANGER\", \"MANGER\") &&\n                   !contains(value, index - 1, 1, \"E\", \"I\") && \n                   !contains(value, index - 1, 3, \"RGY\", \"OGY\")) {\n            //-- -ger-, -gy- --//\n            result.append('K', 'J');\n            index += 2;\n        } else if (contains(value, index + 1, 1, \"E\", \"I\", \"Y\") || \n                   contains(value, index - 1, 4, \"AGGI\", \"OGGI\")) {\n            //-- Italian \"biaggi\" --//\n            if ((contains(value, 0 ,4, \"VAN \", \"VON \") || contains(value, 0, 3, \"SCH\")) || contains(value, index + 1, 2, \"ET\")) {\n                //-- obvious germanic --//\n                result.append('K');\n            } else if (contains(value, index + 1, 4, \"IER\")) {\n                result.append('J');\n            } else {\n                result.append('J', 'K');\n            }\n            index += 2;\n        } else if (charAt(value, index + 1) == 'G') {\n            index += 2;\n            result.append('K');\n        } else {\n            index++;\n            result.append('K');\n        }\n        return index;\n    }"
+ },
+ "fixed_methods": {
+  "handleG(String,DoubleMetaphoneResult,int,boolean)": "private int handleG(String value, \n                        DoubleMetaphoneResult result, \n                        int index, \n                        boolean slavoGermanic) {\n        if (charAt(value, index + 1) == 'H') {\n            index = handleGH(value, result, index);\n        } else if (charAt(value, index + 1) == 'N') {\n            if (index == 1 && isVowel(charAt(value, 0)) && !slavoGermanic) {\n                result.append(\"KN\", \"N\");\n            } else if (!contains(value, index + 2, 2, \"EY\") && \n                       charAt(value, index + 1) != 'Y' && !slavoGermanic) {\n                result.append(\"N\", \"KN\");\n            } else {\n                result.append(\"KN\");\n            }\n            index = index + 2;\n        } else if (contains(value, index + 1, 2, \"LI\") && !slavoGermanic) {\n            result.append(\"KL\", \"L\");\n            index += 2;\n        } else if (index == 0 && (charAt(value, index + 1) == 'Y' || contains(value, index + 1, 2, ES_EP_EB_EL_EY_IB_IL_IN_IE_EI_ER))) {\n            //-- -ges-, -gep-, -gel-, -gie- at beginning --//\n            result.append('K', 'J');\n            index += 2;\n        } else if ((contains(value, index + 1, 2, \"ER\") || \n                    charAt(value, index + 1) == 'Y') &&\n                   !contains(value, 0, 6, \"DANGER\", \"RANGER\", \"MANGER\") &&\n                   !contains(value, index - 1, 1, \"E\", \"I\") && \n                   !contains(value, index - 1, 3, \"RGY\", \"OGY\")) {\n            //-- -ger-, -gy- --//\n            result.append('K', 'J');\n            index += 2;\n        } else if (contains(value, index + 1, 1, \"E\", \"I\", \"Y\") || \n                   contains(value, index - 1, 4, \"AGGI\", \"OGGI\")) {\n            //-- Italian \"biaggi\" --//\n            if ((contains(value, 0 ,4, \"VAN \", \"VON \") || contains(value, 0, 3, \"SCH\")) || contains(value, index + 1, 2, \"ET\")) {\n                //-- obvious germanic --//\n                result.append('K');\n            } else if (contains(value, index + 1, 3, \"IER\")) {\n                result.append('J');\n            } else {\n                result.append('J', 'K');\n            }\n            index += 2;\n        } else if (charAt(value, index + 1) == 'G') {\n            index += 2;\n            result.append('K');\n        } else {\n            index++;\n            result.append('K');\n        }\n        return index;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.codec.language.DoubleMetaphone2Test::testDoubleMetaphoneAlternate",
+   "error": "junit.framework.ComparisonFailure: Test [19]=Angier expected:<AN[J]R> but was:<AN[K]R>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.codec.language.DoubleMetaphone2Test"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.codec.Encoder",
+  "org.apache.commons.codec.EncoderException",
+  "org.apache.commons.codec.language.DoubleMetaphone",
+  "org.apache.commons.codec.StringEncoder"
+ ],
+ "suite": [
+  "org.apache.commons.codec.CharEncodingTest",
+  "org.apache.commons.codec.DecoderExceptionTest",
+  "org.apache.commons.codec.EncoderExceptionTest",
+  "org.apache.commons.codec.StringEncoderComparatorTest",
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.binary.BinaryCodecTest",
+  "org.apache.commons.codec.binary.HexTest",
+  "org.apache.commons.codec.binary.StringUtilsTest",
+  "org.apache.commons.codec.digest.DigestUtilsTest",
+  "org.apache.commons.codec.language.CaverphoneTest",
+  "org.apache.commons.codec.language.DoubleMetaphone2Test",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest",
+  "org.apache.commons.codec.language.MetaphoneTest",
+  "org.apache.commons.codec.language.RefinedSoundexTest",
+  "org.apache.commons.codec.language.SoundexTest",
+  "org.apache.commons.codec.net.BCodecTest",
+  "org.apache.commons.codec.net.QCodecTest",
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest",
+  "org.apache.commons.codec.net.RFC1522CodecTest",
+  "org.apache.commons.codec.net.URLCodecTest",
+  "org.apache.commons.codec.net.UtilsTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.codec.CharEncodingTest": {
+   "wall": 0.038298,
+   "cpu": 0.061722,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.DecoderExceptionTest": {
+   "wall": 0.0025459999999999997,
+   "cpu": 0.003381,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.EncoderExceptionTest": {
+   "wall": 0.005558,
+   "cpu": 0.008901,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.StringEncoderComparatorTest": {
+   "wall": 0.012801,
+   "cpu": 0.010712,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64InputStreamTest": {
+   "wall": 0.09206,
+   "cpu": 0.166555,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": {
+   "wall": 0.127147,
+   "cpu": 0.15359,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Test": {
+   "wall": 0.012943,
+   "cpu": 0.039582,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BinaryCodecTest": {
+   "wall": 0.0026520000000000003,
+   "cpu": 0.006181,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.HexTest": {
+   "wall": 0.013585000000000002,
+   "cpu": 0.02807,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.StringUtilsTest": {
+   "wall": 0.016628,
+   "cpu": 0.037659,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.DigestUtilsTest": {
+   "wall": 0.15586000000000003,
+   "cpu": 0.286264,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.CaverphoneTest": {
+   "wall": 0.010422,
+   "cpu": 0.017710999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": {
+   "wall": 0.00975,
+   "cpu": 0.031103000000000002,
+   "status": "fail"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": {
+   "wall": 0.008122,
+   "cpu": 0.024821000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.MetaphoneTest": {
+   "wall": 0.020152,
+   "cpu": 0.06342300000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.RefinedSoundexTest": {
+   "wall": 0.008119999999999999,
+   "cpu": 0.017267,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.SoundexTest": {
+   "wall": 0.002714,
+   "cpu": 0.006844,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.BCodecTest": {
+   "wall": 0.0057,
+   "cpu": 0.015678,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QCodecTest": {
+   "wall": 0.018392,
+   "cpu": 0.041796999999999994,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": {
+   "wall": 0.003538,
+   "cpu": 0.0052060000000000006,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.RFC1522CodecTest": {
+   "wall": 0.004298,
+   "cpu": 0.010207,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.URLCodecTest": {
+   "wall": 0.003503,
+   "cpu": 0.008801999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.UtilsTest": {
+   "wall": 0.000481,
+   "cpu": 0.00216,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2817649590008845,
+  "cpu": 0.39324699999999946
+ },
+ "fixed_suite_seconds": [
+  0.96,
+  0.69,
+  0.98
+ ],
+ "covering": [
+  "org.apache.commons.codec.language.DoubleMetaphone2Test",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest"
+ ],
+ "sizes": {
+  "org.apache.commons.codec.CharEncodingTest": 1877,
+  "org.apache.commons.codec.DecoderExceptionTest": 1980,
+  "org.apache.commons.codec.EncoderExceptionTest": 1980,
+  "org.apache.commons.codec.StringEncoderComparatorTest": 3039,
+  "org.apache.commons.codec.binary.Base64InputStreamTest": 12417,
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": 11594,
+  "org.apache.commons.codec.binary.Base64Test": 64293,
+  "org.apache.commons.codec.binary.BinaryCodecTest": 58088,
+  "org.apache.commons.codec.binary.HexTest": 6513,
+  "org.apache.commons.codec.binary.StringUtilsTest": 7089,
+  "org.apache.commons.codec.digest.DigestUtilsTest": 6753,
+  "org.apache.commons.codec.language.CaverphoneTest": 2320,
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": 67815,
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": 50242,
+  "org.apache.commons.codec.language.MetaphoneTest": 15310,
+  "org.apache.commons.codec.language.RefinedSoundexTest": 4803,
+  "org.apache.commons.codec.language.SoundexTest": 14802,
+  "org.apache.commons.codec.net.BCodecTest": 5748,
+  "org.apache.commons.codec.net.QCodecTest": 7528,
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": 9860,
+  "org.apache.commons.codec.net.RFC1522CodecTest": 2818,
+  "org.apache.commons.codec.net.URLCodecTest": 10778,
+  "org.apache.commons.codec.net.UtilsTest": 1438
+ }
+}

@@ -1,0 +1,464 @@
+{
+ "bug": "JacksonXml-1",
+ "pid": "JacksonXml",
+ "bid": 1,
+ "modified_class": "com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser",
+ "src_file": "src/main/java/com/fasterxml/jackson/dataformat/xml/deser/FromXmlParser.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc3/jackson-core-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc3/jackson-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc3/jackson-databind-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.0-rc3/jackson-module-jaxb-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/3.1.4/stax2-api-3.1.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.0.1/woodstox-core-5.0.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonXml-1/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonXml-1/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.10.0-SNAPSHOT/jackson-annotations-2.10.0-20180816.040648-1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.3.0/jackson-annotations-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.5.0/jackson-annotations-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc3/jackson-annotations-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc2/jackson-annotations-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0.rc1/jackson-annotations-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/3.0-SNAPSHOT/jackson-annotations-3.0-20190323.173155-41.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.10.0-SNAPSHOT/jackson-core-2.10.0-20190119.070823-59.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.3.1/jackson-core-2.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.5.0/jackson-core-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc3/jackson-core-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.6.4/jackson-core-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc2/jackson-core-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc4-SNAPSHOT/jackson-core-2.7.0-rc4-20160106.062135-1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.3/jackson-core-2.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.6/jackson-core-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.7/jackson-core-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.8.0.rc1/jackson-core-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.8.5/jackson-core-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/3.0.0-SNAPSHOT/jackson-core-3.0.0-20190424.231835-446.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.10.0-SNAPSHOT/jackson-databind-2.10.0-20190508.041220-162.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.3.1/jackson-databind-2.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.5.0/jackson-databind-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.6.0-rc3/jackson-databind-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.6.3/jackson-databind-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.6.4/jackson-databind-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc2/jackson-databind-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc4-SNAPSHOT/jackson-databind-2.7.0-rc4-20160109.222726-11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.3/jackson-databind-2.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.6/jackson-databind-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.7/jackson-databind-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.8.0.rc1/jackson-databind-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.8.5/jackson-databind-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.9.6/jackson-databind-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.9.8/jackson-databind-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/3.0.0-SNAPSHOT/jackson-databind-3.0.0-20190508.041656-759.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.10.0-SNAPSHOT/jackson-module-jaxb-annotations-2.10.0-20190507.041821-2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.3.1/jackson-module-jaxb-annotations-2.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.5.0/jackson-module-jaxb-annotations-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.0-rc3/jackson-module-jaxb-annotations-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.3/jackson-module-jaxb-annotations-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.4/jackson-module-jaxb-annotations-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.0-rc2/jackson-module-jaxb-annotations-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.3/jackson-module-jaxb-annotations-2.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.6/jackson-module-jaxb-annotations-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.7/jackson-module-jaxb-annotations-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.8.0.rc1/jackson-module-jaxb-annotations-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.8.5/jackson-module-jaxb-annotations-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.9.6/jackson-module-jaxb-annotations-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.9.8/jackson-module-jaxb-annotations-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/3.0.0-SNAPSHOT/jackson-module-jaxb-annotations-3.0.0-20180220.170517-3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.0.2/woodstox-core-5.0.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.0.3/woodstox-core-5.0.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.2.0/woodstox-core-5.2.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/junit/junit/4.10/junit-4.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/3.1.1/stax2-api-3.1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/4.1/stax2-api-4.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/woodstox-core-asl/4.1.5/woodstox-core-asl-4.1.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/woodstox-core-asl/4.3.0/woodstox-core-asl-4.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc3/jackson-core-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc3/jackson-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc3/jackson-databind-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.0-rc3/jackson-module-jaxb-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/3.1.4/stax2-api-3.1.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.0.1/woodstox-core-5.0.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/javax/xml/bind/jaxb-api/2.3.0/jaxb-api-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonXml-1/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonXml-1/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.10.0-SNAPSHOT/jackson-annotations-2.10.0-20180816.040648-1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.3.0/jackson-annotations-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.5.0/jackson-annotations-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc3/jackson-annotations-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc2/jackson-annotations-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0.rc1/jackson-annotations-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/3.0-SNAPSHOT/jackson-annotations-3.0-20190323.173155-41.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.10.0-SNAPSHOT/jackson-core-2.10.0-20190119.070823-59.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.3.1/jackson-core-2.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.5.0/jackson-core-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc3/jackson-core-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.6.4/jackson-core-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc2/jackson-core-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc4-SNAPSHOT/jackson-core-2.7.0-rc4-20160106.062135-1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.3/jackson-core-2.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.6/jackson-core-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.7/jackson-core-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.8.0.rc1/jackson-core-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.8.5/jackson-core-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/3.0.0-SNAPSHOT/jackson-core-3.0.0-20190424.231835-446.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.10.0-SNAPSHOT/jackson-databind-2.10.0-20190508.041220-162.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.3.1/jackson-databind-2.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.5.0/jackson-databind-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.6.0-rc3/jackson-databind-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.6.3/jackson-databind-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.6.4/jackson-databind-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc2/jackson-databind-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc4-SNAPSHOT/jackson-databind-2.7.0-rc4-20160109.222726-11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.3/jackson-databind-2.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.6/jackson-databind-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.7/jackson-databind-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.8.0.rc1/jackson-databind-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.8.5/jackson-databind-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.9.6/jackson-databind-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.9.8/jackson-databind-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/3.0.0-SNAPSHOT/jackson-databind-3.0.0-20190508.041656-759.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.10.0-SNAPSHOT/jackson-module-jaxb-annotations-2.10.0-20190507.041821-2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.3.1/jackson-module-jaxb-annotations-2.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.5.0/jackson-module-jaxb-annotations-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.0-rc3/jackson-module-jaxb-annotations-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.3/jackson-module-jaxb-annotations-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.6.4/jackson-module-jaxb-annotations-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.0-rc2/jackson-module-jaxb-annotations-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.3/jackson-module-jaxb-annotations-2.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.6/jackson-module-jaxb-annotations-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.7/jackson-module-jaxb-annotations-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.8.0.rc1/jackson-module-jaxb-annotations-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.8.5/jackson-module-jaxb-annotations-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.9.6/jackson-module-jaxb-annotations-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.9.8/jackson-module-jaxb-annotations-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/3.0.0-SNAPSHOT/jackson-module-jaxb-annotations-3.0.0-20180220.170517-3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.0.2/woodstox-core-5.0.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.0.3/woodstox-core-5.0.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/woodstox/woodstox-core/5.2.0/woodstox-core-5.2.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/junit/junit/4.10/junit-4.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/3.1.1/stax2-api-3.1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/4.1/stax2-api-4.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/woodstox-core-asl/4.1.5/woodstox-core-asl-4.1.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/woodstox-core-asl/4.3.0/woodstox-core-asl-4.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/JacksonXml-1/b/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc3/jackson-core-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc3/jackson-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc3/jackson-databind-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.0-rc3/jackson-module-jaxb-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/3.1.4/stax2-api-3.1.4.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/JacksonXml-1/f/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc3/jackson-core-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc3/jackson-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/core/jackson-databind/2.7.0-rc3/jackson-databind-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/com/fasterxml/jackson/module/jackson-module-jaxb-annotations/2.7.0-rc3/jackson-module-jaxb-annotations-2.7.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/javax/xml/stream/stax-api/1.0-2/stax-api-1.0-2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonXml/lib/org/codehaus/woodstox/stax2-api/3.1.4/stax2-api-3.1.4.jar"
+ },
+ "faulty": [
+  {
+   "key": "nextToken()",
+   "name": "nextToken",
+   "nparams": 0
+  }
+ ],
+ "buggy_methods": {
+  "nextToken()": "@Override\n    public JsonToken nextToken() throws IOException\n    {\n        _binaryValue = null;\n        if (_nextToken != null) {\n            JsonToken t = _nextToken;\n            _currToken = t;\n            _nextToken = null;\n            switch (t) {\n            case START_OBJECT:\n                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                break;\n            case START_ARRAY:\n                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);\n                break;\n            case END_OBJECT:\n            case END_ARRAY:\n                _parsingContext = _parsingContext.getParent();\n                _namesToWrap = _parsingContext.getNamesToWrap();\n                break;\n            case FIELD_NAME:\n                _parsingContext.setCurrentName(_xmlTokens.getLocalName());\n                break;\n            default: // VALUE_STRING, VALUE_NULL\n                // should be fine as is?\n            }\n            return t;\n        }\n        int token = _xmlTokens.next();\n\n        // Need to have a loop just because we may have to eat/convert\n        // a start-element that indicates an array element.\n        while (token == XmlTokenStream.XML_START_ELEMENT) {\n            // If we thought we might get leaf, no such luck\n            if (_mayBeLeaf) {\n                // leave _mayBeLeaf set, as we start a new context\n                _nextToken = JsonToken.FIELD_NAME;\n                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                return (_currToken = JsonToken.START_OBJECT);\n            }\n            if (_parsingContext.inArray()) {\n                // Yup: in array, so this element could be verified; but it won't be\n                // reported anyway, and we need to process following event.\n                token = _xmlTokens.next();\n                _mayBeLeaf = true;\n                continue;\n            }\n            String name = _xmlTokens.getLocalName();\n            _parsingContext.setCurrentName(name);\n\n            // Ok: virtual wrapping can be done by simply repeating current START_ELEMENT.\n            // Couple of ways to do it; but start by making _xmlTokens replay the thing...\n            if (_namesToWrap != null && _namesToWrap.contains(name)) {\n                _xmlTokens.repeatStartElement();\n            }\n\n            _mayBeLeaf = true;\n            // Ok: in array context we need to skip reporting field names.\n            // But what's the best way to find next token?\n            return (_currToken = JsonToken.FIELD_NAME);\n        }\n\n        // Ok; beyond start element, what do we get?\n        switch (token) {\n        case XmlTokenStream.XML_END_ELEMENT:\n            // Simple, except that if this is a leaf, need to suppress end:\n            if (_mayBeLeaf) {\n                _mayBeLeaf = false;\n                    // 06-Jan-2015, tatu: as per [dataformat-xml#180], need to\n                    //    expose as empty Object, not null\n                return (_currToken = JsonToken.VALUE_NULL);\n            }\n            _currToken = _parsingContext.inArray() ? JsonToken.END_ARRAY : JsonToken.END_OBJECT;\n            _parsingContext = _parsingContext.getParent();\n            _namesToWrap = _parsingContext.getNamesToWrap();\n            return _currToken;\n            \n        case XmlTokenStream.XML_ATTRIBUTE_NAME:\n            // If there was a chance of leaf node, no more...\n            if (_mayBeLeaf) {\n                _mayBeLeaf = false;\n                _nextToken = JsonToken.FIELD_NAME;\n                _currText = _xmlTokens.getText();\n                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                return (_currToken = JsonToken.START_OBJECT);\n            }\n            _parsingContext.setCurrentName(_xmlTokens.getLocalName());\n            return (_currToken = JsonToken.FIELD_NAME);\n        case XmlTokenStream.XML_ATTRIBUTE_VALUE:\n            _currText = _xmlTokens.getText();\n            return (_currToken = JsonToken.VALUE_STRING);\n        case XmlTokenStream.XML_TEXT:\n            _currText = _xmlTokens.getText();\n            if (_mayBeLeaf) {\n                _mayBeLeaf = false;\n                /* One more refinement (pronunced like \"hack\") is that if\n                 * we had an empty String (or all white space), and we are\n                 * deserializing an array, we better hide the empty text.\n                 */\n                // Also: must skip following END_ELEMENT\n                _xmlTokens.skipEndElement();\n                if (_parsingContext.inArray()) {\n                    if (_isEmpty(_currText)) {\n                        // 06-Jan-2015, tatu: as per [dataformat-xml#180], need to\n                        //    expose as empty Object, not null (or, worse, as used to\n                        //    be done, by swallowing the token)\n                        _currToken = JsonToken.END_ARRAY;\n                        _parsingContext = _parsingContext.getParent();\n                        _namesToWrap = _parsingContext.getNamesToWrap();\n                        return _currToken;\n                    }\n                }\n                return (_currToken = JsonToken.VALUE_STRING);\n            } else {\n                // [dataformat-xml#177]: empty text may also need to be skipped\n                if (_parsingContext.inObject()\n                        && (_currToken != JsonToken.FIELD_NAME) && _isEmpty(_currText)) {\n                    _currToken = JsonToken.END_OBJECT;\n                    _parsingContext = _parsingContext.getParent();\n                    _namesToWrap = _parsingContext.getNamesToWrap();\n                    return _currToken;\n                }\n            }\n            // If not a leaf (or otherwise ignorable), need to transform into property...\n            _parsingContext.setCurrentName(_cfgNameForTextElement);\n            _nextToken = JsonToken.VALUE_STRING;\n            return (_currToken = JsonToken.FIELD_NAME);\n        case XmlTokenStream.XML_END:\n            return (_currToken = null);\n        }\n        \n        // should never get here\n        _throwInternal();\n        return null;\n    }"
+ },
+ "fixed_methods": {
+  "nextToken()": "@Override\n    public JsonToken nextToken() throws IOException\n    {\n        _binaryValue = null;\n        if (_nextToken != null) {\n            JsonToken t = _nextToken;\n            _currToken = t;\n            _nextToken = null;\n            switch (t) {\n            case START_OBJECT:\n                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                break;\n            case START_ARRAY:\n                _parsingContext = _parsingContext.createChildArrayContext(-1, -1);\n                break;\n            case END_OBJECT:\n            case END_ARRAY:\n                _parsingContext = _parsingContext.getParent();\n                _namesToWrap = _parsingContext.getNamesToWrap();\n                break;\n            case FIELD_NAME:\n                _parsingContext.setCurrentName(_xmlTokens.getLocalName());\n                break;\n            default: // VALUE_STRING, VALUE_NULL\n                // should be fine as is?\n            }\n            return t;\n        }\n        int token = _xmlTokens.next();\n\n        // Need to have a loop just because we may have to eat/convert\n        // a start-element that indicates an array element.\n        while (token == XmlTokenStream.XML_START_ELEMENT) {\n            // If we thought we might get leaf, no such luck\n            if (_mayBeLeaf) {\n                // leave _mayBeLeaf set, as we start a new context\n                _nextToken = JsonToken.FIELD_NAME;\n                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                return (_currToken = JsonToken.START_OBJECT);\n            }\n            if (_parsingContext.inArray()) {\n                // Yup: in array, so this element could be verified; but it won't be\n                // reported anyway, and we need to process following event.\n                token = _xmlTokens.next();\n                _mayBeLeaf = true;\n                continue;\n            }\n            String name = _xmlTokens.getLocalName();\n            _parsingContext.setCurrentName(name);\n\n            // Ok: virtual wrapping can be done by simply repeating current START_ELEMENT.\n            // Couple of ways to do it; but start by making _xmlTokens replay the thing...\n            if (_namesToWrap != null && _namesToWrap.contains(name)) {\n                _xmlTokens.repeatStartElement();\n            }\n\n            _mayBeLeaf = true;\n            // Ok: in array context we need to skip reporting field names.\n            // But what's the best way to find next token?\n            return (_currToken = JsonToken.FIELD_NAME);\n        }\n\n        // Ok; beyond start element, what do we get?\n        switch (token) {\n        case XmlTokenStream.XML_END_ELEMENT:\n            // Simple, except that if this is a leaf, need to suppress end:\n            if (_mayBeLeaf) {\n                _mayBeLeaf = false;\n                if (_parsingContext.inArray()) {\n                    // 06-Jan-2015, tatu: as per [dataformat-xml#180], need to\n                    //    expose as empty Object, not null\n                    _nextToken = JsonToken.END_OBJECT;\n                    _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                    return (_currToken = JsonToken.START_OBJECT);\n                }\n                return (_currToken = JsonToken.VALUE_NULL);\n            }\n            _currToken = _parsingContext.inArray() ? JsonToken.END_ARRAY : JsonToken.END_OBJECT;\n            _parsingContext = _parsingContext.getParent();\n            _namesToWrap = _parsingContext.getNamesToWrap();\n            return _currToken;\n            \n        case XmlTokenStream.XML_ATTRIBUTE_NAME:\n            // If there was a chance of leaf node, no more...\n            if (_mayBeLeaf) {\n                _mayBeLeaf = false;\n                _nextToken = JsonToken.FIELD_NAME;\n                _currText = _xmlTokens.getText();\n                _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                return (_currToken = JsonToken.START_OBJECT);\n            }\n            _parsingContext.setCurrentName(_xmlTokens.getLocalName());\n            return (_currToken = JsonToken.FIELD_NAME);\n        case XmlTokenStream.XML_ATTRIBUTE_VALUE:\n            _currText = _xmlTokens.getText();\n            return (_currToken = JsonToken.VALUE_STRING);\n        case XmlTokenStream.XML_TEXT:\n            _currText = _xmlTokens.getText();\n            if (_mayBeLeaf) {\n                _mayBeLeaf = false;\n                /* One more refinement (pronunced like \"hack\") is that if\n                 * we had an empty String (or all white space), and we are\n                 * deserializing an array, we better hide the empty text.\n                 */\n                // Also: must skip following END_ELEMENT\n                _xmlTokens.skipEndElement();\n                if (_parsingContext.inArray()) {\n                    if (_isEmpty(_currText)) {\n                        // 06-Jan-2015, tatu: as per [dataformat-xml#180], need to\n                        //    expose as empty Object, not null (or, worse, as used to\n                        //    be done, by swallowing the token)\n                        _nextToken = JsonToken.END_OBJECT;\n                        _parsingContext = _parsingContext.createChildObjectContext(-1, -1);\n                        return (_currToken = JsonToken.START_OBJECT);\n                    }\n                }\n                return (_currToken = JsonToken.VALUE_STRING);\n            } else {\n                // [dataformat-xml#177]: empty text may also need to be skipped\n                if (_parsingContext.inObject()\n                        && (_currToken != JsonToken.FIELD_NAME) && _isEmpty(_currText)) {\n                    _currToken = JsonToken.END_OBJECT;\n                    _parsingContext = _parsingContext.getParent();\n                    _namesToWrap = _parsingContext.getNamesToWrap();\n                    return _currToken;\n                }\n            }\n            // If not a leaf (or otherwise ignorable), need to transform into property...\n            _parsingContext.setCurrentName(_cfgNameForTextElement);\n            _nextToken = JsonToken.VALUE_STRING;\n            return (_currToken = JsonToken.FIELD_NAME);\n        case XmlTokenStream.XML_END:\n            return (_currToken = null);\n        }\n        \n        // should never get here\n        _throwInternal();\n        return null;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedLists180Test::testNestedUnwrappedLists180",
+   "error": "junit.framework.AssertionFailedError"
+  },
+  {
+   "test": "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest::testNestedWithEmpty2",
+   "error": "junit.framework.AssertionFailedError: expected:<1> but was:<0>"
+  },
+  {
+   "test": "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest::testNestedWithEmpty",
+   "error": "junit.framework.AssertionFailedError: expected:<1> but was:<0>"
+  }
+ ],
+ "triggering_classes": [
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedLists180Test",
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest"
+ ],
+ "loaded_classes": [
+  "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlElementWrapper",
+  "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlProperty",
+  "com.fasterxml.jackson.dataformat.xml.annotation.JacksonXmlText",
+  "com.fasterxml.jackson.dataformat.xml.deser.ElementWrapper",
+  "com.fasterxml.jackson.dataformat.xml.deser.FromXmlParser",
+  "com.fasterxml.jackson.dataformat.xml.deser.WrapperHandlingDeserializer",
+  "com.fasterxml.jackson.dataformat.xml.deser.XmlBeanDeserializerModifier",
+  "com.fasterxml.jackson.dataformat.xml.deser.XmlReadContext",
+  "com.fasterxml.jackson.dataformat.xml.deser.XmlTextDeserializer",
+  "com.fasterxml.jackson.dataformat.xml.deser.XmlTokenStream",
+  "com.fasterxml.jackson.dataformat.xml.JacksonXmlAnnotationIntrospector",
+  "com.fasterxml.jackson.dataformat.xml.JacksonXmlModule",
+  "com.fasterxml.jackson.dataformat.xml.PackageVersion",
+  "com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator",
+  "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializer",
+  "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerBase",
+  "com.fasterxml.jackson.dataformat.xml.ser.XmlBeanSerializerModifier",
+  "com.fasterxml.jackson.dataformat.xml.ser.XmlSerializerProvider",
+  "com.fasterxml.jackson.dataformat.xml.util.AnnotationUtil",
+  "com.fasterxml.jackson.dataformat.xml.util.DefaultXmlPrettyPrinter",
+  "com.fasterxml.jackson.dataformat.xml.util.TypeUtil",
+  "com.fasterxml.jackson.dataformat.xml.util.XmlRootNameLookup",
+  "com.fasterxml.jackson.dataformat.xml.XmlAnnotationIntrospector",
+  "com.fasterxml.jackson.dataformat.xml.XmlFactory",
+  "com.fasterxml.jackson.dataformat.xml.XmlMapper",
+  "com.fasterxml.jackson.dataformat.xml.XmlPrettyPrinter",
+  "com.fasterxml.jackson.dataformat.xml.XmlTypeResolverBuilder"
+ ],
+ "suite": [
+  "com.fasterxml.jackson.dataformat.xml.RoundtripContentTest",
+  "com.fasterxml.jackson.dataformat.xml.VersionInfoTest",
+  "com.fasterxml.jackson.dataformat.xml.adapters.TestIssue47Attribute",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestBinaryData",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestDeserialization",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestEnums",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestStringValues",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestViews",
+  "com.fasterxml.jackson.dataformat.xml.incr.IncrementalWritingTest",
+  "com.fasterxml.jackson.dataformat.xml.incr.PartialReadTest",
+  "com.fasterxml.jackson.dataformat.xml.jaxb.AttributesWithJAXBTest",
+  "com.fasterxml.jackson.dataformat.xml.jaxb.ElementWrapperTest",
+  "com.fasterxml.jackson.dataformat.xml.jaxb.JAXBObjectId170Test",
+  "com.fasterxml.jackson.dataformat.xml.jaxb.WithJAXBAnnotationsTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.EmptyListDeserTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.Issue101UnwrappedListAttributesTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAnnotationSharingTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAsObjectTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListDeserializationTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListRoundtripTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListSerializationTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedLists180Test",
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.RootListHandlingTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListWithEmptyCData129Test",
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListsTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.WrappedListsTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.ArrayConversionsTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.EmptyPolymorphicTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.NodeTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.ObjectId104Test",
+  "com.fasterxml.jackson.dataformat.xml.misc.PolymorphicTypesTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.TextValueTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.UnwrappingWithXMLTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.XmlTextTest",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestIndentation",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestJDKSerializability",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestNamespaces",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerialization",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationAttr",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationManual",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationOrdering",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializerCustom",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestXmlDeclaration",
+  "com.fasterxml.jackson.dataformat.xml.stream.FormatDetectionTest",
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlGeneratorTest",
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlParserTest",
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlTokenStreamTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "com.fasterxml.jackson.dataformat.xml.RoundtripContentTest": {
+   "wall": 0.29606299999999997,
+   "cpu": 0.45122300000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.VersionInfoTest": {
+   "wall": 0.051835,
+   "cpu": 0.100475,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.adapters.TestIssue47Attribute": {
+   "wall": 0.009847,
+   "cpu": 0.020442000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.deser.TestBinaryData": {
+   "wall": 0.009507,
+   "cpu": 0.014466,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.deser.TestDeserialization": {
+   "wall": 0.022216999999999997,
+   "cpu": 0.037658000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.deser.TestEnums": {
+   "wall": 0.008573,
+   "cpu": 0.013682999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.deser.TestStringValues": {
+   "wall": 0.0076820000000000005,
+   "cpu": 0.018757000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.deser.TestViews": {
+   "wall": 0.015953,
+   "cpu": 0.031491,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.incr.IncrementalWritingTest": {
+   "wall": 0.005057000000000001,
+   "cpu": 0.009493999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.incr.PartialReadTest": {
+   "wall": 0.00235,
+   "cpu": 0.003814,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.jaxb.AttributesWithJAXBTest": {
+   "wall": 0.025954,
+   "cpu": 0.026671,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.jaxb.ElementWrapperTest": {
+   "wall": 0.016664,
+   "cpu": 0.023782,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.jaxb.JAXBObjectId170Test": {
+   "wall": 0.021657,
+   "cpu": 0.042957999999999996,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.jaxb.WithJAXBAnnotationsTest": {
+   "wall": 0.014185,
+   "cpu": 0.031744,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.EmptyListDeserTest": {
+   "wall": 0.007816,
+   "cpu": 0.015432,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.Issue101UnwrappedListAttributesTest": {
+   "wall": 0.010551,
+   "cpu": 0.020953,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAnnotationSharingTest": {
+   "wall": 0.006730000000000001,
+   "cpu": 0.014555,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAsObjectTest": {
+   "wall": 0.012078,
+   "cpu": 0.021617,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.ListDeserializationTest": {
+   "wall": 0.014201,
+   "cpu": 0.025149,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.ListRoundtripTest": {
+   "wall": 0.016752,
+   "cpu": 0.023069,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.ListSerializationTest": {
+   "wall": 0.007914,
+   "cpu": 0.012,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedLists180Test": {
+   "wall": 0.005106,
+   "cpu": 0.0072039999999999995,
+   "status": "fail"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest": {
+   "wall": 0.016605,
+   "cpu": 0.032381,
+   "status": "fail"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.RootListHandlingTest": {
+   "wall": 0.010157,
+   "cpu": 0.021353999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListWithEmptyCData129Test": {
+   "wall": 0.0022789999999999998,
+   "cpu": 0.004288999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListsTest": {
+   "wall": 0.016306,
+   "cpu": 0.025539000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.lists.WrappedListsTest": {
+   "wall": 0.003581,
+   "cpu": 0.0055049999999999995,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.ArrayConversionsTest": {
+   "wall": 0.015662000000000002,
+   "cpu": 0.029741,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.EmptyPolymorphicTest": {
+   "wall": 0.006596,
+   "cpu": 0.011304,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.NodeTest": {
+   "wall": 0.002971,
+   "cpu": 0.008019,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.ObjectId104Test": {
+   "wall": 0.004538,
+   "cpu": 0.010263999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.PolymorphicTypesTest": {
+   "wall": 0.008407999999999999,
+   "cpu": 0.01759,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.TextValueTest": {
+   "wall": 0.010692,
+   "cpu": 0.023573,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.UnwrappingWithXMLTest": {
+   "wall": 0.0076630000000000005,
+   "cpu": 0.017991,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.misc.XmlTextTest": {
+   "wall": 0.0016799999999999999,
+   "cpu": 0.00436,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestIndentation": {
+   "wall": 0.017542000000000002,
+   "cpu": 0.036638,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestJDKSerializability": {
+   "wall": 0.008701,
+   "cpu": 0.018015999999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestNamespaces": {
+   "wall": 0.002524,
+   "cpu": 0.003982,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerialization": {
+   "wall": 0.022273,
+   "cpu": 0.040552,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationAttr": {
+   "wall": 0.011286,
+   "cpu": 0.021138999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationManual": {
+   "wall": 0.007828,
+   "cpu": 0.010029,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationOrdering": {
+   "wall": 0.007036,
+   "cpu": 0.008416,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializerCustom": {
+   "wall": 0.014891999999999999,
+   "cpu": 0.031785,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.ser.TestXmlDeclaration": {
+   "wall": 0.0026509999999999997,
+   "cpu": 0.005979,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.stream.FormatDetectionTest": {
+   "wall": 0.012594,
+   "cpu": 0.02278,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlGeneratorTest": {
+   "wall": 0.004026,
+   "cpu": 0.005554,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlParserTest": {
+   "wall": 0.004883,
+   "cpu": 0.01142,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlTokenStreamTest": {
+   "wall": 0.002261,
+   "cpu": 0.004992,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2055174579982606,
+  "cpu": 0.2703039999999999
+ },
+ "fixed_suite_seconds": [
+  1.39,
+  1.08,
+  1.11
+ ],
+ "covering": [
+  "com.fasterxml.jackson.dataformat.xml.RoundtripContentTest",
+  "com.fasterxml.jackson.dataformat.xml.adapters.TestIssue47Attribute",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestBinaryData",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestDeserialization",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestEnums",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestStringValues",
+  "com.fasterxml.jackson.dataformat.xml.deser.TestViews",
+  "com.fasterxml.jackson.dataformat.xml.incr.PartialReadTest",
+  "com.fasterxml.jackson.dataformat.xml.jaxb.JAXBObjectId170Test",
+  "com.fasterxml.jackson.dataformat.xml.jaxb.WithJAXBAnnotationsTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.EmptyListDeserTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.Issue101UnwrappedListAttributesTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAnnotationSharingTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAsObjectTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListDeserializationTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.ListRoundtripTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedLists180Test",
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.RootListHandlingTest",
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListWithEmptyCData129Test",
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListsTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.EmptyPolymorphicTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.NodeTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.ObjectId104Test",
+  "com.fasterxml.jackson.dataformat.xml.misc.PolymorphicTypesTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.TextValueTest",
+  "com.fasterxml.jackson.dataformat.xml.misc.UnwrappingWithXMLTest",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestIndentation",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestJDKSerializability",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerialization",
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializerCustom",
+  "com.fasterxml.jackson.dataformat.xml.stream.FormatDetectionTest",
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlParserTest"
+ ],
+ "sizes": {
+  "com.fasterxml.jackson.dataformat.xml.RoundtripContentTest": 1377,
+  "com.fasterxml.jackson.dataformat.xml.VersionInfoTest": 2666,
+  "com.fasterxml.jackson.dataformat.xml.adapters.TestIssue47Attribute": 1014,
+  "com.fasterxml.jackson.dataformat.xml.deser.TestBinaryData": 1597,
+  "com.fasterxml.jackson.dataformat.xml.deser.TestDeserialization": 2837,
+  "com.fasterxml.jackson.dataformat.xml.deser.TestEnums": 834,
+  "com.fasterxml.jackson.dataformat.xml.deser.TestStringValues": 3584,
+  "com.fasterxml.jackson.dataformat.xml.deser.TestViews": 3833,
+  "com.fasterxml.jackson.dataformat.xml.incr.IncrementalWritingTest": 1107,
+  "com.fasterxml.jackson.dataformat.xml.incr.PartialReadTest": 1868,
+  "com.fasterxml.jackson.dataformat.xml.jaxb.AttributesWithJAXBTest": 2037,
+  "com.fasterxml.jackson.dataformat.xml.jaxb.ElementWrapperTest": 2875,
+  "com.fasterxml.jackson.dataformat.xml.jaxb.JAXBObjectId170Test": 4269,
+  "com.fasterxml.jackson.dataformat.xml.jaxb.WithJAXBAnnotationsTest": 5380,
+  "com.fasterxml.jackson.dataformat.xml.lists.EmptyListDeserTest": 1077,
+  "com.fasterxml.jackson.dataformat.xml.lists.Issue101UnwrappedListAttributesTest": 3278,
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAnnotationSharingTest": 1526,
+  "com.fasterxml.jackson.dataformat.xml.lists.ListAsObjectTest": 2326,
+  "com.fasterxml.jackson.dataformat.xml.lists.ListDeserializationTest": 5645,
+  "com.fasterxml.jackson.dataformat.xml.lists.ListRoundtripTest": 5634,
+  "com.fasterxml.jackson.dataformat.xml.lists.ListSerializationTest": 2623,
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedLists180Test": 2341,
+  "com.fasterxml.jackson.dataformat.xml.lists.NestedUnwrappedListsTest": 7452,
+  "com.fasterxml.jackson.dataformat.xml.lists.RootListHandlingTest": 6537,
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListWithEmptyCData129Test": 1629,
+  "com.fasterxml.jackson.dataformat.xml.lists.UnwrappedListsTest": 6163,
+  "com.fasterxml.jackson.dataformat.xml.lists.WrappedListsTest": 1239,
+  "com.fasterxml.jackson.dataformat.xml.misc.ArrayConversionsTest": 9810,
+  "com.fasterxml.jackson.dataformat.xml.misc.EmptyPolymorphicTest": 1375,
+  "com.fasterxml.jackson.dataformat.xml.misc.NodeTest": 670,
+  "com.fasterxml.jackson.dataformat.xml.misc.ObjectId104Test": 1612,
+  "com.fasterxml.jackson.dataformat.xml.misc.PolymorphicTypesTest": 4629,
+  "com.fasterxml.jackson.dataformat.xml.misc.TextValueTest": 5685,
+  "com.fasterxml.jackson.dataformat.xml.misc.UnwrappingWithXMLTest": 4507,
+  "com.fasterxml.jackson.dataformat.xml.misc.XmlTextTest": 1050,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestIndentation": 6241,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestJDKSerializability": 3975,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestNamespaces": 1431,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerialization": 7802,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationAttr": 4134,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationManual": 1800,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializationOrdering": 883,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestSerializerCustom": 3011,
+  "com.fasterxml.jackson.dataformat.xml.ser.TestXmlDeclaration": 1192,
+  "com.fasterxml.jackson.dataformat.xml.stream.FormatDetectionTest": 6707,
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlGeneratorTest": 3855,
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlParserTest": 11171,
+  "com.fasterxml.jackson.dataformat.xml.stream.XmlTokenStreamTest": 4349
+ }
+}

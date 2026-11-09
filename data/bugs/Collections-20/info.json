@@ -1,0 +1,1084 @@
+{
+ "bug": "Collections-20",
+ "pid": "Collections",
+ "bid": 20,
+ "modified_class": "org.apache.commons.collections.list.TreeList",
+ "src_file": "src/main/java/org/apache/commons/collections/list/TreeList.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "build/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Collections-20/b/build/classes:/Users/datnguyen/Study/research/master-thesis/work/Collections-20/b/build/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Collections/lib/easymock-2.0.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Collections-20/f/build/classes:/Users/datnguyen/Study/research/master-thesis/work/Collections-20/f/build/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Collections/lib/easymock-2.0.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Collections-20/b/build/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Collections-20/f/build/classes"
+ },
+ "faulty": [
+  {
+   "key": "remove()",
+   "name": "remove",
+   "nparams": 0
+  }
+ ],
+ "buggy_methods": {
+  "remove()": "public void remove() {\n            checkModCount();\n            if (currentIndex == -1) {\n                throw new IllegalStateException();\n            }\n            if (nextIndex == currentIndex) {\n                next = next.next();\n                parent.remove(currentIndex);\n            } else {\n                // remove() following next()\n                parent.remove(currentIndex);\n                nextIndex--;\n            }\n            // the AVL node referenced by next may have become stale after a remove\n            // reset it now: will be retrieved by next call to next()/previous() via nextIndex\n            current = null;\n            currentIndex = -1;\n            expectedModCount++;\n        }"
+ },
+ "fixed_methods": {
+  "remove()": "public void remove() {\n            checkModCount();\n            if (currentIndex == -1) {\n                throw new IllegalStateException();\n            }\n            parent.remove(currentIndex);\n            if (nextIndex != currentIndex) {\n                // remove() following next()\n                nextIndex--;\n            }\n            // the AVL node referenced by next may have become stale after a remove\n            // reset it now: will be retrieved by next call to next()/previous() via nextIndex\n            next = null;\n            current = null;\n            currentIndex = -1;\n            expectedModCount++;\n        }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.collections.list.TreeListTest::testBugCollections447",
+   "error": "junit.framework.ComparisonFailure: expected:<[A]> but was:<[C]>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.collections.list.TreeListTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.collections.list.TreeList",
+  "org.apache.commons.collections.OrderedIterator"
+ ],
+ "suite": [
+  "org.apache.commons.collections.ArrayStackTest",
+  "org.apache.commons.collections.BagUtilsTest",
+  "org.apache.commons.collections.BufferUtilsTest",
+  "org.apache.commons.collections.ClosureUtilsTest",
+  "org.apache.commons.collections.CollectionUtilsTest",
+  "org.apache.commons.collections.EnumerationUtilsTest",
+  "org.apache.commons.collections.ExtendedPropertiesTest",
+  "org.apache.commons.collections.FactoryUtilsTest",
+  "org.apache.commons.collections.IteratorUtilsTest",
+  "org.apache.commons.collections.ListUtilsTest",
+  "org.apache.commons.collections.MapUtilsTest",
+  "org.apache.commons.collections.PredicateUtilsTest",
+  "org.apache.commons.collections.SetUtilsTest",
+  "org.apache.commons.collections.SplitMapUtilsTest",
+  "org.apache.commons.collections.TransformerUtilsTest",
+  "org.apache.commons.collections.bag.HashBagTest",
+  "org.apache.commons.collections.bag.PredicatedBagTest",
+  "org.apache.commons.collections.bag.PredicatedSortedBagTest",
+  "org.apache.commons.collections.bag.TransformedBagTest",
+  "org.apache.commons.collections.bag.TransformedSortedBagTest",
+  "org.apache.commons.collections.bag.TreeBagTest",
+  "org.apache.commons.collections.bidimap.DualHashBidiMapTest",
+  "org.apache.commons.collections.bidimap.DualLinkedHashBidiMapTest",
+  "org.apache.commons.collections.bidimap.DualTreeBidiMap2Test",
+  "org.apache.commons.collections.bidimap.DualTreeBidiMapTest",
+  "org.apache.commons.collections.bidimap.TreeBidiMapTest",
+  "org.apache.commons.collections.bidimap.UnmodifiableBidiMapTest",
+  "org.apache.commons.collections.bidimap.UnmodifiableOrderedBidiMapTest",
+  "org.apache.commons.collections.bidimap.UnmodifiableSortedBidiMapTest",
+  "org.apache.commons.collections.buffer.BlockingBufferTest",
+  "org.apache.commons.collections.buffer.BoundedBufferTest",
+  "org.apache.commons.collections.buffer.BoundedFifoBuffer2Test",
+  "org.apache.commons.collections.buffer.BoundedFifoBufferTest",
+  "org.apache.commons.collections.buffer.CircularFifoBufferTest",
+  "org.apache.commons.collections.buffer.PredicatedBufferTest",
+  "org.apache.commons.collections.buffer.PriorityBufferTest",
+  "org.apache.commons.collections.buffer.SynchronizedBufferTest",
+  "org.apache.commons.collections.buffer.TransformedBufferTest",
+  "org.apache.commons.collections.buffer.UnboundedFifoBufferTest",
+  "org.apache.commons.collections.buffer.UnmodifiableBufferTest",
+  "org.apache.commons.collections.collection.CompositeCollectionTest",
+  "org.apache.commons.collections.collection.IndexedCollectionTest",
+  "org.apache.commons.collections.collection.PredicatedCollectionTest",
+  "org.apache.commons.collections.collection.SynchronizedCollectionTest",
+  "org.apache.commons.collections.collection.TransformedCollectionTest",
+  "org.apache.commons.collections.collection.UnmodifiableBoundedCollectionTest",
+  "org.apache.commons.collections.collection.UnmodifiableCollectionTest",
+  "org.apache.commons.collections.comparators.BooleanComparatorTest",
+  "org.apache.commons.collections.comparators.ComparableComparatorTest",
+  "org.apache.commons.collections.comparators.ComparatorChainTest",
+  "org.apache.commons.collections.comparators.FixedOrderComparatorTest",
+  "org.apache.commons.collections.comparators.ReverseComparatorTest",
+  "org.apache.commons.collections.comparators.TransformingComparatorTest",
+  "org.apache.commons.collections.comparators.sequence.SequencesComparatorTest",
+  "org.apache.commons.collections.functors.AllPredicateTest",
+  "org.apache.commons.collections.functors.CatchAndRethrowClosureTest",
+  "org.apache.commons.collections.functors.ComparatorPredicateTest",
+  "org.apache.commons.collections.functors.EqualPredicateTest",
+  "org.apache.commons.collections.functors.NullPredicateTest",
+  "org.apache.commons.collections.iterators.ArrayIterator2Test",
+  "org.apache.commons.collections.iterators.ArrayIteratorTest",
+  "org.apache.commons.collections.iterators.ArrayListIterator2Test",
+  "org.apache.commons.collections.iterators.ArrayListIteratorTest",
+  "org.apache.commons.collections.iterators.CollatingIteratorTest",
+  "org.apache.commons.collections.iterators.FilterIteratorTest",
+  "org.apache.commons.collections.iterators.FilterListIteratorTest",
+  "org.apache.commons.collections.iterators.IteratorChainTest",
+  "org.apache.commons.collections.iterators.IteratorIterableTest",
+  "org.apache.commons.collections.iterators.LazyIteratorChainTest",
+  "org.apache.commons.collections.iterators.ListIteratorWrapper2Test",
+  "org.apache.commons.collections.iterators.ListIteratorWrapperTest",
+  "org.apache.commons.collections.iterators.LoopingIteratorTest",
+  "org.apache.commons.collections.iterators.LoopingListIteratorTest",
+  "org.apache.commons.collections.iterators.NodeListIteratorTest",
+  "org.apache.commons.collections.iterators.ObjectArrayIteratorTest",
+  "org.apache.commons.collections.iterators.ObjectArrayListIterator2Test",
+  "org.apache.commons.collections.iterators.ObjectArrayListIteratorTest",
+  "org.apache.commons.collections.iterators.ObjectGraphIteratorTest",
+  "org.apache.commons.collections.iterators.ReverseListIteratorTest",
+  "org.apache.commons.collections.iterators.SingletonIterator2Test",
+  "org.apache.commons.collections.iterators.SingletonIteratorTest",
+  "org.apache.commons.collections.iterators.SingletonListIteratorTest",
+  "org.apache.commons.collections.iterators.UniqueFilterIteratorTest",
+  "org.apache.commons.collections.iterators.UnmodifiableIteratorTest",
+  "org.apache.commons.collections.iterators.UnmodifiableListIteratorTest",
+  "org.apache.commons.collections.iterators.UnmodifiableMapIteratorTest",
+  "org.apache.commons.collections.iterators.UnmodifiableOrderedMapIteratorTest",
+  "org.apache.commons.collections.keyvalue.DefaultKeyValueTest",
+  "org.apache.commons.collections.keyvalue.DefaultMapEntryTest",
+  "org.apache.commons.collections.keyvalue.MultiKeyTest",
+  "org.apache.commons.collections.keyvalue.TiedMapEntryTest",
+  "org.apache.commons.collections.keyvalue.UnmodifiableMapEntryTest",
+  "org.apache.commons.collections.list.CursorableLinkedListTest",
+  "org.apache.commons.collections.list.FixedSizeListTest",
+  "org.apache.commons.collections.list.GrowthListTest",
+  "org.apache.commons.collections.list.NodeCachingLinkedListTest",
+  "org.apache.commons.collections.list.PredicatedListTest",
+  "org.apache.commons.collections.list.SetUniqueListTest",
+  "org.apache.commons.collections.list.SynchronizedListTest",
+  "org.apache.commons.collections.list.TransformedListTest",
+  "org.apache.commons.collections.list.TreeListTest",
+  "org.apache.commons.collections.list.UnmodifiableListTest",
+  "org.apache.commons.collections.map.CaseInsensitiveMapTest",
+  "org.apache.commons.collections.map.CompositeMapTest",
+  "org.apache.commons.collections.map.DefaultedMapTest",
+  "org.apache.commons.collections.map.FixedSizeMapTest",
+  "org.apache.commons.collections.map.FixedSizeSortedMapTest",
+  "org.apache.commons.collections.map.Flat3MapTest",
+  "org.apache.commons.collections.map.HashedMapTest",
+  "org.apache.commons.collections.map.IdentityMapTest",
+  "org.apache.commons.collections.map.LRUMapTest",
+  "org.apache.commons.collections.map.LazyMapTest",
+  "org.apache.commons.collections.map.LazySortedMapTest",
+  "org.apache.commons.collections.map.LinkedMapTest",
+  "org.apache.commons.collections.map.ListOrderedMap2Test",
+  "org.apache.commons.collections.map.ListOrderedMapTest",
+  "org.apache.commons.collections.map.MultiKeyMapTest",
+  "org.apache.commons.collections.map.MultiValueMapTest",
+  "org.apache.commons.collections.map.PassiveExpiringMapTest",
+  "org.apache.commons.collections.map.PredicatedMapTest",
+  "org.apache.commons.collections.map.PredicatedSortedMapTest",
+  "org.apache.commons.collections.map.ReferenceIdentityMapTest",
+  "org.apache.commons.collections.map.ReferenceMapTest",
+  "org.apache.commons.collections.map.SingletonMapTest",
+  "org.apache.commons.collections.map.StaticBucketMapTest",
+  "org.apache.commons.collections.map.TransformedMapTest",
+  "org.apache.commons.collections.map.TransformedSortedMapTest",
+  "org.apache.commons.collections.map.UnmodifiableMapTest",
+  "org.apache.commons.collections.map.UnmodifiableOrderedMapTest",
+  "org.apache.commons.collections.map.UnmodifiableSortedMapTest",
+  "org.apache.commons.collections.set.CompositeSetTest",
+  "org.apache.commons.collections.set.ListOrderedSet2Test",
+  "org.apache.commons.collections.set.ListOrderedSetTest",
+  "org.apache.commons.collections.set.MapBackedSet2Test",
+  "org.apache.commons.collections.set.MapBackedSetTest",
+  "org.apache.commons.collections.set.PredicatedSetTest",
+  "org.apache.commons.collections.set.PredicatedSortedSetTest",
+  "org.apache.commons.collections.set.SynchronizedSetTest",
+  "org.apache.commons.collections.set.SynchronizedSortedSetTest",
+  "org.apache.commons.collections.set.TransformedSetTest",
+  "org.apache.commons.collections.set.TransformedSortedSetTest",
+  "org.apache.commons.collections.set.UnmodifiableSetTest",
+  "org.apache.commons.collections.set.UnmodifiableSortedSetTest",
+  "org.apache.commons.collections.splitmap.TransformedMapTest",
+  "org.apache.commons.collections.trie.ByteArrayKeyAnalyzerTest",
+  "org.apache.commons.collections.trie.PatriciaTrieTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.collections.ArrayStackTest": {
+   "wall": 0.120926,
+   "cpu": 0.16622900000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.BagUtilsTest": {
+   "wall": 0.103085,
+   "cpu": 0.038772,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.BufferUtilsTest": {
+   "wall": 0.019894,
+   "cpu": 0.009381,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.ClosureUtilsTest": {
+   "wall": 0.065263,
+   "cpu": 0.028551,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.CollectionUtilsTest": {
+   "wall": 0.115334,
+   "cpu": 0.141269,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.EnumerationUtilsTest": {
+   "wall": 0.085824,
+   "cpu": 0.013075,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.ExtendedPropertiesTest": {
+   "wall": 0.025401,
+   "cpu": 0.011959,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.FactoryUtilsTest": {
+   "wall": 0.059285,
+   "cpu": 0.039418999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.IteratorUtilsTest": {
+   "wall": 0.09164,
+   "cpu": 0.029338999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.ListUtilsTest": {
+   "wall": 0.023555,
+   "cpu": 0.014856,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.MapUtilsTest": {
+   "wall": 0.132149,
+   "cpu": 0.023393999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.PredicateUtilsTest": {
+   "wall": 0.057204,
+   "cpu": 0.022036,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.SetUtilsTest": {
+   "wall": 0.07045900000000001,
+   "cpu": 0.008747,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.SplitMapUtilsTest": {
+   "wall": 0.116035,
+   "cpu": 0.016201,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.TransformerUtilsTest": {
+   "wall": 0.046963,
+   "cpu": 0.015249,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bag.HashBagTest": {
+   "wall": 0.018559000000000003,
+   "cpu": 0.005617,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bag.PredicatedBagTest": {
+   "wall": 0.011367,
+   "cpu": 0.010656,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bag.PredicatedSortedBagTest": {
+   "wall": 0.006158,
+   "cpu": 0.008539,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bag.TransformedBagTest": {
+   "wall": 0.002006,
+   "cpu": 0.003469,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bag.TransformedSortedBagTest": {
+   "wall": 0.004124,
+   "cpu": 0.009336,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bag.TreeBagTest": {
+   "wall": 0.014506,
+   "cpu": 0.014119,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.DualHashBidiMapTest": {
+   "wall": 0.112524,
+   "cpu": 0.142896,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.DualLinkedHashBidiMapTest": {
+   "wall": 0.037563,
+   "cpu": 0.08023699999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.DualTreeBidiMap2Test": {
+   "wall": 0.148377,
+   "cpu": 0.28572699999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.DualTreeBidiMapTest": {
+   "wall": 0.074595,
+   "cpu": 0.145945,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.TreeBidiMapTest": {
+   "wall": 0.08601,
+   "cpu": 0.155266,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.UnmodifiableBidiMapTest": {
+   "wall": 0.026388,
+   "cpu": 0.054367,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.UnmodifiableOrderedBidiMapTest": {
+   "wall": 0.028806000000000002,
+   "cpu": 0.048145,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.bidimap.UnmodifiableSortedBidiMapTest": {
+   "wall": 0.051704,
+   "cpu": 0.06737900000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.BlockingBufferTest": {
+   "wall": 5.791736,
+   "cpu": 0.120597,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.BoundedBufferTest": {
+   "wall": 1.8389469999999999,
+   "cpu": 0.047210999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.BoundedFifoBuffer2Test": {
+   "wall": 0.008944,
+   "cpu": 0.010234,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.BoundedFifoBufferTest": {
+   "wall": 0.00656,
+   "cpu": 0.013399,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.CircularFifoBufferTest": {
+   "wall": 0.011823,
+   "cpu": 0.016929,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.PredicatedBufferTest": {
+   "wall": 0.008407,
+   "cpu": 0.014013999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.PriorityBufferTest": {
+   "wall": 0.226765,
+   "cpu": 0.450078,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.SynchronizedBufferTest": {
+   "wall": 0.004072,
+   "cpu": 0.009550000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.TransformedBufferTest": {
+   "wall": 0.007105,
+   "cpu": 0.007099,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.UnboundedFifoBufferTest": {
+   "wall": 0.004606,
+   "cpu": 0.008459,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.buffer.UnmodifiableBufferTest": {
+   "wall": 0.002714,
+   "cpu": 0.005809,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.CompositeCollectionTest": {
+   "wall": 0.027032,
+   "cpu": 0.032248,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.IndexedCollectionTest": {
+   "wall": 0.037556,
+   "cpu": 0.045076,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.PredicatedCollectionTest": {
+   "wall": 0.0022400000000000002,
+   "cpu": 0.004466,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.SynchronizedCollectionTest": {
+   "wall": 0.00164,
+   "cpu": 0.003718,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.TransformedCollectionTest": {
+   "wall": 0.0023639999999999998,
+   "cpu": 0.004986,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.UnmodifiableBoundedCollectionTest": {
+   "wall": 0.003387,
+   "cpu": 0.0060149999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.collection.UnmodifiableCollectionTest": {
+   "wall": 0.0017310000000000001,
+   "cpu": 0.0033580000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.BooleanComparatorTest": {
+   "wall": 0.012183,
+   "cpu": 0.014917,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.ComparableComparatorTest": {
+   "wall": 0.006269,
+   "cpu": 0.007057000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.ComparatorChainTest": {
+   "wall": 0.037344,
+   "cpu": 0.045106,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.FixedOrderComparatorTest": {
+   "wall": 0.049313,
+   "cpu": 0.048748,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.ReverseComparatorTest": {
+   "wall": 0.019429,
+   "cpu": 0.021037,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.TransformingComparatorTest": {
+   "wall": 0.014628,
+   "cpu": 0.016050000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.comparators.sequence.SequencesComparatorTest": {
+   "wall": 0.498321,
+   "cpu": 0.746045,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.functors.AllPredicateTest": {
+   "wall": 0.002442,
+   "cpu": 0.004759,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.functors.CatchAndRethrowClosureTest": {
+   "wall": 0.029425999999999997,
+   "cpu": 0.022685,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.functors.ComparatorPredicateTest": {
+   "wall": 0.015671,
+   "cpu": 0.01822,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.functors.EqualPredicateTest": {
+   "wall": 0.002206,
+   "cpu": 0.0022389999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.functors.NullPredicateTest": {
+   "wall": 0.000381,
+   "cpu": 0.000758,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ArrayIterator2Test": {
+   "wall": 0.00172,
+   "cpu": 0.002939,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ArrayIteratorTest": {
+   "wall": 0.000769,
+   "cpu": 0.001494,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ArrayListIterator2Test": {
+   "wall": 0.001156,
+   "cpu": 0.002231,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ArrayListIteratorTest": {
+   "wall": 0.0008449999999999999,
+   "cpu": 0.0016040000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.CollatingIteratorTest": {
+   "wall": 0.005568,
+   "cpu": 0.007594,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.FilterIteratorTest": {
+   "wall": 0.011409,
+   "cpu": 0.012769,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.FilterListIteratorTest": {
+   "wall": 0.013782,
+   "cpu": 0.017765,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.IteratorChainTest": {
+   "wall": 0.008266,
+   "cpu": 0.011932,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.IteratorIterableTest": {
+   "wall": 0.004652999999999999,
+   "cpu": 0.00443,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.LazyIteratorChainTest": {
+   "wall": 0.016149999999999998,
+   "cpu": 0.020857,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ListIteratorWrapper2Test": {
+   "wall": 0.001433,
+   "cpu": 0.001841,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ListIteratorWrapperTest": {
+   "wall": 0.0031450000000000002,
+   "cpu": 0.006477,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.LoopingIteratorTest": {
+   "wall": 0.001802,
+   "cpu": 0.002159,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.LoopingListIteratorTest": {
+   "wall": 0.002254,
+   "cpu": 0.003346,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.NodeListIteratorTest": {
+   "wall": 0.01704,
+   "cpu": 0.024498000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ObjectArrayIteratorTest": {
+   "wall": 0.0009419999999999999,
+   "cpu": 0.001411,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ObjectArrayListIterator2Test": {
+   "wall": 0.000656,
+   "cpu": 0.001295,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ObjectArrayListIteratorTest": {
+   "wall": 0.000566,
+   "cpu": 0.000723,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ObjectGraphIteratorTest": {
+   "wall": 0.013574999999999999,
+   "cpu": 0.016686,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.ReverseListIteratorTest": {
+   "wall": 0.005465,
+   "cpu": 0.005882,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.SingletonIterator2Test": {
+   "wall": 0.001057,
+   "cpu": 0.001398,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.SingletonIteratorTest": {
+   "wall": 0.001424,
+   "cpu": 0.0006039999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.SingletonListIteratorTest": {
+   "wall": 0.009059,
+   "cpu": 0.010033,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.UniqueFilterIteratorTest": {
+   "wall": 0.007745,
+   "cpu": 0.022196999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.UnmodifiableIteratorTest": {
+   "wall": 0.000911,
+   "cpu": 0.002255,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.UnmodifiableListIteratorTest": {
+   "wall": 0.001678,
+   "cpu": 0.007299000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.UnmodifiableMapIteratorTest": {
+   "wall": 0.001496,
+   "cpu": 0.007732,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.iterators.UnmodifiableOrderedMapIteratorTest": {
+   "wall": 0.041185,
+   "cpu": 0.09308499999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.keyvalue.DefaultKeyValueTest": {
+   "wall": 0.000948,
+   "cpu": 0.000532,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.keyvalue.DefaultMapEntryTest": {
+   "wall": 0.000449,
+   "cpu": 0.000514,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.keyvalue.MultiKeyTest": {
+   "wall": 0.008368,
+   "cpu": 0.0022660000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.keyvalue.TiedMapEntryTest": {
+   "wall": 0.0053490000000000005,
+   "cpu": 0.00332,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.keyvalue.UnmodifiableMapEntryTest": {
+   "wall": 0.0005290000000000001,
+   "cpu": 0.000514,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.CursorableLinkedListTest": {
+   "wall": 0.059152,
+   "cpu": 0.13219,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.FixedSizeListTest": {
+   "wall": 0.034357,
+   "cpu": 0.048653,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.GrowthListTest": {
+   "wall": 0.005455,
+   "cpu": 0.015419,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.NodeCachingLinkedListTest": {
+   "wall": 0.040529,
+   "cpu": 0.13167099999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.PredicatedListTest": {
+   "wall": 0.015272,
+   "cpu": 0.052136,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.SetUniqueListTest": {
+   "wall": 0.067057,
+   "cpu": 0.137822,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.SynchronizedListTest": {
+   "wall": 0.035165,
+   "cpu": 0.055482,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.TransformedListTest": {
+   "wall": 0.013160999999999999,
+   "cpu": 0.021263999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.list.TreeListTest": {
+   "wall": 0.050897,
+   "cpu": 0.082855,
+   "status": "fail"
+  },
+  "org.apache.commons.collections.list.UnmodifiableListTest": {
+   "wall": 0.017979,
+   "cpu": 0.032073,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.CaseInsensitiveMapTest": {
+   "wall": 0.058431,
+   "cpu": 0.136436,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.CompositeMapTest": {
+   "wall": 0.070993,
+   "cpu": 0.099633,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.DefaultedMapTest": {
+   "wall": 0.027118,
+   "cpu": 0.036588999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.FixedSizeMapTest": {
+   "wall": 0.028326,
+   "cpu": 0.008701,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.FixedSizeSortedMapTest": {
+   "wall": 0.025903,
+   "cpu": 0.081664,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.Flat3MapTest": {
+   "wall": 0.035822,
+   "cpu": 0.072453,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.HashedMapTest": {
+   "wall": 0.019632999999999998,
+   "cpu": 0.070123,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.IdentityMapTest": {
+   "wall": 0.010562,
+   "cpu": 0.034726,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.LRUMapTest": {
+   "wall": 4.165164,
+   "cpu": 0.805253,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.LazyMapTest": {
+   "wall": 0.047838,
+   "cpu": 0.04888,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.LazySortedMapTest": {
+   "wall": 0.060356,
+   "cpu": 0.006039,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.LinkedMapTest": {
+   "wall": 0.09940099999999999,
+   "cpu": 0.093329,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.ListOrderedMap2Test": {
+   "wall": 0.107862,
+   "cpu": 0.08670900000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.ListOrderedMapTest": {
+   "wall": 0.039023,
+   "cpu": 0.051581,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.MultiKeyMapTest": {
+   "wall": 0.072041,
+   "cpu": 0.092157,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.MultiValueMapTest": {
+   "wall": 0.11289300000000001,
+   "cpu": 0.01754,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.PassiveExpiringMapTest": {
+   "wall": 0.037027000000000004,
+   "cpu": 0.02461,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.PredicatedMapTest": {
+   "wall": 0.025829,
+   "cpu": 0.008048999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.PredicatedSortedMapTest": {
+   "wall": 0.025992,
+   "cpu": 0.022663,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.ReferenceIdentityMapTest": {
+   "wall": 0.256505,
+   "cpu": 0.213625,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.ReferenceMapTest": {
+   "wall": 0.15445599999999998,
+   "cpu": 0.19952899999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.SingletonMapTest": {
+   "wall": 0.05776,
+   "cpu": 0.029462,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.StaticBucketMapTest": {
+   "wall": 0.10219400000000001,
+   "cpu": 0.071722,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.TransformedMapTest": {
+   "wall": 0.025384,
+   "cpu": 0.030616,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.TransformedSortedMapTest": {
+   "wall": 0.08324899999999999,
+   "cpu": 0.10965699999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.UnmodifiableMapTest": {
+   "wall": 0.016437999999999998,
+   "cpu": 0.003173,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.UnmodifiableOrderedMapTest": {
+   "wall": 0.013313,
+   "cpu": 0.014521000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.map.UnmodifiableSortedMapTest": {
+   "wall": 0.018786,
+   "cpu": 0.002819,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.CompositeSetTest": {
+   "wall": 0.033186,
+   "cpu": 0.01858,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.ListOrderedSet2Test": {
+   "wall": 0.019388000000000002,
+   "cpu": 0.005709,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.ListOrderedSetTest": {
+   "wall": 0.032166,
+   "cpu": 0.043342,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.MapBackedSet2Test": {
+   "wall": 0.016737,
+   "cpu": 0.003693,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.MapBackedSetTest": {
+   "wall": 0.001973,
+   "cpu": 0.002577,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.PredicatedSetTest": {
+   "wall": 0.01056,
+   "cpu": 0.007246000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.PredicatedSortedSetTest": {
+   "wall": 0.032845,
+   "cpu": 0.025844000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.SynchronizedSetTest": {
+   "wall": 0.02195,
+   "cpu": 0.025984,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.SynchronizedSortedSetTest": {
+   "wall": 0.008398,
+   "cpu": 0.017023,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.TransformedSetTest": {
+   "wall": 0.011755000000000002,
+   "cpu": 0.01585,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.TransformedSortedSetTest": {
+   "wall": 0.015332,
+   "cpu": 0.013593,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.UnmodifiableSetTest": {
+   "wall": 0.002278,
+   "cpu": 0.002296,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.set.UnmodifiableSortedSetTest": {
+   "wall": 0.0037749999999999997,
+   "cpu": 0.006432,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.splitmap.TransformedMapTest": {
+   "wall": 0.036682,
+   "cpu": 0.003933,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.trie.ByteArrayKeyAnalyzerTest": {
+   "wall": 0.158058,
+   "cpu": 0.084032,
+   "status": "pass"
+  },
+  "org.apache.commons.collections.trie.PatriciaTrieTest": {
+   "wall": 0.23899700000000001,
+   "cpu": 0.040508,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 1.471348582998722,
+  "cpu": 1.3688859999999918
+ },
+ "fixed_suite_seconds": [
+  16.74,
+  15.61,
+  16.51
+ ],
+ "covering": [
+  "org.apache.commons.collections.list.TreeListTest"
+ ],
+ "sizes": {
+  "org.apache.commons.collections.ArrayStackTest": 3740,
+  "org.apache.commons.collections.BagUtilsTest": 7125,
+  "org.apache.commons.collections.BufferUtilsTest": 2245,
+  "org.apache.commons.collections.ClosureUtilsTest": 15373,
+  "org.apache.commons.collections.CollectionUtilsTest": 60705,
+  "org.apache.commons.collections.EnumerationUtilsTest": 3664,
+  "org.apache.commons.collections.ExtendedPropertiesTest": 16214,
+  "org.apache.commons.collections.FactoryUtilsTest": 10295,
+  "org.apache.commons.collections.IteratorUtilsTest": 32479,
+  "org.apache.commons.collections.ListUtilsTest": 12705,
+  "org.apache.commons.collections.MapUtilsTest": 30398,
+  "org.apache.commons.collections.PredicateUtilsTest": 32551,
+  "org.apache.commons.collections.SetUtilsTest": 3833,
+  "org.apache.commons.collections.SplitMapUtilsTest": 7124,
+  "org.apache.commons.collections.TransformerUtilsTest": 20897,
+  "org.apache.commons.collections.bag.HashBagTest": 1823,
+  "org.apache.commons.collections.bag.PredicatedBagTest": 4717,
+  "org.apache.commons.collections.bag.PredicatedSortedBagTest": 4038,
+  "org.apache.commons.collections.bag.TransformedBagTest": 3769,
+  "org.apache.commons.collections.bag.TransformedSortedBagTest": 3562,
+  "org.apache.commons.collections.bag.TreeBagTest": 2996,
+  "org.apache.commons.collections.bidimap.DualHashBidiMapTest": 1987,
+  "org.apache.commons.collections.bidimap.DualLinkedHashBidiMapTest": 2123,
+  "org.apache.commons.collections.bidimap.DualTreeBidiMap2Test": 6677,
+  "org.apache.commons.collections.bidimap.DualTreeBidiMapTest": 2035,
+  "org.apache.commons.collections.bidimap.TreeBidiMapTest": 2468,
+  "org.apache.commons.collections.bidimap.UnmodifiableBidiMapTest": 2296,
+  "org.apache.commons.collections.bidimap.UnmodifiableOrderedBidiMapTest": 2627,
+  "org.apache.commons.collections.bidimap.UnmodifiableSortedBidiMapTest": 2894,
+  "org.apache.commons.collections.buffer.BlockingBufferTest": 19508,
+  "org.apache.commons.collections.buffer.BoundedBufferTest": 7306,
+  "org.apache.commons.collections.buffer.BoundedFifoBuffer2Test": 3709,
+  "org.apache.commons.collections.buffer.BoundedFifoBufferTest": 7280,
+  "org.apache.commons.collections.buffer.CircularFifoBufferTest": 14512,
+  "org.apache.commons.collections.buffer.PredicatedBufferTest": 3732,
+  "org.apache.commons.collections.buffer.PriorityBufferTest": 14196,
+  "org.apache.commons.collections.buffer.SynchronizedBufferTest": 2769,
+  "org.apache.commons.collections.buffer.TransformedBufferTest": 2956,
+  "org.apache.commons.collections.buffer.UnboundedFifoBufferTest": 15162,
+  "org.apache.commons.collections.buffer.UnmodifiableBufferTest": 3282,
+  "org.apache.commons.collections.collection.CompositeCollectionTest": 12109,
+  "org.apache.commons.collections.collection.IndexedCollectionTest": 5705,
+  "org.apache.commons.collections.collection.PredicatedCollectionTest": 4834,
+  "org.apache.commons.collections.collection.SynchronizedCollectionTest": 2317,
+  "org.apache.commons.collections.collection.TransformedCollectionTest": 5057,
+  "org.apache.commons.collections.collection.UnmodifiableBoundedCollectionTest": 2832,
+  "org.apache.commons.collections.collection.UnmodifiableCollectionTest": 2746,
+  "org.apache.commons.collections.comparators.BooleanComparatorTest": 5647,
+  "org.apache.commons.collections.comparators.ComparableComparatorTest": 1593,
+  "org.apache.commons.collections.comparators.ComparatorChainTest": 7244,
+  "org.apache.commons.collections.comparators.FixedOrderComparatorTest": 8428,
+  "org.apache.commons.collections.comparators.ReverseComparatorTest": 3136,
+  "org.apache.commons.collections.comparators.TransformingComparatorTest": 2055,
+  "org.apache.commons.collections.comparators.sequence.SequencesComparatorTest": 7558,
+  "org.apache.commons.collections.functors.AllPredicateTest": 4995,
+  "org.apache.commons.collections.functors.CatchAndRethrowClosureTest": 3062,
+  "org.apache.commons.collections.functors.ComparatorPredicateTest": 3484,
+  "org.apache.commons.collections.functors.EqualPredicateTest": 2435,
+  "org.apache.commons.collections.functors.NullPredicateTest": 1608,
+  "org.apache.commons.collections.iterators.ArrayIterator2Test": 5873,
+  "org.apache.commons.collections.iterators.ArrayIteratorTest": 3003,
+  "org.apache.commons.collections.iterators.ArrayListIterator2Test": 1809,
+  "org.apache.commons.collections.iterators.ArrayListIteratorTest": 3799,
+  "org.apache.commons.collections.iterators.CollatingIteratorTest": 10615,
+  "org.apache.commons.collections.iterators.FilterIteratorTest": 7160,
+  "org.apache.commons.collections.iterators.FilterListIteratorTest": 17513,
+  "org.apache.commons.collections.iterators.IteratorChainTest": 5897,
+  "org.apache.commons.collections.iterators.IteratorIterableTest": 2613,
+  "org.apache.commons.collections.iterators.LazyIteratorChainTest": 6494,
+  "org.apache.commons.collections.iterators.ListIteratorWrapper2Test": 6984,
+  "org.apache.commons.collections.iterators.ListIteratorWrapperTest": 7767,
+  "org.apache.commons.collections.iterators.LoopingIteratorTest": 7043,
+  "org.apache.commons.collections.iterators.LoopingListIteratorTest": 13381,
+  "org.apache.commons.collections.iterators.NodeListIteratorTest": 4102,
+  "org.apache.commons.collections.iterators.ObjectArrayIteratorTest": 3889,
+  "org.apache.commons.collections.iterators.ObjectArrayListIterator2Test": 1828,
+  "org.apache.commons.collections.iterators.ObjectArrayListIteratorTest": 3870,
+  "org.apache.commons.collections.iterators.ObjectGraphIteratorTest": 14684,
+  "org.apache.commons.collections.iterators.ReverseListIteratorTest": 5804,
+  "org.apache.commons.collections.iterators.SingletonIterator2Test": 3180,
+  "org.apache.commons.collections.iterators.SingletonIteratorTest": 3392,
+  "org.apache.commons.collections.iterators.SingletonListIteratorTest": 4896,
+  "org.apache.commons.collections.iterators.UniqueFilterIteratorTest": 2718,
+  "org.apache.commons.collections.iterators.UnmodifiableIteratorTest": 2582,
+  "org.apache.commons.collections.iterators.UnmodifiableListIteratorTest": 2821,
+  "org.apache.commons.collections.iterators.UnmodifiableMapIteratorTest": 3098,
+  "org.apache.commons.collections.iterators.UnmodifiableOrderedMapIteratorTest": 3314,
+  "org.apache.commons.collections.keyvalue.DefaultKeyValueTest": 6427,
+  "org.apache.commons.collections.keyvalue.DefaultMapEntryTest": 3263,
+  "org.apache.commons.collections.keyvalue.MultiKeyTest": 9934,
+  "org.apache.commons.collections.keyvalue.TiedMapEntryTest": 2797,
+  "org.apache.commons.collections.keyvalue.UnmodifiableMapEntryTest": 3682,
+  "org.apache.commons.collections.list.CursorableLinkedListTest": 50964,
+  "org.apache.commons.collections.list.FixedSizeListTest": 2270,
+  "org.apache.commons.collections.list.GrowthListTest": 5548,
+  "org.apache.commons.collections.list.NodeCachingLinkedListTest": 5427,
+  "org.apache.commons.collections.list.PredicatedListTest": 5190,
+  "org.apache.commons.collections.list.SetUniqueListTest": 20986,
+  "org.apache.commons.collections.list.SynchronizedListTest": 1987,
+  "org.apache.commons.collections.list.TransformedListTest": 5338,
+  "org.apache.commons.collections.list.TreeListTest": 8890,
+  "org.apache.commons.collections.list.UnmodifiableListTest": 5621,
+  "org.apache.commons.collections.map.CaseInsensitiveMapTest": 5707,
+  "org.apache.commons.collections.map.CompositeMapTest": 7953,
+  "org.apache.commons.collections.map.DefaultedMapTest": 5562,
+  "org.apache.commons.collections.map.FixedSizeMapTest": 2334,
+  "org.apache.commons.collections.map.FixedSizeSortedMapTest": 2844,
+  "org.apache.commons.collections.map.Flat3MapTest": 15700,
+  "org.apache.commons.collections.map.HashedMapTest": 2753,
+  "org.apache.commons.collections.map.IdentityMapTest": 5701,
+  "org.apache.commons.collections.map.LRUMapTest": 29857,
+  "org.apache.commons.collections.map.LazyMapTest": 3627,
+  "org.apache.commons.collections.map.LazySortedMapTest": 5173,
+  "org.apache.commons.collections.map.LinkedMapTest": 9577,
+  "org.apache.commons.collections.map.ListOrderedMap2Test": 6722,
+  "org.apache.commons.collections.map.ListOrderedMapTest": 16395,
+  "org.apache.commons.collections.map.MultiKeyMapTest": 23169,
+  "org.apache.commons.collections.map.MultiValueMapTest": 15746,
+  "org.apache.commons.collections.map.PassiveExpiringMapTest": 7938,
+  "org.apache.commons.collections.map.PredicatedMapTest": 5030,
+  "org.apache.commons.collections.map.PredicatedSortedMapTest": 6683,
+  "org.apache.commons.collections.map.ReferenceIdentityMapTest": 11825,
+  "org.apache.commons.collections.map.ReferenceMapTest": 8673,
+  "org.apache.commons.collections.map.SingletonMapTest": 6073,
+  "org.apache.commons.collections.map.StaticBucketMapTest": 3416,
+  "org.apache.commons.collections.map.TransformedMapTest": 6338,
+  "org.apache.commons.collections.map.TransformedSortedMapTest": 7186,
+  "org.apache.commons.collections.map.UnmodifiableMapTest": 3137,
+  "org.apache.commons.collections.map.UnmodifiableOrderedMapTest": 3252,
+  "org.apache.commons.collections.map.UnmodifiableSortedMapTest": 3149,
+  "org.apache.commons.collections.set.CompositeSetTest": 5871,
+  "org.apache.commons.collections.set.ListOrderedSet2Test": 5441,
+  "org.apache.commons.collections.set.ListOrderedSetTest": 9334,
+  "org.apache.commons.collections.set.MapBackedSet2Test": 2720,
+  "org.apache.commons.collections.set.MapBackedSetTest": 1742,
+  "org.apache.commons.collections.set.PredicatedSetTest": 4275,
+  "org.apache.commons.collections.set.PredicatedSortedSetTest": 4789,
+  "org.apache.commons.collections.set.SynchronizedSetTest": 2063,
+  "org.apache.commons.collections.set.SynchronizedSortedSetTest": 2129,
+  "org.apache.commons.collections.set.TransformedSetTest": 4205,
+  "org.apache.commons.collections.set.TransformedSortedSetTest": 4152,
+  "org.apache.commons.collections.set.UnmodifiableSetTest": 2472,
+  "org.apache.commons.collections.set.UnmodifiableSortedSetTest": 5003,
+  "org.apache.commons.collections.splitmap.TransformedMapTest": 7413,
+  "org.apache.commons.collections.trie.ByteArrayKeyAnalyzerTest": 3951,
+  "org.apache.commons.collections.trie.PatriciaTrieTest": 43633
+ }
+}

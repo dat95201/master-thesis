@@ -1,0 +1,2353 @@
+{
+ "bug": "Chart-13",
+ "pid": "Chart",
+ "bid": 13,
+ "modified_class": "org.jfree.chart.block.BorderArrangement",
+ "src_file": "source/org/jfree/chart/block/BorderArrangement.java",
+ "test_dir": "tests",
+ "bin_dir": "build",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Chart-13/b/lib/servlet.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Chart-13/b/build:/Users/datnguyen/Study/research/master-thesis/work/Chart-13/b/build-tests",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Chart-13/f/lib/servlet.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Chart-13/f/build:/Users/datnguyen/Study/research/master-thesis/work/Chart-13/f/build-tests"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Chart-13/b/build:/Users/datnguyen/Study/research/master-thesis/work/Chart-13/b/lib/servlet.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Chart-13/f/build:/Users/datnguyen/Study/research/master-thesis/work/Chart-13/f/lib/servlet.jar"
+ },
+ "faulty": [
+  {
+   "key": "arrangeFF(BlockContainer,Graphics2D,RectangleConstraint)",
+   "name": "arrangeFF",
+   "nparams": 3
+  }
+ ],
+ "buggy_methods": {
+  "arrangeFF(BlockContainer,Graphics2D,RectangleConstraint)": "protected Size2D arrangeFF(BlockContainer container, Graphics2D g2,\n                               RectangleConstraint constraint) {\n        double[] w = new double[5];\n        double[] h = new double[5];\n        w[0] = constraint.getWidth();\n        if (this.topBlock != null) {\n            RectangleConstraint c1 = new RectangleConstraint(w[0], null,\n                    LengthConstraintType.FIXED, 0.0,\n                    new Range(0.0, constraint.getHeight()),\n                    LengthConstraintType.RANGE);\n            Size2D size = this.topBlock.arrange(g2, c1);\n            h[0] = size.height;\n        }\n        w[1] = w[0];\n        if (this.bottomBlock != null) {\n            RectangleConstraint c2 = new RectangleConstraint(w[0], null,\n                    LengthConstraintType.FIXED, 0.0, new Range(0.0,\n                    constraint.getHeight() - h[0]), LengthConstraintType.RANGE);\n            Size2D size = this.bottomBlock.arrange(g2, c2);\n            h[1] = size.height;\n        }\n        h[2] = constraint.getHeight() - h[1] - h[0];\n        if (this.leftBlock != null) {\n            RectangleConstraint c3 = new RectangleConstraint(0.0,\n                    new Range(0.0, constraint.getWidth()),\n                    LengthConstraintType.RANGE, h[2], null,\n                    LengthConstraintType.FIXED);\n            Size2D size = this.leftBlock.arrange(g2, c3);\n            w[2] = size.width;\n        }\n        h[3] = h[2];\n        if (this.rightBlock != null) {\n            RectangleConstraint c4 = new RectangleConstraint(0.0,\n                    new Range(0.0, constraint.getWidth() - w[2]),\n                    LengthConstraintType.RANGE, h[2], null,\n                    LengthConstraintType.FIXED);\n            Size2D size = this.rightBlock.arrange(g2, c4);\n            w[3] = size.width;\n        }\n        h[4] = h[2];\n        w[4] = constraint.getWidth() - w[3] - w[2];\n        RectangleConstraint c5 = new RectangleConstraint(w[4], h[4]);\n        if (this.centerBlock != null) {\n            this.centerBlock.arrange(g2, c5);\n        }\n\n        if (this.topBlock != null) {\n            this.topBlock.setBounds(new Rectangle2D.Double(0.0, 0.0, w[0],\n                    h[0]));\n        }\n        if (this.bottomBlock != null) {\n            this.bottomBlock.setBounds(new Rectangle2D.Double(0.0, h[0] + h[2],\n                    w[1], h[1]));\n        }\n        if (this.leftBlock != null) {\n            this.leftBlock.setBounds(new Rectangle2D.Double(0.0, h[0], w[2],\n                    h[2]));\n        }\n        if (this.rightBlock != null) {\n            this.rightBlock.setBounds(new Rectangle2D.Double(w[2] + w[4], h[0],\n                    w[3], h[3]));\n        }\n        if (this.centerBlock != null) {\n            this.centerBlock.setBounds(new Rectangle2D.Double(w[2], h[0], w[4],\n                    h[4]));\n        }\n        return new Size2D(constraint.getWidth(), constraint.getHeight());\n    }"
+ },
+ "fixed_methods": {
+  "arrangeFF(BlockContainer,Graphics2D,RectangleConstraint)": "protected Size2D arrangeFF(BlockContainer container, Graphics2D g2,\n                               RectangleConstraint constraint) {\n        double[] w = new double[5];\n        double[] h = new double[5];\n        w[0] = constraint.getWidth();\n        if (this.topBlock != null) {\n            RectangleConstraint c1 = new RectangleConstraint(w[0], null,\n                    LengthConstraintType.FIXED, 0.0,\n                    new Range(0.0, constraint.getHeight()),\n                    LengthConstraintType.RANGE);\n            Size2D size = this.topBlock.arrange(g2, c1);\n            h[0] = size.height;\n        }\n        w[1] = w[0];\n        if (this.bottomBlock != null) {\n            RectangleConstraint c2 = new RectangleConstraint(w[0], null,\n                    LengthConstraintType.FIXED, 0.0, new Range(0.0,\n                    constraint.getHeight() - h[0]), LengthConstraintType.RANGE);\n            Size2D size = this.bottomBlock.arrange(g2, c2);\n            h[1] = size.height;\n        }\n        h[2] = constraint.getHeight() - h[1] - h[0];\n        if (this.leftBlock != null) {\n            RectangleConstraint c3 = new RectangleConstraint(0.0,\n                    new Range(0.0, constraint.getWidth()),\n                    LengthConstraintType.RANGE, h[2], null,\n                    LengthConstraintType.FIXED);\n            Size2D size = this.leftBlock.arrange(g2, c3);\n            w[2] = size.width;\n        }\n        h[3] = h[2];\n        if (this.rightBlock != null) {\n            RectangleConstraint c4 = new RectangleConstraint(0.0,\n                    new Range(0.0, Math.max(constraint.getWidth() - w[2], 0.0)),\n                    LengthConstraintType.RANGE, h[2], null,\n                    LengthConstraintType.FIXED);\n            Size2D size = this.rightBlock.arrange(g2, c4);\n            w[3] = size.width;\n        }\n        h[4] = h[2];\n        w[4] = constraint.getWidth() - w[3] - w[2];\n        RectangleConstraint c5 = new RectangleConstraint(w[4], h[4]);\n        if (this.centerBlock != null) {\n            this.centerBlock.arrange(g2, c5);\n        }\n\n        if (this.topBlock != null) {\n            this.topBlock.setBounds(new Rectangle2D.Double(0.0, 0.0, w[0],\n                    h[0]));\n        }\n        if (this.bottomBlock != null) {\n            this.bottomBlock.setBounds(new Rectangle2D.Double(0.0, h[0] + h[2],\n                    w[1], h[1]));\n        }\n        if (this.leftBlock != null) {\n            this.leftBlock.setBounds(new Rectangle2D.Double(0.0, h[0], w[2],\n                    h[2]));\n        }\n        if (this.rightBlock != null) {\n            this.rightBlock.setBounds(new Rectangle2D.Double(w[2] + w[4], h[0],\n                    w[3], h[3]));\n        }\n        if (this.centerBlock != null) {\n            this.centerBlock.setBounds(new Rectangle2D.Double(w[2], h[0], w[4],\n                    h[4]));\n        }\n        return new Size2D(constraint.getWidth(), constraint.getHeight());\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.jfree.chart.block.junit.BorderArrangementTests::testSizingWithWidthConstraint",
+   "error": "java.lang.IllegalArgumentException: Range(double, double): require lower (0.0) <= upper (-2.3000000000000007)."
+  }
+ ],
+ "triggering_classes": [
+  "org.jfree.chart.block.junit.BorderArrangementTests"
+ ],
+ "loaded_classes": [
+  "org.jfree.chart.block.AbstractBlock",
+  "org.jfree.chart.block.Arrangement",
+  "org.jfree.chart.block.Block",
+  "org.jfree.chart.block.BlockBorder",
+  "org.jfree.chart.block.BlockContainer",
+  "org.jfree.chart.block.BlockFrame",
+  "org.jfree.chart.block.BorderArrangement",
+  "org.jfree.chart.block.EmptyBlock",
+  "org.jfree.chart.block.LengthConstraintType",
+  "org.jfree.chart.block.RectangleConstraint",
+  "org.jfree.chart.Drawable",
+  "org.jfree.chart.entity.EntityCollection",
+  "org.jfree.chart.util.PublicCloneable",
+  "org.jfree.chart.util.RectangleEdge",
+  "org.jfree.chart.util.RectangleInsets",
+  "org.jfree.chart.util.Size2D",
+  "org.jfree.chart.util.UnitType",
+  "org.jfree.data.Range"
+ ],
+ "suite": [
+  "org.jfree.chart.annotations.junit.CategoryLineAnnotationTests",
+  "org.jfree.chart.annotations.junit.CategoryPointerAnnotationTests",
+  "org.jfree.chart.annotations.junit.CategoryTextAnnotationTests",
+  "org.jfree.chart.annotations.junit.TextAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYBoxAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYDrawableAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYImageAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYLineAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYPointerAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYPolygonAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYShapeAnnotationTests",
+  "org.jfree.chart.annotations.junit.XYTextAnnotationTests",
+  "org.jfree.chart.axis.junit.AxisLocationTests",
+  "org.jfree.chart.axis.junit.AxisSpaceTests",
+  "org.jfree.chart.axis.junit.AxisTests",
+  "org.jfree.chart.axis.junit.CategoryAnchorTests",
+  "org.jfree.chart.axis.junit.CategoryAxis3DTests",
+  "org.jfree.chart.axis.junit.CategoryAxisTests",
+  "org.jfree.chart.axis.junit.CategoryLabelPositionTests",
+  "org.jfree.chart.axis.junit.CategoryLabelPositionsTests",
+  "org.jfree.chart.axis.junit.CategoryLabelWidthTypeTests",
+  "org.jfree.chart.axis.junit.CategoryTickTests",
+  "org.jfree.chart.axis.junit.CyclicNumberAxisTests",
+  "org.jfree.chart.axis.junit.DateAxisTests",
+  "org.jfree.chart.axis.junit.DateTickMarkPositionTests",
+  "org.jfree.chart.axis.junit.DateTickTests",
+  "org.jfree.chart.axis.junit.DateTickUnitTests",
+  "org.jfree.chart.axis.junit.ExtendedCategoryAxisTests",
+  "org.jfree.chart.axis.junit.LogAxisTests",
+  "org.jfree.chart.axis.junit.LogarithmicAxisTests",
+  "org.jfree.chart.axis.junit.MarkerAxisBandTests",
+  "org.jfree.chart.axis.junit.MonthDateFormatTests",
+  "org.jfree.chart.axis.junit.NumberAxis3DTests",
+  "org.jfree.chart.axis.junit.NumberAxisTests",
+  "org.jfree.chart.axis.junit.NumberTickUnitTests",
+  "org.jfree.chart.axis.junit.PeriodAxisLabelInfoTests",
+  "org.jfree.chart.axis.junit.PeriodAxisTests",
+  "org.jfree.chart.axis.junit.QuarterDateFormatTests",
+  "org.jfree.chart.axis.junit.SegmentedTimelineTests",
+  "org.jfree.chart.axis.junit.StandardTickUnitSourceTests",
+  "org.jfree.chart.axis.junit.SubCategoryAxisTests",
+  "org.jfree.chart.axis.junit.SymbolAxisTests",
+  "org.jfree.chart.axis.junit.TickUnitsTests",
+  "org.jfree.chart.axis.junit.ValueAxisTests",
+  "org.jfree.chart.block.junit.AbstractBlockTests",
+  "org.jfree.chart.block.junit.BlockBorderTests",
+  "org.jfree.chart.block.junit.BlockContainerTests",
+  "org.jfree.chart.block.junit.BorderArrangementTests",
+  "org.jfree.chart.block.junit.ColorBlockTests",
+  "org.jfree.chart.block.junit.ColumnArrangementTests",
+  "org.jfree.chart.block.junit.EmptyBlockTests",
+  "org.jfree.chart.block.junit.FlowArrangementTests",
+  "org.jfree.chart.block.junit.GridArrangementTests",
+  "org.jfree.chart.block.junit.LabelBlockTests",
+  "org.jfree.chart.block.junit.LineBorderTests",
+  "org.jfree.chart.block.junit.RectangleConstraintTests",
+  "org.jfree.chart.entity.junit.CategoryItemEntityTests",
+  "org.jfree.chart.entity.junit.LegendItemEntityTests",
+  "org.jfree.chart.entity.junit.PieSectionEntityTests",
+  "org.jfree.chart.entity.junit.StandardEntityCollectionTests",
+  "org.jfree.chart.entity.junit.TickLabelEntityTests",
+  "org.jfree.chart.entity.junit.XYItemEntityTests",
+  "org.jfree.chart.junit.AreaChartTests",
+  "org.jfree.chart.junit.BarChart3DTests",
+  "org.jfree.chart.junit.BarChartTests",
+  "org.jfree.chart.junit.ChartPanelTests",
+  "org.jfree.chart.junit.ChartRenderingInfoTests",
+  "org.jfree.chart.junit.GanttChartTests",
+  "org.jfree.chart.junit.JFreeChartTests",
+  "org.jfree.chart.junit.LegendItemCollectionTests",
+  "org.jfree.chart.junit.LegendItemTests",
+  "org.jfree.chart.junit.LineChart3DTests",
+  "org.jfree.chart.junit.LineChartTests",
+  "org.jfree.chart.junit.MeterChartTests",
+  "org.jfree.chart.junit.PaintMapTests",
+  "org.jfree.chart.junit.PieChart3DTests",
+  "org.jfree.chart.junit.PieChartTests",
+  "org.jfree.chart.junit.ScatterPlotTests",
+  "org.jfree.chart.junit.StackedAreaChartTests",
+  "org.jfree.chart.junit.StackedBarChart3DTests",
+  "org.jfree.chart.junit.StackedBarChartTests",
+  "org.jfree.chart.junit.StrokeMapTests",
+  "org.jfree.chart.junit.TimeSeriesChartTests",
+  "org.jfree.chart.junit.WaterfallChartTests",
+  "org.jfree.chart.junit.XYAreaChartTests",
+  "org.jfree.chart.junit.XYBarChartTests",
+  "org.jfree.chart.junit.XYLineChartTests",
+  "org.jfree.chart.junit.XYStepAreaChartTests",
+  "org.jfree.chart.junit.XYStepChartTests",
+  "org.jfree.chart.labels.junit.BoxAndWhiskerToolTipGeneratorTests",
+  "org.jfree.chart.labels.junit.BoxAndWhiskerXYToolTipGeneratorTests",
+  "org.jfree.chart.labels.junit.BubbleXYItemLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.CustomXYItemLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.HighLowItemLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.IntervalCategoryLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.ItemLabelAnchorTests",
+  "org.jfree.chart.labels.junit.ItemLabelPositionTests",
+  "org.jfree.chart.labels.junit.MultipleXYSeriesLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardCategoryItemLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardCategorySeriesLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardCategoryToolTipGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardPieSectionLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardPieToolTipGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardXYItemLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardXYSeriesLabelGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardXYToolTipGeneratorTests",
+  "org.jfree.chart.labels.junit.StandardXYZToolTipGeneratorTests",
+  "org.jfree.chart.labels.junit.SymbolicXYItemLabelGeneratorTests",
+  "org.jfree.chart.needle.junit.ArrowNeedleTests",
+  "org.jfree.chart.needle.junit.LineNeedleTests",
+  "org.jfree.chart.needle.junit.LongNeedleTests",
+  "org.jfree.chart.needle.junit.MeterNeedleTests",
+  "org.jfree.chart.needle.junit.MiddlePinNeedleTests",
+  "org.jfree.chart.needle.junit.PinNeedleTests",
+  "org.jfree.chart.needle.junit.PlumNeedleTests",
+  "org.jfree.chart.needle.junit.PointerNeedleTests",
+  "org.jfree.chart.needle.junit.ShipNeedleTests",
+  "org.jfree.chart.needle.junit.WindNeedleTests",
+  "org.jfree.chart.plot.dial.junit.AbstractDialLayerTests",
+  "org.jfree.chart.plot.dial.junit.ArcDialFrameTests",
+  "org.jfree.chart.plot.dial.junit.DialBackgroundTests",
+  "org.jfree.chart.plot.dial.junit.DialCapTests",
+  "org.jfree.chart.plot.dial.junit.DialPlotTests",
+  "org.jfree.chart.plot.dial.junit.DialPointerTests",
+  "org.jfree.chart.plot.dial.junit.DialTextAnnotationTests",
+  "org.jfree.chart.plot.dial.junit.DialValueIndicatorTests",
+  "org.jfree.chart.plot.dial.junit.StandardDialFrameTests",
+  "org.jfree.chart.plot.dial.junit.StandardDialRangeTests",
+  "org.jfree.chart.plot.dial.junit.StandardDialScaleTests",
+  "org.jfree.chart.plot.junit.CategoryMarkerTests",
+  "org.jfree.chart.plot.junit.CategoryPlotTests",
+  "org.jfree.chart.plot.junit.CombinedDomainCategoryPlotTests",
+  "org.jfree.chart.plot.junit.CombinedDomainXYPlotTests",
+  "org.jfree.chart.plot.junit.CombinedRangeCategoryPlotTests",
+  "org.jfree.chart.plot.junit.CombinedRangeXYPlotTests",
+  "org.jfree.chart.plot.junit.CompassPlotTests",
+  "org.jfree.chart.plot.junit.DefaultDrawingSupplierTests",
+  "org.jfree.chart.plot.junit.FastScatterPlotTests",
+  "org.jfree.chart.plot.junit.IntervalMarkerTests",
+  "org.jfree.chart.plot.junit.MarkerTests",
+  "org.jfree.chart.plot.junit.MeterIntervalTests",
+  "org.jfree.chart.plot.junit.MeterPlotTests",
+  "org.jfree.chart.plot.junit.MultiplePiePlotTests",
+  "org.jfree.chart.plot.junit.PieLabelRecordTests",
+  "org.jfree.chart.plot.junit.PiePlot3DTests",
+  "org.jfree.chart.plot.junit.PiePlotTests",
+  "org.jfree.chart.plot.junit.PlotOrientationTests",
+  "org.jfree.chart.plot.junit.PlotRenderingInfoTests",
+  "org.jfree.chart.plot.junit.PlotTests",
+  "org.jfree.chart.plot.junit.PolarPlotTests",
+  "org.jfree.chart.plot.junit.RingPlotTests",
+  "org.jfree.chart.plot.junit.SpiderWebPlotTests",
+  "org.jfree.chart.plot.junit.ThermometerPlotTests",
+  "org.jfree.chart.plot.junit.ValueMarkerTests",
+  "org.jfree.chart.plot.junit.XYPlotTests",
+  "org.jfree.chart.renderer.category.junit.AbstractCategoryItemRendererTests",
+  "org.jfree.chart.renderer.category.junit.AreaRendererTests",
+  "org.jfree.chart.renderer.category.junit.BarRenderer3DTests",
+  "org.jfree.chart.renderer.category.junit.BarRendererTests",
+  "org.jfree.chart.renderer.category.junit.BoxAndWhiskerRendererTests",
+  "org.jfree.chart.renderer.category.junit.CategoryStepRendererTests",
+  "org.jfree.chart.renderer.category.junit.DefaultCategoryItemRendererTests",
+  "org.jfree.chart.renderer.category.junit.GanttRendererTests",
+  "org.jfree.chart.renderer.category.junit.GroupedStackedBarRendererTests",
+  "org.jfree.chart.renderer.category.junit.IntervalBarRendererTests",
+  "org.jfree.chart.renderer.category.junit.LayeredBarRendererTests",
+  "org.jfree.chart.renderer.category.junit.LevelRendererTests",
+  "org.jfree.chart.renderer.category.junit.LineAndShapeRendererTests",
+  "org.jfree.chart.renderer.category.junit.LineRenderer3DTests",
+  "org.jfree.chart.renderer.category.junit.MinMaxCategoryRendererTests",
+  "org.jfree.chart.renderer.category.junit.ScatterRendererTests",
+  "org.jfree.chart.renderer.category.junit.StackedAreaRendererTests",
+  "org.jfree.chart.renderer.category.junit.StackedBarRenderer3DTests",
+  "org.jfree.chart.renderer.category.junit.StackedBarRendererTests",
+  "org.jfree.chart.renderer.category.junit.StatisticalBarRendererTests",
+  "org.jfree.chart.renderer.category.junit.StatisticalLineAndShapeRendererTests",
+  "org.jfree.chart.renderer.category.junit.WaterfallBarRendererTests",
+  "org.jfree.chart.renderer.junit.AbstractRendererTests",
+  "org.jfree.chart.renderer.junit.AreaRendererEndTypeTests",
+  "org.jfree.chart.renderer.junit.DefaultPolarItemRendererTests",
+  "org.jfree.chart.renderer.junit.GrayPaintScaleTests",
+  "org.jfree.chart.renderer.junit.LookupPaintScaleTests",
+  "org.jfree.chart.renderer.junit.OutlierTests",
+  "org.jfree.chart.renderer.junit.RendererUtilitiesTests",
+  "org.jfree.chart.renderer.xy.junit.AbstractXYItemRendererTests",
+  "org.jfree.chart.renderer.xy.junit.CandlestickRendererTests",
+  "org.jfree.chart.renderer.xy.junit.ClusteredXYBarRendererTests",
+  "org.jfree.chart.renderer.xy.junit.DeviationRendererTests",
+  "org.jfree.chart.renderer.xy.junit.HighLowRendererTests",
+  "org.jfree.chart.renderer.xy.junit.StackedXYAreaRenderer2Tests",
+  "org.jfree.chart.renderer.xy.junit.StackedXYAreaRendererTests",
+  "org.jfree.chart.renderer.xy.junit.StackedXYBarRendererTests",
+  "org.jfree.chart.renderer.xy.junit.StandardXYItemRendererTests",
+  "org.jfree.chart.renderer.xy.junit.VectorRendererTests",
+  "org.jfree.chart.renderer.xy.junit.WindItemRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYAreaRenderer2Tests",
+  "org.jfree.chart.renderer.xy.junit.XYAreaRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYBarRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYBlockRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYBoxAndWhiskerRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYBubbleRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYDifferenceRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYDotRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYErrorRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYLine3DRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYLineAndShapeRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYSplineAndShapeRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYStepAreaRendererTests",
+  "org.jfree.chart.renderer.xy.junit.XYStepRendererTests",
+  "org.jfree.chart.renderer.xy.junit.YIntervalRendererTests",
+  "org.jfree.chart.title.junit.CompositeTitleTests",
+  "org.jfree.chart.title.junit.DateTitleTests",
+  "org.jfree.chart.title.junit.ImageTitleTests",
+  "org.jfree.chart.title.junit.LegendGraphicTests",
+  "org.jfree.chart.title.junit.LegendTitleTests",
+  "org.jfree.chart.title.junit.PaintScaleLegendTests",
+  "org.jfree.chart.title.junit.TextTitleTests",
+  "org.jfree.chart.title.junit.TitleTests",
+  "org.jfree.chart.urls.junit.CustomXYURLGeneratorTests",
+  "org.jfree.chart.urls.junit.StandardCategoryURLGeneratorTests",
+  "org.jfree.chart.urls.junit.StandardPieURLGeneratorTests",
+  "org.jfree.chart.urls.junit.StandardXYURLGeneratorTests",
+  "org.jfree.chart.urls.junit.TimeSeriesURLGeneratorTests",
+  "org.jfree.chart.util.junit.BooleanListTests",
+  "org.jfree.chart.util.junit.HashUtilitiesTests",
+  "org.jfree.chart.util.junit.LogFormatTests",
+  "org.jfree.chart.util.junit.PaintListTests",
+  "org.jfree.chart.util.junit.RelativeDateFormatTests",
+  "org.jfree.chart.util.junit.StrokeListTests",
+  "org.jfree.data.category.junit.CategoryToPieDatasetTests",
+  "org.jfree.data.category.junit.DefaultCategoryDatasetTests",
+  "org.jfree.data.category.junit.DefaultIntervalCategoryDatasetTests",
+  "org.jfree.data.gantt.junit.TaskSeriesCollectionTests",
+  "org.jfree.data.gantt.junit.TaskSeriesTests",
+  "org.jfree.data.gantt.junit.TaskTests",
+  "org.jfree.data.general.junit.DatasetGroupTests",
+  "org.jfree.data.general.junit.DatasetUtilitiesTests",
+  "org.jfree.data.general.junit.DefaultKeyedValueDatasetTests",
+  "org.jfree.data.general.junit.DefaultKeyedValues2DDatasetTests",
+  "org.jfree.data.general.junit.DefaultKeyedValuesDatasetTests",
+  "org.jfree.data.general.junit.DefaultPieDatasetTests",
+  "org.jfree.data.junit.ComparableObjectItemTests",
+  "org.jfree.data.junit.ComparableObjectSeriesTests",
+  "org.jfree.data.junit.DataUtilitiesTests",
+  "org.jfree.data.junit.DefaultKeyedValueTests",
+  "org.jfree.data.junit.DefaultKeyedValues2DTests",
+  "org.jfree.data.junit.DefaultKeyedValuesTests",
+  "org.jfree.data.junit.DomainOrderTests",
+  "org.jfree.data.junit.KeyToGroupMapTests",
+  "org.jfree.data.junit.KeyedObjectTests",
+  "org.jfree.data.junit.KeyedObjects2DTests",
+  "org.jfree.data.junit.KeyedObjectsTests",
+  "org.jfree.data.junit.RangeTests",
+  "org.jfree.data.junit.RangeTypeTests",
+  "org.jfree.data.statistics.junit.BoxAndWhiskerCalculatorTests",
+  "org.jfree.data.statistics.junit.BoxAndWhiskerItemTests",
+  "org.jfree.data.statistics.junit.DefaultBoxAndWhiskerCategoryDatasetTests",
+  "org.jfree.data.statistics.junit.DefaultMultiValueCategoryDatasetTests",
+  "org.jfree.data.statistics.junit.DefaultStatisticalCategoryDatasetTests",
+  "org.jfree.data.statistics.junit.HistogramBinTests",
+  "org.jfree.data.statistics.junit.HistogramDatasetTests",
+  "org.jfree.data.statistics.junit.MeanAndStandardDeviationTests",
+  "org.jfree.data.statistics.junit.RegressionTests",
+  "org.jfree.data.statistics.junit.SimpleHistogramBinTests",
+  "org.jfree.data.statistics.junit.SimpleHistogramDatasetTests",
+  "org.jfree.data.statistics.junit.StatisticsTests",
+  "org.jfree.data.time.junit.DateRangeTests",
+  "org.jfree.data.time.junit.DayTests",
+  "org.jfree.data.time.junit.FixedMillisecondTests",
+  "org.jfree.data.time.junit.HourTests",
+  "org.jfree.data.time.junit.MillisecondTests",
+  "org.jfree.data.time.junit.MinuteTests",
+  "org.jfree.data.time.junit.MonthTests",
+  "org.jfree.data.time.junit.MovingAverageTests",
+  "org.jfree.data.time.junit.QuarterTests",
+  "org.jfree.data.time.junit.SecondTests",
+  "org.jfree.data.time.junit.SimpleTimePeriodTests",
+  "org.jfree.data.time.junit.TimePeriodAnchorTests",
+  "org.jfree.data.time.junit.TimePeriodValueTests",
+  "org.jfree.data.time.junit.TimePeriodValuesCollectionTests",
+  "org.jfree.data.time.junit.TimePeriodValuesTests",
+  "org.jfree.data.time.junit.TimeSeriesCollectionTests",
+  "org.jfree.data.time.junit.TimeSeriesDataItemTests",
+  "org.jfree.data.time.junit.TimeSeriesTests",
+  "org.jfree.data.time.junit.TimeTableXYDatasetTests",
+  "org.jfree.data.time.junit.WeekTests",
+  "org.jfree.data.time.junit.YearTests",
+  "org.jfree.data.time.ohlc.junit.OHLCItemTests",
+  "org.jfree.data.time.ohlc.junit.OHLCSeriesCollectionTests",
+  "org.jfree.data.time.ohlc.junit.OHLCSeriesTests",
+  "org.jfree.data.time.ohlc.junit.OHLCTests",
+  "org.jfree.data.xy.junit.CategoryTableXYDatasetTests",
+  "org.jfree.data.xy.junit.DefaultHighLowDatasetTests",
+  "org.jfree.data.xy.junit.DefaultIntervalXYDatasetTests",
+  "org.jfree.data.xy.junit.DefaultOHLCDatasetTests",
+  "org.jfree.data.xy.junit.DefaultTableXYDatasetTests",
+  "org.jfree.data.xy.junit.DefaultWindDatasetTests",
+  "org.jfree.data.xy.junit.DefaultXYDatasetTests",
+  "org.jfree.data.xy.junit.DefaultXYZDatasetTests",
+  "org.jfree.data.xy.junit.IntervalXYDelegateTests",
+  "org.jfree.data.xy.junit.MatrixSeriesCollectionTests",
+  "org.jfree.data.xy.junit.MatrixSeriesTests",
+  "org.jfree.data.xy.junit.OHLCDataItemTests",
+  "org.jfree.data.xy.junit.TableXYDatasetTests",
+  "org.jfree.data.xy.junit.VectorDataItemTests",
+  "org.jfree.data.xy.junit.VectorSeriesCollectionTests",
+  "org.jfree.data.xy.junit.VectorSeriesTests",
+  "org.jfree.data.xy.junit.VectorTests",
+  "org.jfree.data.xy.junit.XIntervalDataItemTests",
+  "org.jfree.data.xy.junit.XIntervalSeriesCollectionTests",
+  "org.jfree.data.xy.junit.XIntervalSeriesTests",
+  "org.jfree.data.xy.junit.XYBarDatasetTests",
+  "org.jfree.data.xy.junit.XYCoordinateTests",
+  "org.jfree.data.xy.junit.XYDataItemTests",
+  "org.jfree.data.xy.junit.XYIntervalDataItemTests",
+  "org.jfree.data.xy.junit.XYIntervalSeriesCollectionTests",
+  "org.jfree.data.xy.junit.XYIntervalSeriesTests",
+  "org.jfree.data.xy.junit.XYIntervalTests",
+  "org.jfree.data.xy.junit.XYSeriesCollectionTests",
+  "org.jfree.data.xy.junit.XYSeriesTests",
+  "org.jfree.data.xy.junit.YIntervalDataItemTests",
+  "org.jfree.data.xy.junit.YIntervalSeriesCollectionTests",
+  "org.jfree.data.xy.junit.YIntervalSeriesTests",
+  "org.jfree.data.xy.junit.YIntervalTests",
+  "org.jfree.data.xy.junit.YWithXIntervalTests"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.jfree.chart.annotations.junit.CategoryLineAnnotationTests": {
+   "wall": 0.118081,
+   "cpu": 0.16191999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.CategoryPointerAnnotationTests": {
+   "wall": 0.16666399999999998,
+   "cpu": 0.023367000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.CategoryTextAnnotationTests": {
+   "wall": 0.003754,
+   "cpu": 0.004309,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.TextAnnotationTests": {
+   "wall": 0.002447,
+   "cpu": 0.004239,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYBoxAnnotationTests": {
+   "wall": 0.971466,
+   "cpu": 0.6337160000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYDrawableAnnotationTests": {
+   "wall": 0.012308999999999999,
+   "cpu": 0.007472,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYImageAnnotationTests": {
+   "wall": 0.025837,
+   "cpu": 0.044631,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYLineAnnotationTests": {
+   "wall": 0.002313,
+   "cpu": 0.004479,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYPointerAnnotationTests": {
+   "wall": 0.002776,
+   "cpu": 0.004477,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYPolygonAnnotationTests": {
+   "wall": 0.001913,
+   "cpu": 0.003591,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYShapeAnnotationTests": {
+   "wall": 0.0024100000000000002,
+   "cpu": 0.00455,
+   "status": "pass"
+  },
+  "org.jfree.chart.annotations.junit.XYTextAnnotationTests": {
+   "wall": 0.001175,
+   "cpu": 0.00155,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.AxisLocationTests": {
+   "wall": 0.000787,
+   "cpu": 0.00134,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.AxisSpaceTests": {
+   "wall": 0.00045400000000000003,
+   "cpu": 0.000616,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.AxisTests": {
+   "wall": 0.0035529999999999997,
+   "cpu": 0.00636,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryAnchorTests": {
+   "wall": 0.000862,
+   "cpu": 0.001416,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryAxis3DTests": {
+   "wall": 0.011448999999999999,
+   "cpu": 0.017445,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryAxisTests": {
+   "wall": 0.01311,
+   "cpu": 0.022949999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryLabelPositionTests": {
+   "wall": 0.001519,
+   "cpu": 0.004033999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryLabelPositionsTests": {
+   "wall": 0.001931,
+   "cpu": 0.004169,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryLabelWidthTypeTests": {
+   "wall": 0.000919,
+   "cpu": 0.0017,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CategoryTickTests": {
+   "wall": 0.0028380000000000002,
+   "cpu": 0.006854,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.CyclicNumberAxisTests": {
+   "wall": 0.03740400000000001,
+   "cpu": 0.069255,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.DateAxisTests": {
+   "wall": 0.108997,
+   "cpu": 0.251083,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.DateTickMarkPositionTests": {
+   "wall": 0.0006820000000000001,
+   "cpu": 0.0014199999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.DateTickTests": {
+   "wall": 0.001851,
+   "cpu": 0.0043040000000000005,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.DateTickUnitTests": {
+   "wall": 0.005019999999999999,
+   "cpu": 0.010979,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.ExtendedCategoryAxisTests": {
+   "wall": 0.0037099999999999998,
+   "cpu": 0.008999,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.LogAxisTests": {
+   "wall": 0.032769,
+   "cpu": 0.051247999999999995,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.LogarithmicAxisTests": {
+   "wall": 0.003871,
+   "cpu": 0.009505000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.MarkerAxisBandTests": {
+   "wall": 0.001603,
+   "cpu": 0.004089000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.MonthDateFormatTests": {
+   "wall": 0.005466,
+   "cpu": 0.0128,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.NumberAxis3DTests": {
+   "wall": 0.001382,
+   "cpu": 0.00387,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.NumberAxisTests": {
+   "wall": 0.003249,
+   "cpu": 0.009455,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.NumberTickUnitTests": {
+   "wall": 0.000757,
+   "cpu": 0.0012729999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.PeriodAxisLabelInfoTests": {
+   "wall": 0.0046040000000000005,
+   "cpu": 0.009911,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.PeriodAxisTests": {
+   "wall": 0.006674,
+   "cpu": 0.017268000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.QuarterDateFormatTests": {
+   "wall": 0.001851,
+   "cpu": 0.004118999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.SegmentedTimelineTests": {
+   "wall": 1.131528,
+   "cpu": 1.5476800000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.StandardTickUnitSourceTests": {
+   "wall": 0.00256,
+   "cpu": 0.001382,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.SubCategoryAxisTests": {
+   "wall": 0.00113,
+   "cpu": 0.001239,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.SymbolAxisTests": {
+   "wall": 0.003857,
+   "cpu": 0.006913,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.TickUnitsTests": {
+   "wall": 0.0010069999999999999,
+   "cpu": 0.0026349999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.axis.junit.ValueAxisTests": {
+   "wall": 0.001769,
+   "cpu": 0.003388,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.AbstractBlockTests": {
+   "wall": 0.001992,
+   "cpu": 0.0038669999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.BlockBorderTests": {
+   "wall": 0.00038700000000000003,
+   "cpu": 0.000489,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.BlockContainerTests": {
+   "wall": 0.000996,
+   "cpu": 0.002735,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.BorderArrangementTests": {
+   "wall": 0.001752,
+   "cpu": 0.0037719999999999997,
+   "status": "fail"
+  },
+  "org.jfree.chart.block.junit.ColorBlockTests": {
+   "wall": 0.0010249999999999999,
+   "cpu": 0.001955,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.ColumnArrangementTests": {
+   "wall": 0.0008719999999999999,
+   "cpu": 0.001926,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.EmptyBlockTests": {
+   "wall": 0.000536,
+   "cpu": 0.0005949999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.FlowArrangementTests": {
+   "wall": 0.00033600000000000004,
+   "cpu": 0.000679,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.GridArrangementTests": {
+   "wall": 0.0019019999999999998,
+   "cpu": 0.002917,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.LabelBlockTests": {
+   "wall": 0.001277,
+   "cpu": 0.0014759999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.LineBorderTests": {
+   "wall": 0.00074,
+   "cpu": 0.001573,
+   "status": "pass"
+  },
+  "org.jfree.chart.block.junit.RectangleConstraintTests": {
+   "wall": 0.00027,
+   "cpu": 0.000869,
+   "status": "pass"
+  },
+  "org.jfree.chart.entity.junit.CategoryItemEntityTests": {
+   "wall": 0.00267,
+   "cpu": 0.007121000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.entity.junit.LegendItemEntityTests": {
+   "wall": 0.0005570000000000001,
+   "cpu": 0.000889,
+   "status": "pass"
+  },
+  "org.jfree.chart.entity.junit.PieSectionEntityTests": {
+   "wall": 0.00188,
+   "cpu": 0.002782,
+   "status": "pass"
+  },
+  "org.jfree.chart.entity.junit.StandardEntityCollectionTests": {
+   "wall": 0.001046,
+   "cpu": 0.003655,
+   "status": "pass"
+  },
+  "org.jfree.chart.entity.junit.TickLabelEntityTests": {
+   "wall": 0.00043,
+   "cpu": 0.000505,
+   "status": "pass"
+  },
+  "org.jfree.chart.entity.junit.XYItemEntityTests": {
+   "wall": 0.00173,
+   "cpu": 0.002627,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.AreaChartTests": {
+   "wall": 0.020977,
+   "cpu": 0.035002000000000005,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.BarChart3DTests": {
+   "wall": 0.007331000000000001,
+   "cpu": 0.011974,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.BarChartTests": {
+   "wall": 0.004932000000000001,
+   "cpu": 0.008539,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.ChartPanelTests": {
+   "wall": 0.064773,
+   "cpu": 0.120407,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.ChartRenderingInfoTests": {
+   "wall": 0.001247,
+   "cpu": 0.001216,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.GanttChartTests": {
+   "wall": 0.023748000000000002,
+   "cpu": 0.040038,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.JFreeChartTests": {
+   "wall": 0.041563,
+   "cpu": 0.09342,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.LegendItemCollectionTests": {
+   "wall": 0.002399,
+   "cpu": 0.006229,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.LegendItemTests": {
+   "wall": 0.002791,
+   "cpu": 0.0071719999999999996,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.LineChart3DTests": {
+   "wall": 0.0055709999999999996,
+   "cpu": 0.0119,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.LineChartTests": {
+   "wall": 0.0027949999999999997,
+   "cpu": 0.0075,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.MeterChartTests": {
+   "wall": 0.008981,
+   "cpu": 0.017198,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.PaintMapTests": {
+   "wall": 0.001478,
+   "cpu": 0.0037099999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.PieChart3DTests": {
+   "wall": 0.00771,
+   "cpu": 0.016367,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.PieChartTests": {
+   "wall": 0.000867,
+   "cpu": 0.0013440000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.ScatterPlotTests": {
+   "wall": 0.0023450000000000003,
+   "cpu": 0.003544,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.StackedAreaChartTests": {
+   "wall": 0.0030710000000000004,
+   "cpu": 0.0071719999999999996,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.StackedBarChart3DTests": {
+   "wall": 0.003485,
+   "cpu": 0.008044,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.StackedBarChartTests": {
+   "wall": 0.0045579999999999996,
+   "cpu": 0.008619,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.StrokeMapTests": {
+   "wall": 0.000526,
+   "cpu": 0.000992,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.TimeSeriesChartTests": {
+   "wall": 0.002319,
+   "cpu": 0.004842,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.WaterfallChartTests": {
+   "wall": 0.0037240000000000003,
+   "cpu": 0.009205,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.XYAreaChartTests": {
+   "wall": 0.003671,
+   "cpu": 0.009487,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.XYBarChartTests": {
+   "wall": 0.004443,
+   "cpu": 0.007051999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.XYLineChartTests": {
+   "wall": 0.004248,
+   "cpu": 0.009611000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.XYStepAreaChartTests": {
+   "wall": 0.0051849999999999995,
+   "cpu": 0.010961,
+   "status": "pass"
+  },
+  "org.jfree.chart.junit.XYStepChartTests": {
+   "wall": 0.003209,
+   "cpu": 0.006554,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.BoxAndWhiskerToolTipGeneratorTests": {
+   "wall": 0.0016439999999999998,
+   "cpu": 0.003301,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.BoxAndWhiskerXYToolTipGeneratorTests": {
+   "wall": 0.0019,
+   "cpu": 0.003817,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.BubbleXYItemLabelGeneratorTests": {
+   "wall": 0.002799,
+   "cpu": 0.0066289999999999995,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.CustomXYItemLabelGeneratorTests": {
+   "wall": 0.0012250000000000002,
+   "cpu": 0.003189,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.HighLowItemLabelGeneratorTests": {
+   "wall": 0.0035859999999999998,
+   "cpu": 0.007754,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.IntervalCategoryLabelGeneratorTests": {
+   "wall": 0.0032040000000000003,
+   "cpu": 0.008442999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.ItemLabelAnchorTests": {
+   "wall": 0.001251,
+   "cpu": 0.00282,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.ItemLabelPositionTests": {
+   "wall": 0.0006889999999999999,
+   "cpu": 0.002101,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.MultipleXYSeriesLabelGeneratorTests": {
+   "wall": 0.002039,
+   "cpu": 0.003376,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardCategoryItemLabelGeneratorTests": {
+   "wall": 0.00567,
+   "cpu": 0.008261,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardCategorySeriesLabelGeneratorTests": {
+   "wall": 0.000404,
+   "cpu": 0.000428,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardCategoryToolTipGeneratorTests": {
+   "wall": 0.001936,
+   "cpu": 0.005214000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardPieSectionLabelGeneratorTests": {
+   "wall": 0.000977,
+   "cpu": 0.0022040000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardPieToolTipGeneratorTests": {
+   "wall": 0.00046800000000000005,
+   "cpu": 0.0005,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardXYItemLabelGeneratorTests": {
+   "wall": 0.0018620000000000002,
+   "cpu": 0.00278,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardXYSeriesLabelGeneratorTests": {
+   "wall": 0.0009320000000000001,
+   "cpu": 0.000879,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardXYToolTipGeneratorTests": {
+   "wall": 0.0015689999999999999,
+   "cpu": 0.001181,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.StandardXYZToolTipGeneratorTests": {
+   "wall": 0.002418,
+   "cpu": 0.004373,
+   "status": "pass"
+  },
+  "org.jfree.chart.labels.junit.SymbolicXYItemLabelGeneratorTests": {
+   "wall": 0.001141,
+   "cpu": 0.003872,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.ArrowNeedleTests": {
+   "wall": 0.0053170000000000005,
+   "cpu": 0.008872999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.LineNeedleTests": {
+   "wall": 0.003041,
+   "cpu": 0.003846,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.LongNeedleTests": {
+   "wall": 0.001512,
+   "cpu": 0.002373,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.MeterNeedleTests": {
+   "wall": 0.0017729999999999998,
+   "cpu": 0.0023250000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.MiddlePinNeedleTests": {
+   "wall": 0.012807,
+   "cpu": 0.00444,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.PinNeedleTests": {
+   "wall": 0.001608,
+   "cpu": 0.0010409999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.PlumNeedleTests": {
+   "wall": 0.0032749999999999997,
+   "cpu": 0.004719,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.PointerNeedleTests": {
+   "wall": 0.008061,
+   "cpu": 0.007441,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.ShipNeedleTests": {
+   "wall": 0.009472,
+   "cpu": 0.006423,
+   "status": "pass"
+  },
+  "org.jfree.chart.needle.junit.WindNeedleTests": {
+   "wall": 0.004768,
+   "cpu": 0.006222,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.AbstractDialLayerTests": {
+   "wall": 0.032009,
+   "cpu": 0.011762,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.ArcDialFrameTests": {
+   "wall": 0.004813,
+   "cpu": 0.002139,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.DialBackgroundTests": {
+   "wall": 0.001406,
+   "cpu": 0.002199,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.DialCapTests": {
+   "wall": 0.000419,
+   "cpu": 0.000506,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.DialPlotTests": {
+   "wall": 0.005345,
+   "cpu": 0.010417,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.DialPointerTests": {
+   "wall": 0.00422,
+   "cpu": 0.006429000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.DialTextAnnotationTests": {
+   "wall": 0.001908,
+   "cpu": 0.0034649999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.DialValueIndicatorTests": {
+   "wall": 0.002206,
+   "cpu": 0.003282,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.StandardDialFrameTests": {
+   "wall": 0.001221,
+   "cpu": 0.003055,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.StandardDialRangeTests": {
+   "wall": 0.002019,
+   "cpu": 0.004375,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.dial.junit.StandardDialScaleTests": {
+   "wall": 0.0032440000000000004,
+   "cpu": 0.006829,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CategoryMarkerTests": {
+   "wall": 0.0016619999999999998,
+   "cpu": 0.0035870000000000003,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CategoryPlotTests": {
+   "wall": 0.022896999999999997,
+   "cpu": 0.055846,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CombinedDomainCategoryPlotTests": {
+   "wall": 0.006776,
+   "cpu": 0.017867,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CombinedDomainXYPlotTests": {
+   "wall": 0.009849,
+   "cpu": 0.020059,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CombinedRangeCategoryPlotTests": {
+   "wall": 0.011481,
+   "cpu": 0.014035,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CombinedRangeXYPlotTests": {
+   "wall": 0.007381,
+   "cpu": 0.015276,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.CompassPlotTests": {
+   "wall": 0.005004,
+   "cpu": 0.006354,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.DefaultDrawingSupplierTests": {
+   "wall": 0.001245,
+   "cpu": 0.00262,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.FastScatterPlotTests": {
+   "wall": 0.007084,
+   "cpu": 0.015722,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.IntervalMarkerTests": {
+   "wall": 0.0012720000000000001,
+   "cpu": 0.0022370000000000003,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.MarkerTests": {
+   "wall": 0.00066,
+   "cpu": 0.001436,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.MeterIntervalTests": {
+   "wall": 0.001593,
+   "cpu": 0.002059,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.MeterPlotTests": {
+   "wall": 0.0025459999999999997,
+   "cpu": 0.005425,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.MultiplePiePlotTests": {
+   "wall": 0.0023799999999999997,
+   "cpu": 0.005668,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PieLabelRecordTests": {
+   "wall": 0.0008629999999999999,
+   "cpu": 0.0015869999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PiePlot3DTests": {
+   "wall": 0.002454,
+   "cpu": 0.00597,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PiePlotTests": {
+   "wall": 0.008792,
+   "cpu": 0.020683,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PlotOrientationTests": {
+   "wall": 0.000997,
+   "cpu": 0.0027040000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PlotRenderingInfoTests": {
+   "wall": 0.0014039999999999999,
+   "cpu": 0.003041,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PlotTests": {
+   "wall": 0.0011330000000000001,
+   "cpu": 0.002321,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.PolarPlotTests": {
+   "wall": 0.0053890000000000006,
+   "cpu": 0.010914,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.RingPlotTests": {
+   "wall": 0.002117,
+   "cpu": 0.00474,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.SpiderWebPlotTests": {
+   "wall": 0.006403,
+   "cpu": 0.013903,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.ThermometerPlotTests": {
+   "wall": 0.005959,
+   "cpu": 0.012811999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.ValueMarkerTests": {
+   "wall": 0.0017929999999999999,
+   "cpu": 0.003851,
+   "status": "pass"
+  },
+  "org.jfree.chart.plot.junit.XYPlotTests": {
+   "wall": 0.028884,
+   "cpu": 0.063955,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.AbstractCategoryItemRendererTests": {
+   "wall": 0.001727,
+   "cpu": 0.003211,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.AreaRendererTests": {
+   "wall": 0.002406,
+   "cpu": 0.003718,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.BarRenderer3DTests": {
+   "wall": 0.001684,
+   "cpu": 0.004957,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.BarRendererTests": {
+   "wall": 0.001598,
+   "cpu": 0.003089,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.BoxAndWhiskerRendererTests": {
+   "wall": 0.025311,
+   "cpu": 0.048633,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.CategoryStepRendererTests": {
+   "wall": 0.003291,
+   "cpu": 0.007253,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.DefaultCategoryItemRendererTests": {
+   "wall": 0.0020870000000000003,
+   "cpu": 0.0031019999999999997,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.GanttRendererTests": {
+   "wall": 0.0013440000000000001,
+   "cpu": 0.001975,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.GroupedStackedBarRendererTests": {
+   "wall": 0.004861,
+   "cpu": 0.014017,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.IntervalBarRendererTests": {
+   "wall": 0.005554,
+   "cpu": 0.013597,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.LayeredBarRendererTests": {
+   "wall": 0.0037730000000000003,
+   "cpu": 0.007327,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.LevelRendererTests": {
+   "wall": 0.0033740000000000003,
+   "cpu": 0.00862,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.LineAndShapeRendererTests": {
+   "wall": 0.000923,
+   "cpu": 0.001747,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.LineRenderer3DTests": {
+   "wall": 0.0010840000000000001,
+   "cpu": 0.0019790000000000003,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.MinMaxCategoryRendererTests": {
+   "wall": 0.005914,
+   "cpu": 0.009867,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.ScatterRendererTests": {
+   "wall": 0.002934,
+   "cpu": 0.004815000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.StackedAreaRendererTests": {
+   "wall": 0.000752,
+   "cpu": 0.000978,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.StackedBarRenderer3DTests": {
+   "wall": 0.001838,
+   "cpu": 0.002219,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.StackedBarRendererTests": {
+   "wall": 0.000728,
+   "cpu": 0.004273,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.StatisticalBarRendererTests": {
+   "wall": 0.010784,
+   "cpu": 0.020111999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.StatisticalLineAndShapeRendererTests": {
+   "wall": 0.0027429999999999998,
+   "cpu": 0.005312,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.category.junit.WaterfallBarRendererTests": {
+   "wall": 0.0007700000000000001,
+   "cpu": 0.000798,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.AbstractRendererTests": {
+   "wall": 0.003002,
+   "cpu": 0.006413,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.AreaRendererEndTypeTests": {
+   "wall": 0.00036899999999999997,
+   "cpu": 0.000359,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.DefaultPolarItemRendererTests": {
+   "wall": 0.001728,
+   "cpu": 0.003792,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.GrayPaintScaleTests": {
+   "wall": 0.001701,
+   "cpu": 0.002553,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.LookupPaintScaleTests": {
+   "wall": 0.002033,
+   "cpu": 0.003366,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.OutlierTests": {
+   "wall": 0.000578,
+   "cpu": 0.00039600000000000003,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.junit.RendererUtilitiesTests": {
+   "wall": 0.001407,
+   "cpu": 0.003713,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.AbstractXYItemRendererTests": {
+   "wall": 0.0013469999999999999,
+   "cpu": 0.0012250000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.CandlestickRendererTests": {
+   "wall": 0.006759,
+   "cpu": 0.009493,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.ClusteredXYBarRendererTests": {
+   "wall": 0.004174000000000001,
+   "cpu": 0.0073739999999999995,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.DeviationRendererTests": {
+   "wall": 0.004014,
+   "cpu": 0.007021,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.HighLowRendererTests": {
+   "wall": 0.002357,
+   "cpu": 0.0036880000000000003,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.StackedXYAreaRenderer2Tests": {
+   "wall": 0.005889,
+   "cpu": 0.010243,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.StackedXYAreaRendererTests": {
+   "wall": 0.010675,
+   "cpu": 0.026326000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.StackedXYBarRendererTests": {
+   "wall": 0.007979,
+   "cpu": 0.018911999999999998,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.StandardXYItemRendererTests": {
+   "wall": 0.004211,
+   "cpu": 0.00595,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.VectorRendererTests": {
+   "wall": 0.002969,
+   "cpu": 0.005941,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.WindItemRendererTests": {
+   "wall": 0.001991,
+   "cpu": 0.003021,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYAreaRenderer2Tests": {
+   "wall": 0.007096,
+   "cpu": 0.017553,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYAreaRendererTests": {
+   "wall": 0.002729,
+   "cpu": 0.007109,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYBarRendererTests": {
+   "wall": 0.001661,
+   "cpu": 0.0060279999999999995,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYBlockRendererTests": {
+   "wall": 0.004898,
+   "cpu": 0.0071189999999999995,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYBoxAndWhiskerRendererTests": {
+   "wall": 0.002426,
+   "cpu": 0.0046429999999999996,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYBubbleRendererTests": {
+   "wall": 0.002434,
+   "cpu": 0.004320999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYDifferenceRendererTests": {
+   "wall": 0.002869,
+   "cpu": 0.004001,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYDotRendererTests": {
+   "wall": 0.001678,
+   "cpu": 0.002342,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYErrorRendererTests": {
+   "wall": 0.003645,
+   "cpu": 0.005351,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYLine3DRendererTests": {
+   "wall": 0.002367,
+   "cpu": 0.004176999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYLineAndShapeRendererTests": {
+   "wall": 0.001905,
+   "cpu": 0.0030529999999999997,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYSplineAndShapeRendererTests": {
+   "wall": 0.001452,
+   "cpu": 0.002334,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYStepAreaRendererTests": {
+   "wall": 0.00436,
+   "cpu": 0.008307,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.XYStepRendererTests": {
+   "wall": 0.003496,
+   "cpu": 0.007972,
+   "status": "pass"
+  },
+  "org.jfree.chart.renderer.xy.junit.YIntervalRendererTests": {
+   "wall": 0.005522,
+   "cpu": 0.007469,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.CompositeTitleTests": {
+   "wall": 0.003886,
+   "cpu": 0.003902,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.DateTitleTests": {
+   "wall": 0.002494,
+   "cpu": 0.003291,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.ImageTitleTests": {
+   "wall": 0.001121,
+   "cpu": 0.000853,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.LegendGraphicTests": {
+   "wall": 0.0021349999999999997,
+   "cpu": 0.005392,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.LegendTitleTests": {
+   "wall": 0.0022949999999999997,
+   "cpu": 0.005214000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.PaintScaleLegendTests": {
+   "wall": 0.005141,
+   "cpu": 0.007766,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.TextTitleTests": {
+   "wall": 0.00107,
+   "cpu": 0.002657,
+   "status": "pass"
+  },
+  "org.jfree.chart.title.junit.TitleTests": {
+   "wall": 0.0005719999999999999,
+   "cpu": 0.0017330000000000002,
+   "status": "pass"
+  },
+  "org.jfree.chart.urls.junit.CustomXYURLGeneratorTests": {
+   "wall": 0.001978,
+   "cpu": 0.003839,
+   "status": "pass"
+  },
+  "org.jfree.chart.urls.junit.StandardCategoryURLGeneratorTests": {
+   "wall": 0.0010149999999999998,
+   "cpu": 0.001036,
+   "status": "pass"
+  },
+  "org.jfree.chart.urls.junit.StandardPieURLGeneratorTests": {
+   "wall": 0.00264,
+   "cpu": 0.006326,
+   "status": "pass"
+  },
+  "org.jfree.chart.urls.junit.StandardXYURLGeneratorTests": {
+   "wall": 0.00126,
+   "cpu": 0.002021,
+   "status": "pass"
+  },
+  "org.jfree.chart.urls.junit.TimeSeriesURLGeneratorTests": {
+   "wall": 0.003711,
+   "cpu": 0.006609,
+   "status": "pass"
+  },
+  "org.jfree.chart.util.junit.BooleanListTests": {
+   "wall": 0.0012749999999999999,
+   "cpu": 0.0012980000000000001,
+   "status": "pass"
+  },
+  "org.jfree.chart.util.junit.HashUtilitiesTests": {
+   "wall": 0.0005290000000000001,
+   "cpu": 0.001095,
+   "status": "pass"
+  },
+  "org.jfree.chart.util.junit.LogFormatTests": {
+   "wall": 0.004575,
+   "cpu": 0.008039999999999999,
+   "status": "pass"
+  },
+  "org.jfree.chart.util.junit.PaintListTests": {
+   "wall": 0.001107,
+   "cpu": 0.001509,
+   "status": "pass"
+  },
+  "org.jfree.chart.util.junit.RelativeDateFormatTests": {
+   "wall": 0.009217000000000001,
+   "cpu": 0.011106,
+   "status": "pass"
+  },
+  "org.jfree.chart.util.junit.StrokeListTests": {
+   "wall": 0.0006670000000000001,
+   "cpu": 0.002002,
+   "status": "pass"
+  },
+  "org.jfree.data.category.junit.CategoryToPieDatasetTests": {
+   "wall": 0.001592,
+   "cpu": 0.002862,
+   "status": "pass"
+  },
+  "org.jfree.data.category.junit.DefaultCategoryDatasetTests": {
+   "wall": 0.00122,
+   "cpu": 0.003953,
+   "status": "pass"
+  },
+  "org.jfree.data.category.junit.DefaultIntervalCategoryDatasetTests": {
+   "wall": 0.0022589999999999997,
+   "cpu": 0.004618000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.gantt.junit.TaskSeriesCollectionTests": {
+   "wall": 0.002833,
+   "cpu": 0.004909,
+   "status": "pass"
+  },
+  "org.jfree.data.gantt.junit.TaskSeriesTests": {
+   "wall": 0.0005340000000000001,
+   "cpu": 0.000583,
+   "status": "pass"
+  },
+  "org.jfree.data.gantt.junit.TaskTests": {
+   "wall": 0.00032,
+   "cpu": 0.000321,
+   "status": "pass"
+  },
+  "org.jfree.data.general.junit.DatasetGroupTests": {
+   "wall": 0.000217,
+   "cpu": 0.000235,
+   "status": "pass"
+  },
+  "org.jfree.data.general.junit.DatasetUtilitiesTests": {
+   "wall": 0.00195,
+   "cpu": 0.004367,
+   "status": "pass"
+  },
+  "org.jfree.data.general.junit.DefaultKeyedValueDatasetTests": {
+   "wall": 0.0026219999999999998,
+   "cpu": 0.003387,
+   "status": "pass"
+  },
+  "org.jfree.data.general.junit.DefaultKeyedValues2DDatasetTests": {
+   "wall": 0.002682,
+   "cpu": 0.005136,
+   "status": "pass"
+  },
+  "org.jfree.data.general.junit.DefaultKeyedValuesDatasetTests": {
+   "wall": 0.0031349999999999998,
+   "cpu": 0.003856,
+   "status": "pass"
+  },
+  "org.jfree.data.general.junit.DefaultPieDatasetTests": {
+   "wall": 0.0007379999999999999,
+   "cpu": 0.001596,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.ComparableObjectItemTests": {
+   "wall": 0.000776,
+   "cpu": 0.000732,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.ComparableObjectSeriesTests": {
+   "wall": 0.001582,
+   "cpu": 0.002742,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.DataUtilitiesTests": {
+   "wall": 0.000404,
+   "cpu": 0.0005470000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.DefaultKeyedValueTests": {
+   "wall": 0.000945,
+   "cpu": 0.001446,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.DefaultKeyedValues2DTests": {
+   "wall": 0.001129,
+   "cpu": 0.002539,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.DefaultKeyedValuesTests": {
+   "wall": 0.0031720000000000003,
+   "cpu": 0.0054009999999999996,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.DomainOrderTests": {
+   "wall": 0.001206,
+   "cpu": 0.004163,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.KeyToGroupMapTests": {
+   "wall": 0.0018340000000000001,
+   "cpu": 0.0030110000000000002,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.KeyedObjectTests": {
+   "wall": 0.000745,
+   "cpu": 0.0018369999999999999,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.KeyedObjects2DTests": {
+   "wall": 0.002832,
+   "cpu": 0.004789,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.KeyedObjectsTests": {
+   "wall": 0.001547,
+   "cpu": 0.002922,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.RangeTests": {
+   "wall": 0.0006879999999999999,
+   "cpu": 0.001784,
+   "status": "pass"
+  },
+  "org.jfree.data.junit.RangeTypeTests": {
+   "wall": 0.002028,
+   "cpu": 0.0020710000000000004,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.BoxAndWhiskerCalculatorTests": {
+   "wall": 0.00033400000000000004,
+   "cpu": 0.000342,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.BoxAndWhiskerItemTests": {
+   "wall": 0.001242,
+   "cpu": 0.003859,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.DefaultBoxAndWhiskerCategoryDatasetTests": {
+   "wall": 0.000997,
+   "cpu": 0.001011,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.DefaultMultiValueCategoryDatasetTests": {
+   "wall": 0.00183,
+   "cpu": 0.001377,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.DefaultStatisticalCategoryDatasetTests": {
+   "wall": 0.0010220000000000001,
+   "cpu": 0.003469,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.HistogramBinTests": {
+   "wall": 0.001583,
+   "cpu": 0.003266,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.HistogramDatasetTests": {
+   "wall": 0.0024950000000000003,
+   "cpu": 0.003685,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.MeanAndStandardDeviationTests": {
+   "wall": 0.00027,
+   "cpu": 0.00027100000000000003,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.RegressionTests": {
+   "wall": 0.004712,
+   "cpu": 0.000869,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.SimpleHistogramBinTests": {
+   "wall": 0.0010680000000000002,
+   "cpu": 0.0015840000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.SimpleHistogramDatasetTests": {
+   "wall": 0.001016,
+   "cpu": 0.000794,
+   "status": "pass"
+  },
+  "org.jfree.data.statistics.junit.StatisticsTests": {
+   "wall": 0.0005480000000000001,
+   "cpu": 0.0005430000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.DateRangeTests": {
+   "wall": 0.00027400000000000005,
+   "cpu": 0.000553,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.DayTests": {
+   "wall": 0.002453,
+   "cpu": 0.005979,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.FixedMillisecondTests": {
+   "wall": 0.001016,
+   "cpu": 0.0017439999999999999,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.HourTests": {
+   "wall": 0.001407,
+   "cpu": 0.002895,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.MillisecondTests": {
+   "wall": 0.001529,
+   "cpu": 0.0028380000000000002,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.MinuteTests": {
+   "wall": 0.000868,
+   "cpu": 0.0013080000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.MonthTests": {
+   "wall": 0.001165,
+   "cpu": 0.003811,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.MovingAverageTests": {
+   "wall": 0.000776,
+   "cpu": 0.002863,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.QuarterTests": {
+   "wall": 0.0014750000000000002,
+   "cpu": 0.00273,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.SecondTests": {
+   "wall": 0.001751,
+   "cpu": 0.003254,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.SimpleTimePeriodTests": {
+   "wall": 0.00041,
+   "cpu": 0.000736,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimePeriodAnchorTests": {
+   "wall": 0.00022,
+   "cpu": 0.000223,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimePeriodValueTests": {
+   "wall": 0.001101,
+   "cpu": 0.002539,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimePeriodValuesCollectionTests": {
+   "wall": 0.009607,
+   "cpu": 0.009895,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimePeriodValuesTests": {
+   "wall": 0.0014650000000000002,
+   "cpu": 0.003434,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimeSeriesCollectionTests": {
+   "wall": 0.000708,
+   "cpu": 0.0017929999999999999,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimeSeriesDataItemTests": {
+   "wall": 0.00028199999999999997,
+   "cpu": 0.00028599999999999996,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimeSeriesTests": {
+   "wall": 0.003593,
+   "cpu": 0.006279,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.TimeTableXYDatasetTests": {
+   "wall": 0.00387,
+   "cpu": 0.009066000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.WeekTests": {
+   "wall": 0.002559,
+   "cpu": 0.004523,
+   "status": "pass"
+  },
+  "org.jfree.data.time.junit.YearTests": {
+   "wall": 0.0008359999999999999,
+   "cpu": 0.001532,
+   "status": "pass"
+  },
+  "org.jfree.data.time.ohlc.junit.OHLCItemTests": {
+   "wall": 0.01461,
+   "cpu": 0.013651,
+   "status": "pass"
+  },
+  "org.jfree.data.time.ohlc.junit.OHLCSeriesCollectionTests": {
+   "wall": 0.003812,
+   "cpu": 0.007617,
+   "status": "pass"
+  },
+  "org.jfree.data.time.ohlc.junit.OHLCSeriesTests": {
+   "wall": 0.000637,
+   "cpu": 0.00062,
+   "status": "pass"
+  },
+  "org.jfree.data.time.ohlc.junit.OHLCTests": {
+   "wall": 0.000247,
+   "cpu": 0.000398,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.CategoryTableXYDatasetTests": {
+   "wall": 0.001477,
+   "cpu": 0.0022069999999999998,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultHighLowDatasetTests": {
+   "wall": 0.001216,
+   "cpu": 0.00171,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultIntervalXYDatasetTests": {
+   "wall": 0.002215,
+   "cpu": 0.00413,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultOHLCDatasetTests": {
+   "wall": 0.001248,
+   "cpu": 0.002058,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultTableXYDatasetTests": {
+   "wall": 0.0017150000000000002,
+   "cpu": 0.003447,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultWindDatasetTests": {
+   "wall": 0.002902,
+   "cpu": 0.004298,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultXYDatasetTests": {
+   "wall": 0.0005909999999999999,
+   "cpu": 0.001466,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.DefaultXYZDatasetTests": {
+   "wall": 0.001623,
+   "cpu": 0.004277,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.IntervalXYDelegateTests": {
+   "wall": 0.000483,
+   "cpu": 0.001031,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.MatrixSeriesCollectionTests": {
+   "wall": 0.001547,
+   "cpu": 0.0022789999999999998,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.MatrixSeriesTests": {
+   "wall": 0.000366,
+   "cpu": 0.0014399999999999999,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.OHLCDataItemTests": {
+   "wall": 0.00039,
+   "cpu": 0.0006760000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.TableXYDatasetTests": {
+   "wall": 0.0008399999999999999,
+   "cpu": 0.0022400000000000002,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.VectorDataItemTests": {
+   "wall": 0.002783,
+   "cpu": 0.003508,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.VectorSeriesCollectionTests": {
+   "wall": 0.004133,
+   "cpu": 0.00511,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.VectorSeriesTests": {
+   "wall": 0.000419,
+   "cpu": 0.000439,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.VectorTests": {
+   "wall": 0.000255,
+   "cpu": 0.00028399999999999996,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XIntervalDataItemTests": {
+   "wall": 0.001699,
+   "cpu": 0.002857,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XIntervalSeriesCollectionTests": {
+   "wall": 0.001712,
+   "cpu": 0.003491,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XIntervalSeriesTests": {
+   "wall": 0.0015309999999999998,
+   "cpu": 0.002645,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYBarDatasetTests": {
+   "wall": 0.00166,
+   "cpu": 0.0033580000000000003,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYCoordinateTests": {
+   "wall": 0.000348,
+   "cpu": 0.000357,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYDataItemTests": {
+   "wall": 0.000593,
+   "cpu": 0.000541,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYIntervalDataItemTests": {
+   "wall": 0.0013080000000000001,
+   "cpu": 0.00093,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYIntervalSeriesCollectionTests": {
+   "wall": 0.0015760000000000001,
+   "cpu": 0.00086,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYIntervalSeriesTests": {
+   "wall": 0.0006630000000000001,
+   "cpu": 0.0015400000000000001,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYIntervalTests": {
+   "wall": 0.000297,
+   "cpu": 0.000876,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYSeriesCollectionTests": {
+   "wall": 0.000705,
+   "cpu": 0.0017729999999999998,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.XYSeriesTests": {
+   "wall": 0.001632,
+   "cpu": 0.003527,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.YIntervalDataItemTests": {
+   "wall": 0.002018,
+   "cpu": 0.005168,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.YIntervalSeriesCollectionTests": {
+   "wall": 0.0008359999999999999,
+   "cpu": 0.002594,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.YIntervalSeriesTests": {
+   "wall": 0.0011120000000000001,
+   "cpu": 0.001893,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.YIntervalTests": {
+   "wall": 0.000354,
+   "cpu": 0.00036199999999999996,
+   "status": "pass"
+  },
+  "org.jfree.data.xy.junit.YWithXIntervalTests": {
+   "wall": 0.00021799999999999999,
+   "cpu": 0.000229,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.9806855000004098,
+  "cpu": 0.8679299999999959
+ },
+ "fixed_suite_seconds": [
+  6.68,
+  4.69,
+  4.79
+ ],
+ "covering": [
+  "org.jfree.chart.block.junit.BorderArrangementTests"
+ ],
+ "sizes": {
+  "org.jfree.chart.annotations.junit.CategoryLineAnnotationTests": 6098,
+  "org.jfree.chart.annotations.junit.CategoryPointerAnnotationTests": 6860,
+  "org.jfree.chart.annotations.junit.CategoryTextAnnotationTests": 5347,
+  "org.jfree.chart.annotations.junit.TextAnnotationTests": 4466,
+  "org.jfree.chart.annotations.junit.XYBoxAnnotationTests": 8245,
+  "org.jfree.chart.annotations.junit.XYDrawableAnnotationTests": 6169,
+  "org.jfree.chart.annotations.junit.XYImageAnnotationTests": 4933,
+  "org.jfree.chart.annotations.junit.XYLineAnnotationTests": 6758,
+  "org.jfree.chart.annotations.junit.XYPointerAnnotationTests": 6866,
+  "org.jfree.chart.annotations.junit.XYPolygonAnnotationTests": 7066,
+  "org.jfree.chart.annotations.junit.XYShapeAnnotationTests": 7337,
+  "org.jfree.chart.annotations.junit.XYTextAnnotationTests": 6436,
+  "org.jfree.chart.axis.junit.AxisLocationTests": 4122,
+  "org.jfree.chart.axis.junit.AxisSpaceTests": 3750,
+  "org.jfree.chart.axis.junit.AxisTests": 8238,
+  "org.jfree.chart.axis.junit.CategoryAnchorTests": 4055,
+  "org.jfree.chart.axis.junit.CategoryAxis3DTests": 3630,
+  "org.jfree.chart.axis.junit.CategoryAxisTests": 8257,
+  "org.jfree.chart.axis.junit.CategoryLabelPositionTests": 7401,
+  "org.jfree.chart.axis.junit.CategoryLabelPositionsTests": 8622,
+  "org.jfree.chart.axis.junit.CategoryLabelWidthTypeTests": 4023,
+  "org.jfree.chart.axis.junit.CategoryTickTests": 6446,
+  "org.jfree.chart.axis.junit.CyclicNumberAxisTests": 5973,
+  "org.jfree.chart.axis.junit.DateAxisTests": 41026,
+  "org.jfree.chart.axis.junit.DateTickMarkPositionTests": 4236,
+  "org.jfree.chart.axis.junit.DateTickTests": 5842,
+  "org.jfree.chart.axis.junit.DateTickUnitTests": 3885,
+  "org.jfree.chart.axis.junit.ExtendedCategoryAxisTests": 6779,
+  "org.jfree.chart.axis.junit.LogAxisTests": 11232,
+  "org.jfree.chart.axis.junit.LogarithmicAxisTests": 9959,
+  "org.jfree.chart.axis.junit.MarkerAxisBandTests": 5248,
+  "org.jfree.chart.axis.junit.MonthDateFormatTests": 6308,
+  "org.jfree.chart.axis.junit.NumberAxis3DTests": 3130,
+  "org.jfree.chart.axis.junit.NumberAxisTests": 17059,
+  "org.jfree.chart.axis.junit.NumberTickUnitTests": 4627,
+  "org.jfree.chart.axis.junit.PeriodAxisLabelInfoTests": 7896,
+  "org.jfree.chart.axis.junit.PeriodAxisTests": 8001,
+  "org.jfree.chart.axis.junit.QuarterDateFormatTests": 5762,
+  "org.jfree.chart.axis.junit.SegmentedTimelineTests": 46257,
+  "org.jfree.chart.axis.junit.StandardTickUnitSourceTests": 3512,
+  "org.jfree.chart.axis.junit.SubCategoryAxisTests": 5050,
+  "org.jfree.chart.axis.junit.SymbolAxisTests": 4976,
+  "org.jfree.chart.axis.junit.TickUnitsTests": 3943,
+  "org.jfree.chart.axis.junit.ValueAxisTests": 7563,
+  "org.jfree.chart.block.junit.AbstractBlockTests": 5917,
+  "org.jfree.chart.block.junit.BlockBorderTests": 4668,
+  "org.jfree.chart.block.junit.BlockContainerTests": 4563,
+  "org.jfree.chart.block.junit.BorderArrangementTests": 32472,
+  "org.jfree.chart.block.junit.ColorBlockTests": 5053,
+  "org.jfree.chart.block.junit.ColumnArrangementTests": 5312,
+  "org.jfree.chart.block.junit.EmptyBlockTests": 4159,
+  "org.jfree.chart.block.junit.FlowArrangementTests": 5234,
+  "org.jfree.chart.block.junit.GridArrangementTests": 5507,
+  "org.jfree.chart.block.junit.LabelBlockTests": 5465,
+  "org.jfree.chart.block.junit.LineBorderTests": 5048,
+  "org.jfree.chart.block.junit.RectangleConstraintTests": 5703,
+  "org.jfree.chart.entity.junit.CategoryItemEntityTests": 5887,
+  "org.jfree.chart.entity.junit.LegendItemEntityTests": 5105,
+  "org.jfree.chart.entity.junit.PieSectionEntityTests": 5054,
+  "org.jfree.chart.entity.junit.StandardEntityCollectionTests": 5234,
+  "org.jfree.chart.entity.junit.TickLabelEntityTests": 4781,
+  "org.jfree.chart.entity.junit.XYItemEntityTests": 5244,
+  "org.jfree.chart.junit.AreaChartTests": 7009,
+  "org.jfree.chart.junit.BarChart3DTests": 7285,
+  "org.jfree.chart.junit.BarChartTests": 7361,
+  "org.jfree.chart.junit.ChartPanelTests": 4264,
+  "org.jfree.chart.junit.ChartRenderingInfoTests": 6424,
+  "org.jfree.chart.junit.GanttChartTests": 12098,
+  "org.jfree.chart.junit.JFreeChartTests": 19774,
+  "org.jfree.chart.junit.LegendItemCollectionTests": 5262,
+  "org.jfree.chart.junit.LegendItemTests": 16462,
+  "org.jfree.chart.junit.LineChart3DTests": 7257,
+  "org.jfree.chart.junit.LineChartTests": 7222,
+  "org.jfree.chart.junit.MeterChartTests": 3226,
+  "org.jfree.chart.junit.PaintMapTests": 6976,
+  "org.jfree.chart.junit.PieChart3DTests": 5119,
+  "org.jfree.chart.junit.PieChartTests": 4227,
+  "org.jfree.chart.junit.ScatterPlotTests": 6404,
+  "org.jfree.chart.junit.StackedAreaChartTests": 7300,
+  "org.jfree.chart.junit.StackedBarChart3DTests": 7326,
+  "org.jfree.chart.junit.StackedBarChartTests": 7505,
+  "org.jfree.chart.junit.StrokeMapTests": 6411,
+  "org.jfree.chart.junit.TimeSeriesChartTests": 6297,
+  "org.jfree.chart.junit.WaterfallChartTests": 5635,
+  "org.jfree.chart.junit.XYAreaChartTests": 6346,
+  "org.jfree.chart.junit.XYBarChartTests": 6488,
+  "org.jfree.chart.junit.XYLineChartTests": 6349,
+  "org.jfree.chart.junit.XYStepAreaChartTests": 6378,
+  "org.jfree.chart.junit.XYStepChartTests": 6345,
+  "org.jfree.chart.labels.junit.BoxAndWhiskerToolTipGeneratorTests": 5139,
+  "org.jfree.chart.labels.junit.BoxAndWhiskerXYToolTipGeneratorTests": 6221,
+  "org.jfree.chart.labels.junit.BubbleXYItemLabelGeneratorTests": 7490,
+  "org.jfree.chart.labels.junit.CustomXYItemLabelGeneratorTests": 4187,
+  "org.jfree.chart.labels.junit.HighLowItemLabelGeneratorTests": 4925,
+  "org.jfree.chart.labels.junit.IntervalCategoryLabelGeneratorTests": 5176,
+  "org.jfree.chart.labels.junit.ItemLabelAnchorTests": 3409,
+  "org.jfree.chart.labels.junit.ItemLabelPositionTests": 3504,
+  "org.jfree.chart.labels.junit.MultipleXYSeriesLabelGeneratorTests": 4913,
+  "org.jfree.chart.labels.junit.StandardCategoryItemLabelGeneratorTests": 6695,
+  "org.jfree.chart.labels.junit.StandardCategorySeriesLabelGeneratorTests": 5198,
+  "org.jfree.chart.labels.junit.StandardCategoryToolTipGeneratorTests": 5927,
+  "org.jfree.chart.labels.junit.StandardPieSectionLabelGeneratorTests": 6453,
+  "org.jfree.chart.labels.junit.StandardPieToolTipGeneratorTests": 6148,
+  "org.jfree.chart.labels.junit.StandardXYItemLabelGeneratorTests": 7661,
+  "org.jfree.chart.labels.junit.StandardXYSeriesLabelGeneratorTests": 5064,
+  "org.jfree.chart.labels.junit.StandardXYToolTipGeneratorTests": 6108,
+  "org.jfree.chart.labels.junit.StandardXYZToolTipGeneratorTests": 6967,
+  "org.jfree.chart.labels.junit.SymbolicXYItemLabelGeneratorTests": 4155,
+  "org.jfree.chart.needle.junit.ArrowNeedleTests": 4036,
+  "org.jfree.chart.needle.junit.LineNeedleTests": 3842,
+  "org.jfree.chart.needle.junit.LongNeedleTests": 3842,
+  "org.jfree.chart.needle.junit.MeterNeedleTests": 3944,
+  "org.jfree.chart.needle.junit.MiddlePinNeedleTests": 3942,
+  "org.jfree.chart.needle.junit.PinNeedleTests": 3822,
+  "org.jfree.chart.needle.junit.PlumNeedleTests": 3842,
+  "org.jfree.chart.needle.junit.PointerNeedleTests": 3902,
+  "org.jfree.chart.needle.junit.ShipNeedleTests": 3843,
+  "org.jfree.chart.needle.junit.WindNeedleTests": 3843,
+  "org.jfree.chart.plot.dial.junit.AbstractDialLayerTests": 4552,
+  "org.jfree.chart.plot.dial.junit.ArcDialFrameTests": 6205,
+  "org.jfree.chart.plot.dial.junit.DialBackgroundTests": 7151,
+  "org.jfree.chart.plot.dial.junit.DialCapTests": 7125,
+  "org.jfree.chart.plot.dial.junit.DialPlotTests": 9821,
+  "org.jfree.chart.plot.dial.junit.DialPointerTests": 6962,
+  "org.jfree.chart.plot.dial.junit.DialTextAnnotationTests": 6480,
+  "org.jfree.chart.plot.dial.junit.DialValueIndicatorTests": 8076,
+  "org.jfree.chart.plot.dial.junit.StandardDialFrameTests": 5804,
+  "org.jfree.chart.plot.dial.junit.StandardDialRangeTests": 5402,
+  "org.jfree.chart.plot.dial.junit.StandardDialScaleTests": 9641,
+  "org.jfree.chart.plot.junit.CategoryMarkerTests": 8050,
+  "org.jfree.chart.plot.junit.CategoryPlotTests": 29127,
+  "org.jfree.chart.plot.junit.CombinedDomainCategoryPlotTests": 9204,
+  "org.jfree.chart.plot.junit.CombinedDomainXYPlotTests": 9002,
+  "org.jfree.chart.plot.junit.CombinedRangeCategoryPlotTests": 9075,
+  "org.jfree.chart.plot.junit.CombinedRangeXYPlotTests": 8742,
+  "org.jfree.chart.plot.junit.CompassPlotTests": 6024,
+  "org.jfree.chart.plot.junit.DefaultDrawingSupplierTests": 8383,
+  "org.jfree.chart.plot.junit.FastScatterPlotTests": 7402,
+  "org.jfree.chart.plot.junit.IntervalMarkerTests": 6060,
+  "org.jfree.chart.plot.junit.MarkerTests": 14270,
+  "org.jfree.chart.plot.junit.MeterIntervalTests": 4411,
+  "org.jfree.chart.plot.junit.MeterPlotTests": 10804,
+  "org.jfree.chart.plot.junit.MultiplePiePlotTests": 5447,
+  "org.jfree.chart.plot.junit.PieLabelRecordTests": 5640,
+  "org.jfree.chart.plot.junit.PiePlot3DTests": 4627,
+  "org.jfree.chart.plot.junit.PiePlotTests": 22548,
+  "org.jfree.chart.plot.junit.PlotOrientationTests": 3784,
+  "org.jfree.chart.plot.junit.PlotRenderingInfoTests": 5340,
+  "org.jfree.chart.plot.junit.PlotTests": 7103,
+  "org.jfree.chart.plot.junit.PolarPlotTests": 8190,
+  "org.jfree.chart.plot.junit.RingPlotTests": 5631,
+  "org.jfree.chart.plot.junit.SpiderWebPlotTests": 12805,
+  "org.jfree.chart.plot.junit.ThermometerPlotTests": 8511,
+  "org.jfree.chart.plot.junit.ValueMarkerTests": 9534,
+  "org.jfree.chart.plot.junit.XYPlotTests": 38382,
+  "org.jfree.chart.renderer.category.junit.AbstractCategoryItemRendererTests": 12395,
+  "org.jfree.chart.renderer.category.junit.AreaRendererTests": 5838,
+  "org.jfree.chart.renderer.category.junit.BarRenderer3DTests": 5067,
+  "org.jfree.chart.renderer.category.junit.BarRendererTests": 9429,
+  "org.jfree.chart.renderer.category.junit.BoxAndWhiskerRendererTests": 20688,
+  "org.jfree.chart.renderer.category.junit.CategoryStepRendererTests": 5553,
+  "org.jfree.chart.renderer.category.junit.DefaultCategoryItemRendererTests": 4610,
+  "org.jfree.chart.renderer.category.junit.GanttRendererTests": 5125,
+  "org.jfree.chart.renderer.category.junit.GroupedStackedBarRendererTests": 5880,
+  "org.jfree.chart.renderer.category.junit.IntervalBarRendererTests": 5745,
+  "org.jfree.chart.renderer.category.junit.LayeredBarRendererTests": 5466,
+  "org.jfree.chart.renderer.category.junit.LevelRendererTests": 7447,
+  "org.jfree.chart.renderer.category.junit.LineAndShapeRendererTests": 9319,
+  "org.jfree.chart.renderer.category.junit.LineRenderer3DTests": 6710,
+  "org.jfree.chart.renderer.category.junit.MinMaxCategoryRendererTests": 6317,
+  "org.jfree.chart.renderer.category.junit.ScatterRendererTests": 6226,
+  "org.jfree.chart.renderer.category.junit.StackedAreaRendererTests": 4508,
+  "org.jfree.chart.renderer.category.junit.StackedBarRenderer3DTests": 14499,
+  "org.jfree.chart.renderer.category.junit.StackedBarRendererTests": 4551,
+  "org.jfree.chart.renderer.category.junit.StatisticalBarRendererTests": 10269,
+  "org.jfree.chart.renderer.category.junit.StatisticalLineAndShapeRendererTests": 6703,
+  "org.jfree.chart.renderer.category.junit.WaterfallBarRendererTests": 5408,
+  "org.jfree.chart.renderer.junit.AbstractRendererTests": 28528,
+  "org.jfree.chart.renderer.junit.AreaRendererEndTypeTests": 3642,
+  "org.jfree.chart.renderer.junit.DefaultPolarItemRendererTests": 4814,
+  "org.jfree.chart.renderer.junit.GrayPaintScaleTests": 5337,
+  "org.jfree.chart.renderer.junit.LookupPaintScaleTests": 8702,
+  "org.jfree.chart.renderer.junit.OutlierTests": 3797,
+  "org.jfree.chart.renderer.junit.RendererUtilitiesTests": 18520,
+  "org.jfree.chart.renderer.xy.junit.AbstractXYItemRendererTests": 8566,
+  "org.jfree.chart.renderer.xy.junit.CandlestickRendererTests": 8804,
+  "org.jfree.chart.renderer.xy.junit.ClusteredXYBarRendererTests": 7161,
+  "org.jfree.chart.renderer.xy.junit.DeviationRendererTests": 4527,
+  "org.jfree.chart.renderer.xy.junit.HighLowRendererTests": 6718,
+  "org.jfree.chart.renderer.xy.junit.StackedXYAreaRenderer2Tests": 7050,
+  "org.jfree.chart.renderer.xy.junit.StackedXYAreaRendererTests": 8947,
+  "org.jfree.chart.renderer.xy.junit.StackedXYBarRendererTests": 6805,
+  "org.jfree.chart.renderer.xy.junit.StandardXYItemRendererTests": 10036,
+  "org.jfree.chart.renderer.xy.junit.VectorRendererTests": 4532,
+  "org.jfree.chart.renderer.xy.junit.WindItemRendererTests": 4289,
+  "org.jfree.chart.renderer.xy.junit.XYAreaRenderer2Tests": 7686,
+  "org.jfree.chart.renderer.xy.junit.XYAreaRendererTests": 8815,
+  "org.jfree.chart.renderer.xy.junit.XYBarRendererTests": 10163,
+  "org.jfree.chart.renderer.xy.junit.XYBlockRendererTests": 6270,
+  "org.jfree.chart.renderer.xy.junit.XYBoxAndWhiskerRendererTests": 5175,
+  "org.jfree.chart.renderer.xy.junit.XYBubbleRendererTests": 6550,
+  "org.jfree.chart.renderer.xy.junit.XYDifferenceRendererTests": 7997,
+  "org.jfree.chart.renderer.xy.junit.XYDotRendererTests": 6434,
+  "org.jfree.chart.renderer.xy.junit.XYErrorRendererTests": 5318,
+  "org.jfree.chart.renderer.xy.junit.XYLine3DRendererTests": 5061,
+  "org.jfree.chart.renderer.xy.junit.XYLineAndShapeRendererTests": 11108,
+  "org.jfree.chart.renderer.xy.junit.XYSplineAndShapeRendererTests": 4756,
+  "org.jfree.chart.renderer.xy.junit.XYStepAreaRendererTests": 6674,
+  "org.jfree.chart.renderer.xy.junit.XYStepRendererTests": 7459,
+  "org.jfree.chart.renderer.xy.junit.YIntervalRendererTests": 10187,
+  "org.jfree.chart.title.junit.CompositeTitleTests": 5728,
+  "org.jfree.chart.title.junit.DateTitleTests": 4825,
+  "org.jfree.chart.title.junit.ImageTitleTests": 3904,
+  "org.jfree.chart.title.junit.LegendGraphicTests": 8984,
+  "org.jfree.chart.title.junit.LegendTitleTests": 6298,
+  "org.jfree.chart.title.junit.PaintScaleLegendTests": 6995,
+  "org.jfree.chart.title.junit.TextTitleTests": 5583,
+  "org.jfree.chart.title.junit.TitleTests": 3558,
+  "org.jfree.chart.urls.junit.CustomXYURLGeneratorTests": 3545,
+  "org.jfree.chart.urls.junit.StandardCategoryURLGeneratorTests": 3346,
+  "org.jfree.chart.urls.junit.StandardPieURLGeneratorTests": 5508,
+  "org.jfree.chart.urls.junit.StandardXYURLGeneratorTests": 3230,
+  "org.jfree.chart.urls.junit.TimeSeriesURLGeneratorTests": 5580,
+  "org.jfree.chart.util.junit.BooleanListTests": 4907,
+  "org.jfree.chart.util.junit.HashUtilitiesTests": 2700,
+  "org.jfree.chart.util.junit.LogFormatTests": 4802,
+  "org.jfree.chart.util.junit.PaintListTests": 6277,
+  "org.jfree.chart.util.junit.RelativeDateFormatTests": 5049,
+  "org.jfree.chart.util.junit.StrokeListTests": 5280,
+  "org.jfree.data.category.junit.CategoryToPieDatasetTests": 8497,
+  "org.jfree.data.category.junit.DefaultCategoryDatasetTests": 10583,
+  "org.jfree.data.category.junit.DefaultIntervalCategoryDatasetTests": 16966,
+  "org.jfree.data.gantt.junit.TaskSeriesCollectionTests": 24201,
+  "org.jfree.data.gantt.junit.TaskSeriesTests": 5105,
+  "org.jfree.data.gantt.junit.TaskTests": 5295,
+  "org.jfree.data.general.junit.DatasetGroupTests": 3124,
+  "org.jfree.data.general.junit.DatasetUtilitiesTests": 19062,
+  "org.jfree.data.general.junit.DefaultKeyedValueDatasetTests": 5292,
+  "org.jfree.data.general.junit.DefaultKeyedValues2DDatasetTests": 4178,
+  "org.jfree.data.general.junit.DefaultKeyedValuesDatasetTests": 4120,
+  "org.jfree.data.general.junit.DefaultPieDatasetTests": 6109,
+  "org.jfree.data.junit.ComparableObjectItemTests": 5766,
+  "org.jfree.data.junit.ComparableObjectSeriesTests": 7921,
+  "org.jfree.data.junit.DataUtilitiesTests": 3651,
+  "org.jfree.data.junit.DefaultKeyedValueTests": 4553,
+  "org.jfree.data.junit.DefaultKeyedValues2DTests": 11561,
+  "org.jfree.data.junit.DefaultKeyedValuesTests": 16917,
+  "org.jfree.data.junit.DomainOrderTests": 4431,
+  "org.jfree.data.junit.KeyToGroupMapTests": 9336,
+  "org.jfree.data.junit.KeyedObjectTests": 5575,
+  "org.jfree.data.junit.KeyedObjects2DTests": 12200,
+  "org.jfree.data.junit.KeyedObjectsTests": 12146,
+  "org.jfree.data.junit.RangeTests": 5925,
+  "org.jfree.data.junit.RangeTypeTests": 4321,
+  "org.jfree.data.statistics.junit.BoxAndWhiskerCalculatorTests": 6083,
+  "org.jfree.data.statistics.junit.BoxAndWhiskerItemTests": 4147,
+  "org.jfree.data.statistics.junit.DefaultBoxAndWhiskerCategoryDatasetTests": 13038,
+  "org.jfree.data.statistics.junit.DefaultMultiValueCategoryDatasetTests": 8912,
+  "org.jfree.data.statistics.junit.DefaultStatisticalCategoryDatasetTests": 10846,
+  "org.jfree.data.statistics.junit.HistogramBinTests": 4096,
+  "org.jfree.data.statistics.junit.HistogramDatasetTests": 7648,
+  "org.jfree.data.statistics.junit.MeanAndStandardDeviationTests": 4224,
+  "org.jfree.data.statistics.junit.RegressionTests": 7956,
+  "org.jfree.data.statistics.junit.SimpleHistogramBinTests": 6896,
+  "org.jfree.data.statistics.junit.SimpleHistogramDatasetTests": 5450,
+  "org.jfree.data.statistics.junit.StatisticsTests": 16570,
+  "org.jfree.data.time.junit.DateRangeTests": 4227,
+  "org.jfree.data.time.junit.DayTests": 13534,
+  "org.jfree.data.time.junit.FixedMillisecondTests": 3907,
+  "org.jfree.data.time.junit.HourTests": 12892,
+  "org.jfree.data.time.junit.MillisecondTests": 13392,
+  "org.jfree.data.time.junit.MinuteTests": 12366,
+  "org.jfree.data.time.junit.MonthTests": 13804,
+  "org.jfree.data.time.junit.MovingAverageTests": 4492,
+  "org.jfree.data.time.junit.QuarterTests": 14138,
+  "org.jfree.data.time.junit.SecondTests": 11981,
+  "org.jfree.data.time.junit.SimpleTimePeriodTests": 6639,
+  "org.jfree.data.time.junit.TimePeriodAnchorTests": 3520,
+  "org.jfree.data.time.junit.TimePeriodValueTests": 3846,
+  "org.jfree.data.time.junit.TimePeriodValuesCollectionTests": 7948,
+  "org.jfree.data.time.junit.TimePeriodValuesTests": 10906,
+  "org.jfree.data.time.junit.TimeSeriesCollectionTests": 9849,
+  "org.jfree.data.time.junit.TimeSeriesDataItemTests": 4223,
+  "org.jfree.data.time.junit.TimeSeriesTests": 27558,
+  "org.jfree.data.time.junit.TimeTableXYDatasetTests": 6490,
+  "org.jfree.data.time.junit.WeekTests": 17883,
+  "org.jfree.data.time.junit.YearTests": 12875,
+  "org.jfree.data.time.ohlc.junit.OHLCItemTests": 5708,
+  "org.jfree.data.time.ohlc.junit.OHLCSeriesCollectionTests": 5594,
+  "org.jfree.data.time.ohlc.junit.OHLCSeriesTests": 8080,
+  "org.jfree.data.time.ohlc.junit.OHLCTests": 4122,
+  "org.jfree.data.xy.junit.CategoryTableXYDatasetTests": 6242,
+  "org.jfree.data.xy.junit.DefaultHighLowDatasetTests": 8118,
+  "org.jfree.data.xy.junit.DefaultIntervalXYDatasetTests": 13675,
+  "org.jfree.data.xy.junit.DefaultOHLCDatasetTests": 5763,
+  "org.jfree.data.xy.junit.DefaultTableXYDatasetTests": 7436,
+  "org.jfree.data.xy.junit.DefaultWindDatasetTests": 7524,
+  "org.jfree.data.xy.junit.DefaultXYDatasetTests": 8514,
+  "org.jfree.data.xy.junit.DefaultXYZDatasetTests": 8872,
+  "org.jfree.data.xy.junit.IntervalXYDelegateTests": 5250,
+  "org.jfree.data.xy.junit.MatrixSeriesCollectionTests": 4845,
+  "org.jfree.data.xy.junit.MatrixSeriesTests": 6289,
+  "org.jfree.data.xy.junit.OHLCDataItemTests": 3882,
+  "org.jfree.data.xy.junit.TableXYDatasetTests": 9737,
+  "org.jfree.data.xy.junit.VectorDataItemTests": 5067,
+  "org.jfree.data.xy.junit.VectorSeriesCollectionTests": 5638,
+  "org.jfree.data.xy.junit.VectorSeriesTests": 9974,
+  "org.jfree.data.xy.junit.VectorTests": 4153,
+  "org.jfree.data.xy.junit.XIntervalDataItemTests": 5421,
+  "org.jfree.data.xy.junit.XIntervalSeriesCollectionTests": 5620,
+  "org.jfree.data.xy.junit.XIntervalSeriesTests": 9901,
+  "org.jfree.data.xy.junit.XYBarDatasetTests": 5287,
+  "org.jfree.data.xy.junit.XYCoordinateTests": 4309,
+  "org.jfree.data.xy.junit.XYDataItemTests": 4050,
+  "org.jfree.data.xy.junit.XYIntervalDataItemTests": 6280,
+  "org.jfree.data.xy.junit.XYIntervalSeriesCollectionTests": 6054,
+  "org.jfree.data.xy.junit.XYIntervalSeriesTests": 10896,
+  "org.jfree.data.xy.junit.XYIntervalTests": 4508,
+  "org.jfree.data.xy.junit.XYSeriesCollectionTests": 8370,
+  "org.jfree.data.xy.junit.XYSeriesTests": 14431,
+  "org.jfree.data.xy.junit.YIntervalDataItemTests": 5426,
+  "org.jfree.data.xy.junit.YIntervalSeriesCollectionTests": 5620,
+  "org.jfree.data.xy.junit.YIntervalSeriesTests": 9902,
+  "org.jfree.data.xy.junit.YIntervalTests": 4026,
+  "org.jfree.data.xy.junit.YWithXIntervalTests": 4145
+ }
+}

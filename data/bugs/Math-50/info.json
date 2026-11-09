@@ -1,0 +1,1954 @@
+{
+ "bug": "Math-50",
+ "pid": "Math",
+ "bid": 50,
+ "modified_class": "org.apache.commons.math.analysis.solvers.BaseSecantSolver",
+ "src_file": "src/main/java/org/apache/commons/math/analysis/solvers/BaseSecantSolver.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Math-50/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Math-50/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Math-50/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Math-50/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Math-50/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Math-50/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "doSolve()",
+   "name": "doSolve",
+   "nparams": 0
+  }
+ ],
+ "buggy_methods": {
+  "doSolve()": "protected final double doSolve() {\n        // Get initial solution\n        double x0 = getMin();\n        double x1 = getMax();\n        double f0 = computeObjectiveValue(x0);\n        double f1 = computeObjectiveValue(x1);\n\n        // If one of the bounds is the exact root, return it. Since these are\n        // not under-approximations or over-approximations, we can return them\n        // regardless of the allowed solutions.\n        if (f0 == 0.0) {\n            return x0;\n        }\n        if (f1 == 0.0) {\n            return x1;\n        }\n\n        // Verify bracketing of initial solution.\n        verifyBracketing(x0, x1);\n\n        // Get accuracies.\n        final double ftol = getFunctionValueAccuracy();\n        final double atol = getAbsoluteAccuracy();\n        final double rtol = getRelativeAccuracy();\n\n        // Keep track of inverted intervals, meaning that the left bound is\n        // larger than the right bound.\n        boolean inverted = false;\n\n        // Keep finding better approximations.\n        while (true) {\n            // Calculate the next approximation.\n            final double x = x1 - ((f1 * (x1 - x0)) / (f1 - f0));\n            final double fx = computeObjectiveValue(x);\n\n            // If the new approximation is the exact root, return it. Since\n            // this is not an under-approximation or an over-approximation,\n            // we can return it regardless of the allowed solutions.\n            if (fx == 0.0) {\n                return x;\n            }\n\n            // Update the bounds with the new approximation.\n            if (f1 * fx < 0) {\n                // The value of x1 has switched to the other bound, thus inverting\n                // the interval.\n                x0 = x1;\n                f0 = f1;\n                inverted = !inverted;\n            } else {\n                switch (method) {\n                case ILLINOIS:\n                    f0 *= 0.5;\n                    break;\n                case PEGASUS:\n                    f0 *= f1 / (f1 + fx);\n                    break;\n                case REGULA_FALSI:\n                    // Nothing.\n                    if (x == x1) {\n                        x0 = 0.5 * (x0 + x1 - FastMath.max(rtol * FastMath.abs(x1), atol));\n                        f0 = computeObjectiveValue(x0);\n                    }\n                    break;\n                default:\n                    // Should never happen.\n                    throw new MathInternalError();\n                }\n            }\n            // Update from [x0, x1] to [x0, x].\n            x1 = x;\n            f1 = fx;\n\n            // If the function value of the last approximation is too small,\n            // given the function value accuracy, then we can't get closer to\n            // the root than we already are.\n            if (FastMath.abs(f1) <= ftol) {\n                switch (allowed) {\n                case ANY_SIDE:\n                    return x1;\n                case LEFT_SIDE:\n                    if (inverted) {\n                        return x1;\n                    }\n                    break;\n                case RIGHT_SIDE:\n                    if (!inverted) {\n                        return x1;\n                    }\n                    break;\n                case BELOW_SIDE:\n                    if (f1 <= 0) {\n                        return x1;\n                    }\n                    break;\n                case ABOVE_SIDE:\n                    if (f1 >= 0) {\n                        return x1;\n                    }\n                    break;\n                default:\n                    throw new MathInternalError();\n                }\n            }\n\n            // If the current interval is within the given accuracies, we\n            // are satisfied with the current approximation.\n            if (FastMath.abs(x1 - x0) < FastMath.max(rtol * FastMath.abs(x1),\n                                                     atol)) {\n                switch (allowed) {\n                case ANY_SIDE:\n                    return x1;\n                case LEFT_SIDE:\n                    return inverted ? x1 : x0;\n                case RIGHT_SIDE:\n                    return inverted ? x0 : x1;\n                case BELOW_SIDE:\n                    return (f1 <= 0) ? x1 : x0;\n                case ABOVE_SIDE:\n                    return (f1 >= 0) ? x1 : x0;\n                default:\n                    throw new MathInternalError();\n                }\n            }\n        }\n    }"
+ },
+ "fixed_methods": {
+  "doSolve()": "protected final double doSolve() {\n        // Get initial solution\n        double x0 = getMin();\n        double x1 = getMax();\n        double f0 = computeObjectiveValue(x0);\n        double f1 = computeObjectiveValue(x1);\n\n        // If one of the bounds is the exact root, return it. Since these are\n        // not under-approximations or over-approximations, we can return them\n        // regardless of the allowed solutions.\n        if (f0 == 0.0) {\n            return x0;\n        }\n        if (f1 == 0.0) {\n            return x1;\n        }\n\n        // Verify bracketing of initial solution.\n        verifyBracketing(x0, x1);\n\n        // Get accuracies.\n        final double ftol = getFunctionValueAccuracy();\n        final double atol = getAbsoluteAccuracy();\n        final double rtol = getRelativeAccuracy();\n\n        // Keep track of inverted intervals, meaning that the left bound is\n        // larger than the right bound.\n        boolean inverted = false;\n\n        // Keep finding better approximations.\n        while (true) {\n            // Calculate the next approximation.\n            final double x = x1 - ((f1 * (x1 - x0)) / (f1 - f0));\n            final double fx = computeObjectiveValue(x);\n\n            // If the new approximation is the exact root, return it. Since\n            // this is not an under-approximation or an over-approximation,\n            // we can return it regardless of the allowed solutions.\n            if (fx == 0.0) {\n                return x;\n            }\n\n            // Update the bounds with the new approximation.\n            if (f1 * fx < 0) {\n                // The value of x1 has switched to the other bound, thus inverting\n                // the interval.\n                x0 = x1;\n                f0 = f1;\n                inverted = !inverted;\n            } else {\n                switch (method) {\n                case ILLINOIS:\n                    f0 *= 0.5;\n                    break;\n                case PEGASUS:\n                    f0 *= f1 / (f1 + fx);\n                    break;\n                case REGULA_FALSI:\n                    // Nothing.\n                    break;\n                default:\n                    // Should never happen.\n                    throw new MathInternalError();\n                }\n            }\n            // Update from [x0, x1] to [x0, x].\n            x1 = x;\n            f1 = fx;\n\n            // If the function value of the last approximation is too small,\n            // given the function value accuracy, then we can't get closer to\n            // the root than we already are.\n            if (FastMath.abs(f1) <= ftol) {\n                switch (allowed) {\n                case ANY_SIDE:\n                    return x1;\n                case LEFT_SIDE:\n                    if (inverted) {\n                        return x1;\n                    }\n                    break;\n                case RIGHT_SIDE:\n                    if (!inverted) {\n                        return x1;\n                    }\n                    break;\n                case BELOW_SIDE:\n                    if (f1 <= 0) {\n                        return x1;\n                    }\n                    break;\n                case ABOVE_SIDE:\n                    if (f1 >= 0) {\n                        return x1;\n                    }\n                    break;\n                default:\n                    throw new MathInternalError();\n                }\n            }\n\n            // If the current interval is within the given accuracies, we\n            // are satisfied with the current approximation.\n            if (FastMath.abs(x1 - x0) < FastMath.max(rtol * FastMath.abs(x1),\n                                                     atol)) {\n                switch (allowed) {\n                case ANY_SIDE:\n                    return x1;\n                case LEFT_SIDE:\n                    return inverted ? x1 : x0;\n                case RIGHT_SIDE:\n                    return inverted ? x0 : x1;\n                case BELOW_SIDE:\n                    return (f1 <= 0) ? x1 : x0;\n                case ABOVE_SIDE:\n                    return (f1 >= 0) ? x1 : x0;\n                default:\n                    throw new MathInternalError();\n                }\n            }\n        }\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.math.analysis.solvers.RegulaFalsiSolverTest::testIssue631",
+   "error": "junit.framework.AssertionFailedError: Expected exception: org.apache.commons.math.exception.TooManyEvaluationsException"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.math.analysis.solvers.RegulaFalsiSolverTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.math.analysis.solvers.AbstractUnivariateRealSolver",
+  "org.apache.commons.math.analysis.solvers.AllowedSolution",
+  "org.apache.commons.math.analysis.solvers.BaseAbstractUnivariateRealSolver",
+  "org.apache.commons.math.analysis.solvers.BaseSecantSolver",
+  "org.apache.commons.math.analysis.solvers.BaseUnivariateRealSolver",
+  "org.apache.commons.math.analysis.solvers.BracketedUnivariateRealSolver",
+  "org.apache.commons.math.analysis.solvers.RegulaFalsiSolver",
+  "org.apache.commons.math.analysis.solvers.UnivariateRealSolver",
+  "org.apache.commons.math.analysis.solvers.UnivariateRealSolverUtils",
+  "org.apache.commons.math.analysis.UnivariateRealFunction",
+  "org.apache.commons.math.exception.DimensionMismatchException",
+  "org.apache.commons.math.exception.MathArithmeticException",
+  "org.apache.commons.math.exception.MathIllegalArgumentException",
+  "org.apache.commons.math.exception.MathIllegalNumberException",
+  "org.apache.commons.math.exception.MathIllegalStateException",
+  "org.apache.commons.math.exception.MathInternalError",
+  "org.apache.commons.math.exception.MaxCountExceededException",
+  "org.apache.commons.math.exception.NoBracketingException",
+  "org.apache.commons.math.exception.NonMonotonousSequenceException",
+  "org.apache.commons.math.exception.NotFiniteNumberException",
+  "org.apache.commons.math.exception.NotPositiveException",
+  "org.apache.commons.math.exception.NotStrictlyPositiveException",
+  "org.apache.commons.math.exception.NullArgumentException",
+  "org.apache.commons.math.exception.NumberIsTooLargeException",
+  "org.apache.commons.math.exception.NumberIsTooSmallException",
+  "org.apache.commons.math.exception.TooManyEvaluationsException",
+  "org.apache.commons.math.exception.util.ArgUtils",
+  "org.apache.commons.math.exception.util.ExceptionContext",
+  "org.apache.commons.math.exception.util.ExceptionContextProvider",
+  "org.apache.commons.math.exception.util.Localizable",
+  "org.apache.commons.math.exception.util.LocalizedFormats",
+  "org.apache.commons.math.util.FastMath",
+  "org.apache.commons.math.util.Incrementor",
+  "org.apache.commons.math.util.MathUtils"
+ ],
+ "suite": [
+  "org.apache.commons.math.ConvergenceExceptionTest",
+  "org.apache.commons.math.MathConfigurationExceptionTest",
+  "org.apache.commons.math.MathExceptionTest",
+  "org.apache.commons.math.RetryRunnerTest",
+  "org.apache.commons.math.analysis.FunctionUtilsTest",
+  "org.apache.commons.math.analysis.function.GaussianTest",
+  "org.apache.commons.math.analysis.function.HarmonicOscillatorTest",
+  "org.apache.commons.math.analysis.function.LogisticTest",
+  "org.apache.commons.math.analysis.function.LogitTest",
+  "org.apache.commons.math.analysis.function.SigmoidTest",
+  "org.apache.commons.math.analysis.function.StepFunctionTest",
+  "org.apache.commons.math.analysis.integration.LegendreGaussIntegratorTest",
+  "org.apache.commons.math.analysis.integration.RombergIntegratorTest",
+  "org.apache.commons.math.analysis.integration.SimpsonIntegratorTest",
+  "org.apache.commons.math.analysis.integration.TrapezoidIntegratorTest",
+  "org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatingFunctionTest",
+  "org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.DividedDifferenceInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.LinearInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.LoessInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.MicrosphereInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.NevilleInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.SmoothingPolynomialBicubicSplineInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.SplineInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.TricubicSplineInterpolatingFunctionTest",
+  "org.apache.commons.math.analysis.interpolation.TricubicSplineInterpolatorTest",
+  "org.apache.commons.math.analysis.interpolation.UnivariateRealPeriodicInterpolatorTest",
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeFormTest",
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionNewtonFormTest",
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionTest",
+  "org.apache.commons.math.analysis.polynomials.PolynomialSplineFunctionTest",
+  "org.apache.commons.math.analysis.polynomials.PolynomialsUtilsTest",
+  "org.apache.commons.math.analysis.solvers.BisectionSolverTest",
+  "org.apache.commons.math.analysis.solvers.BracketingNthOrderBrentSolverTest",
+  "org.apache.commons.math.analysis.solvers.BrentSolverTest",
+  "org.apache.commons.math.analysis.solvers.IllinoisSolverTest",
+  "org.apache.commons.math.analysis.solvers.LaguerreSolverTest",
+  "org.apache.commons.math.analysis.solvers.MullerSolver2Test",
+  "org.apache.commons.math.analysis.solvers.MullerSolverTest",
+  "org.apache.commons.math.analysis.solvers.NewtonSolverTest",
+  "org.apache.commons.math.analysis.solvers.PegasusSolverTest",
+  "org.apache.commons.math.analysis.solvers.RegulaFalsiSolverTest",
+  "org.apache.commons.math.analysis.solvers.RiddersSolverTest",
+  "org.apache.commons.math.analysis.solvers.SecantSolverTest",
+  "org.apache.commons.math.analysis.solvers.UnivariateRealSolverUtilsTest",
+  "org.apache.commons.math.complex.ComplexFieldTest",
+  "org.apache.commons.math.complex.ComplexFormatTest",
+  "org.apache.commons.math.complex.ComplexTest",
+  "org.apache.commons.math.complex.ComplexUtilsTest",
+  "org.apache.commons.math.complex.FrenchComplexFormatTest",
+  "org.apache.commons.math.dfp.BracketingNthOrderBrentSolverDFPTest",
+  "org.apache.commons.math.dfp.DfpDecTest",
+  "org.apache.commons.math.dfp.DfpMathTest",
+  "org.apache.commons.math.dfp.DfpTest",
+  "org.apache.commons.math.distribution.AbtractIntegerDistributionTest",
+  "org.apache.commons.math.distribution.BetaDistributionTest",
+  "org.apache.commons.math.distribution.BinomialDistributionTest",
+  "org.apache.commons.math.distribution.CauchyDistributionTest",
+  "org.apache.commons.math.distribution.ChiSquareDistributionTest",
+  "org.apache.commons.math.distribution.ExponentialDistributionTest",
+  "org.apache.commons.math.distribution.FDistributionTest",
+  "org.apache.commons.math.distribution.GammaDistributionTest",
+  "org.apache.commons.math.distribution.HypergeometricDistributionTest",
+  "org.apache.commons.math.distribution.KolmogorovSmirnovDistributionTest",
+  "org.apache.commons.math.distribution.NormalDistributionTest",
+  "org.apache.commons.math.distribution.PascalDistributionTest",
+  "org.apache.commons.math.distribution.PoissonDistributionTest",
+  "org.apache.commons.math.distribution.TDistributionTest",
+  "org.apache.commons.math.distribution.WeibullDistributionTest",
+  "org.apache.commons.math.distribution.ZipfDistributionTest",
+  "org.apache.commons.math.exception.DimensionMismatchExceptionTest",
+  "org.apache.commons.math.exception.MaxCountExceededExceptionTest",
+  "org.apache.commons.math.exception.NonMonotonousSequenceExceptionTest",
+  "org.apache.commons.math.exception.NotPositiveExceptionTest",
+  "org.apache.commons.math.exception.NotStrictlyPositiveExceptionTest",
+  "org.apache.commons.math.exception.NumberIsTooLargeExceptionTest",
+  "org.apache.commons.math.exception.NumberIsTooSmallExceptionTest",
+  "org.apache.commons.math.exception.OutOfRangeExceptionTest",
+  "org.apache.commons.math.exception.TooManyEvaluationsExceptionTest",
+  "org.apache.commons.math.exception.util.ArgUtilsTest",
+  "org.apache.commons.math.exception.util.ExceptionContextTest",
+  "org.apache.commons.math.filter.KalmanFilterTest",
+  "org.apache.commons.math.fraction.BigFractionFieldTest",
+  "org.apache.commons.math.fraction.BigFractionFormatTest",
+  "org.apache.commons.math.fraction.BigFractionTest",
+  "org.apache.commons.math.fraction.FractionFieldTest",
+  "org.apache.commons.math.fraction.FractionFormatTest",
+  "org.apache.commons.math.fraction.FractionTest",
+  "org.apache.commons.math.genetics.BinaryChromosomeTest",
+  "org.apache.commons.math.genetics.BinaryMutationTest",
+  "org.apache.commons.math.genetics.ChromosomeTest",
+  "org.apache.commons.math.genetics.ElitisticListPopulationTest",
+  "org.apache.commons.math.genetics.FitnessCachingTest",
+  "org.apache.commons.math.genetics.FixedGenerationCountTest",
+  "org.apache.commons.math.genetics.GeneticAlgorithmTestBinary",
+  "org.apache.commons.math.genetics.GeneticAlgorithmTestPermutations",
+  "org.apache.commons.math.genetics.ListPopulationTest",
+  "org.apache.commons.math.genetics.OnePointCrossoverTest",
+  "org.apache.commons.math.genetics.RandomKeyMutationTest",
+  "org.apache.commons.math.genetics.RandomKeyTest",
+  "org.apache.commons.math.genetics.TournamentSelectionTest",
+  "org.apache.commons.math.geometry.euclidean.oned.IntervalsSetTest",
+  "org.apache.commons.math.geometry.euclidean.threed.FrenchVector3DFormatTest",
+  "org.apache.commons.math.geometry.euclidean.threed.LineTest",
+  "org.apache.commons.math.geometry.euclidean.threed.PlaneTest",
+  "org.apache.commons.math.geometry.euclidean.threed.PolyhedronsSetTest",
+  "org.apache.commons.math.geometry.euclidean.threed.RotationOrderTest",
+  "org.apache.commons.math.geometry.euclidean.threed.RotationTest",
+  "org.apache.commons.math.geometry.euclidean.threed.Vector3DFormatTest",
+  "org.apache.commons.math.geometry.euclidean.threed.Vector3DTest",
+  "org.apache.commons.math.geometry.euclidean.twod.LineTest",
+  "org.apache.commons.math.geometry.euclidean.twod.PolygonsSetTest",
+  "org.apache.commons.math.geometry.euclidean.twod.SubLineTest",
+  "org.apache.commons.math.geometry.partitioning.utilities.AVLTreeTest",
+  "org.apache.commons.math.linear.Array2DRowRealMatrixTest",
+  "org.apache.commons.math.linear.ArrayFieldVectorTest",
+  "org.apache.commons.math.linear.ArrayRealVectorTest",
+  "org.apache.commons.math.linear.BiDiagonalTransformerTest",
+  "org.apache.commons.math.linear.BlockFieldMatrixTest",
+  "org.apache.commons.math.linear.BlockRealMatrixTest",
+  "org.apache.commons.math.linear.CholeskyDecompositionImplTest",
+  "org.apache.commons.math.linear.CholeskySolverTest",
+  "org.apache.commons.math.linear.EigenDecompositionImplTest",
+  "org.apache.commons.math.linear.EigenSolverTest",
+  "org.apache.commons.math.linear.FieldLUDecompositionImplTest",
+  "org.apache.commons.math.linear.FieldMatrixImplTest",
+  "org.apache.commons.math.linear.FrenchRealVectorFormatTest",
+  "org.apache.commons.math.linear.LUDecompositionImplTest",
+  "org.apache.commons.math.linear.LUSolverTest",
+  "org.apache.commons.math.linear.MatrixDimensionMismatchExceptionTest",
+  "org.apache.commons.math.linear.MatrixUtilsTest",
+  "org.apache.commons.math.linear.QRDecompositionImplTest",
+  "org.apache.commons.math.linear.QRSolverTest",
+  "org.apache.commons.math.linear.RealVectorFormatTest",
+  "org.apache.commons.math.linear.SingularValueDecompositionImplTest",
+  "org.apache.commons.math.linear.SingularValueSolverTest",
+  "org.apache.commons.math.linear.SparseFieldMatrixTest",
+  "org.apache.commons.math.linear.SparseFieldVectorTest",
+  "org.apache.commons.math.linear.SparseRealMatrixTest",
+  "org.apache.commons.math.linear.SparseRealVectorTest",
+  "org.apache.commons.math.linear.TriDiagonalTransformerTest",
+  "org.apache.commons.math.ode.ContinuousOutputModelTest",
+  "org.apache.commons.math.ode.FirstOrderConverterTest",
+  "org.apache.commons.math.ode.events.EventStateTest",
+  "org.apache.commons.math.ode.events.OverlappingEventsTest",
+  "org.apache.commons.math.ode.nonstiff.AdamsBashforthIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.AdamsMoultonIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaStepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.DormandPrince54IntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.DormandPrince54StepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.EulerIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.EulerStepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.GillIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.GillStepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.GraggBulirschStoerIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.GraggBulirschStoerStepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.HighamHall54IntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.HighamHall54StepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.MidpointIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.MidpointStepInterpolatorTest",
+  "org.apache.commons.math.ode.nonstiff.ThreeEighthesIntegratorTest",
+  "org.apache.commons.math.ode.nonstiff.ThreeEighthesStepInterpolatorTest",
+  "org.apache.commons.math.ode.sampling.DummyStepInterpolatorTest",
+  "org.apache.commons.math.ode.sampling.NordsieckStepInterpolatorTest",
+  "org.apache.commons.math.ode.sampling.StepNormalizerOutputOverlapTest",
+  "org.apache.commons.math.ode.sampling.StepNormalizerOutputTest",
+  "org.apache.commons.math.ode.sampling.StepNormalizerTest",
+  "org.apache.commons.math.optimization.MultiStartDifferentiableMultivariateRealOptimizerTest",
+  "org.apache.commons.math.optimization.MultiStartDifferentiableMultivariateVectorialOptimizerTest",
+  "org.apache.commons.math.optimization.MultiStartMultivariateRealOptimizerTest",
+  "org.apache.commons.math.optimization.direct.BOBYQAOptimizerTest",
+  "org.apache.commons.math.optimization.direct.CMAESOptimizerTest",
+  "org.apache.commons.math.optimization.direct.PowellOptimizerTest",
+  "org.apache.commons.math.optimization.direct.SimplexOptimizerMultiDirectionalTest",
+  "org.apache.commons.math.optimization.direct.SimplexOptimizerNelderMeadTest",
+  "org.apache.commons.math.optimization.fitting.CurveFitterTest",
+  "org.apache.commons.math.optimization.fitting.GaussianFitterTest",
+  "org.apache.commons.math.optimization.fitting.HarmonicFitterTest",
+  "org.apache.commons.math.optimization.fitting.PolynomialFitterTest",
+  "org.apache.commons.math.optimization.general.GaussNewtonOptimizerTest",
+  "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizerTest",
+  "org.apache.commons.math.optimization.general.MinpackTest",
+  "org.apache.commons.math.optimization.general.NonLinearConjugateGradientOptimizerTest",
+  "org.apache.commons.math.optimization.linear.SimplexSolverTest",
+  "org.apache.commons.math.optimization.linear.SimplexTableauTest",
+  "org.apache.commons.math.optimization.univariate.BracketFinderTest",
+  "org.apache.commons.math.optimization.univariate.BrentOptimizerTest",
+  "org.apache.commons.math.optimization.univariate.MultiStartUnivariateRealOptimizerTest",
+  "org.apache.commons.math.special.BetaTest",
+  "org.apache.commons.math.special.ErfTest",
+  "org.apache.commons.math.special.GammaTest",
+  "org.apache.commons.math.stat.CertifiedDataTest",
+  "org.apache.commons.math.stat.FrequencyTest",
+  "org.apache.commons.math.stat.StatUtilsTest",
+  "org.apache.commons.math.stat.clustering.EuclideanIntegerPointTest",
+  "org.apache.commons.math.stat.clustering.KMeansPlusPlusClustererTest",
+  "org.apache.commons.math.stat.correlation.CovarianceTest",
+  "org.apache.commons.math.stat.correlation.PearsonsCorrelationTest",
+  "org.apache.commons.math.stat.correlation.SpearmansRankCorrelationTest",
+  "org.apache.commons.math.stat.data.LewTest",
+  "org.apache.commons.math.stat.data.LotteryTest",
+  "org.apache.commons.math.stat.descriptive.AggregateSummaryStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.DescriptiveStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.InteractionTest",
+  "org.apache.commons.math.stat.descriptive.ListUnivariateImplTest",
+  "org.apache.commons.math.stat.descriptive.MixedListUnivariateImplTest",
+  "org.apache.commons.math.stat.descriptive.MultivariateSummaryStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.StatisticalSummaryValuesTest",
+  "org.apache.commons.math.stat.descriptive.SummaryStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.SynchronizedMultivariateSummaryStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.SynchronizedSummaryStatisticsTest",
+  "org.apache.commons.math.stat.descriptive.moment.FirstMomentTest",
+  "org.apache.commons.math.stat.descriptive.moment.FourthMomentTest",
+  "org.apache.commons.math.stat.descriptive.moment.GeometricMeanTest",
+  "org.apache.commons.math.stat.descriptive.moment.KurtosisTest",
+  "org.apache.commons.math.stat.descriptive.moment.MeanTest",
+  "org.apache.commons.math.stat.descriptive.moment.SecondMomentTest",
+  "org.apache.commons.math.stat.descriptive.moment.SemiVarianceTest",
+  "org.apache.commons.math.stat.descriptive.moment.SkewnessTest",
+  "org.apache.commons.math.stat.descriptive.moment.StandardDeviationTest",
+  "org.apache.commons.math.stat.descriptive.moment.ThirdMomentTest",
+  "org.apache.commons.math.stat.descriptive.moment.VarianceTest",
+  "org.apache.commons.math.stat.descriptive.moment.VectorialCovarianceTest",
+  "org.apache.commons.math.stat.descriptive.moment.VectorialMeanTest",
+  "org.apache.commons.math.stat.descriptive.rank.MaxTest",
+  "org.apache.commons.math.stat.descriptive.rank.MedianTest",
+  "org.apache.commons.math.stat.descriptive.rank.MinTest",
+  "org.apache.commons.math.stat.descriptive.rank.PercentileTest",
+  "org.apache.commons.math.stat.descriptive.summary.ProductTest",
+  "org.apache.commons.math.stat.descriptive.summary.SumLogTest",
+  "org.apache.commons.math.stat.descriptive.summary.SumSqTest",
+  "org.apache.commons.math.stat.descriptive.summary.SumTest",
+  "org.apache.commons.math.stat.inference.ChiSquareTestTest",
+  "org.apache.commons.math.stat.inference.MannWhitneyUTestTest",
+  "org.apache.commons.math.stat.inference.OneWayAnovaTest",
+  "org.apache.commons.math.stat.inference.TTestTest",
+  "org.apache.commons.math.stat.inference.TestUtilsTest",
+  "org.apache.commons.math.stat.inference.WilcoxonSignedRankTestTest",
+  "org.apache.commons.math.stat.ranking.NaturalRankingTest",
+  "org.apache.commons.math.stat.regression.GLSMultipleLinearRegressionTest",
+  "org.apache.commons.math.stat.regression.MillerUpdatingRegressionTest",
+  "org.apache.commons.math.stat.regression.OLSMultipleLinearRegressionTest",
+  "org.apache.commons.math.stat.regression.SimpleRegressionTest",
+  "org.apache.commons.math.transform.FastCosineTransformerTest",
+  "org.apache.commons.math.transform.FastFourierTransformerTest",
+  "org.apache.commons.math.transform.FastHadamardTransformerTest",
+  "org.apache.commons.math.transform.FastSineTransformerTest",
+  "org.apache.commons.math.util.BigRealFieldTest",
+  "org.apache.commons.math.util.BigRealTest",
+  "org.apache.commons.math.util.ContinuedFractionTest",
+  "org.apache.commons.math.util.DefaultTransformerTest",
+  "org.apache.commons.math.util.FastMathStrictComparisonTest",
+  "org.apache.commons.math.util.FastMathTest",
+  "org.apache.commons.math.util.IncrementorTest",
+  "org.apache.commons.math.util.MathUtilsTest",
+  "org.apache.commons.math.util.MultidimensionalCounterTest",
+  "org.apache.commons.math.util.OpenIntToDoubleHashMapTest",
+  "org.apache.commons.math.util.OpenIntToFieldTest",
+  "org.apache.commons.math.util.PairTest",
+  "org.apache.commons.math.util.ResizableDoubleArrayTest",
+  "org.apache.commons.math.util.TransformerMapTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.math.ConvergenceExceptionTest": {
+   "wall": 0.046359000000000004,
+   "cpu": 0.083646,
+   "status": "pass"
+  },
+  "org.apache.commons.math.MathConfigurationExceptionTest": {
+   "wall": 0.0010840000000000001,
+   "cpu": 0.002911,
+   "status": "pass"
+  },
+  "org.apache.commons.math.MathExceptionTest": {
+   "wall": 0.013964,
+   "cpu": 0.028094,
+   "status": "pass"
+  },
+  "org.apache.commons.math.RetryRunnerTest": {
+   "wall": 0.005919,
+   "cpu": 0.010069000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.FunctionUtilsTest": {
+   "wall": 0.185535,
+   "cpu": 0.197956,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.function.GaussianTest": {
+   "wall": 0.0067480000000000005,
+   "cpu": 0.006739,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.function.HarmonicOscillatorTest": {
+   "wall": 0.002245,
+   "cpu": 0.0026019999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.function.LogisticTest": {
+   "wall": 0.005719,
+   "cpu": 0.007819,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.function.LogitTest": {
+   "wall": 0.003209,
+   "cpu": 0.004902,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.function.SigmoidTest": {
+   "wall": 0.000754,
+   "cpu": 0.001653,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.function.StepFunctionTest": {
+   "wall": 0.006685,
+   "cpu": 0.00425,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.integration.LegendreGaussIntegratorTest": {
+   "wall": 0.013996,
+   "cpu": 0.032186,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.integration.RombergIntegratorTest": {
+   "wall": 0.005195,
+   "cpu": 0.009059,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.integration.SimpsonIntegratorTest": {
+   "wall": 0.0009519999999999999,
+   "cpu": 0.00218,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.integration.TrapezoidIntegratorTest": {
+   "wall": 0.0011719999999999999,
+   "cpu": 0.002765,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatingFunctionTest": {
+   "wall": 0.020356000000000003,
+   "cpu": 0.03114,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatorTest": {
+   "wall": 0.003878,
+   "cpu": 0.006875,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.DividedDifferenceInterpolatorTest": {
+   "wall": 0.001829,
+   "cpu": 0.003785,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.LinearInterpolatorTest": {
+   "wall": 0.0011040000000000002,
+   "cpu": 0.002767,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.LoessInterpolatorTest": {
+   "wall": 0.008685,
+   "cpu": 0.014233,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.MicrosphereInterpolatorTest": {
+   "wall": 0.054426,
+   "cpu": 0.10020699999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.NevilleInterpolatorTest": {
+   "wall": 0.002047,
+   "cpu": 0.0014990000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.SmoothingPolynomialBicubicSplineInterpolatorTest": {
+   "wall": 0.019306,
+   "cpu": 0.011888999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.SplineInterpolatorTest": {
+   "wall": 0.00062,
+   "cpu": 0.000683,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.TricubicSplineInterpolatingFunctionTest": {
+   "wall": 0.009622,
+   "cpu": 0.013349999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.TricubicSplineInterpolatorTest": {
+   "wall": 0.005784,
+   "cpu": 0.009805,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.interpolation.UnivariateRealPeriodicInterpolatorTest": {
+   "wall": 0.005235999999999999,
+   "cpu": 0.008127,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeFormTest": {
+   "wall": 0.009557,
+   "cpu": 0.004109,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionNewtonFormTest": {
+   "wall": 0.0014570000000000002,
+   "cpu": 0.003454,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionTest": {
+   "wall": 0.092348,
+   "cpu": 0.013645,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.polynomials.PolynomialSplineFunctionTest": {
+   "wall": 0.0024660000000000003,
+   "cpu": 0.004631000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.polynomials.PolynomialsUtilsTest": {
+   "wall": 0.09881999999999999,
+   "cpu": 0.06967100000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.BisectionSolverTest": {
+   "wall": 0.018137,
+   "cpu": 0.014127,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.BracketingNthOrderBrentSolverTest": {
+   "wall": 0.040405,
+   "cpu": 0.030175,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.BrentSolverTest": {
+   "wall": 0.004791,
+   "cpu": 0.002476,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.IllinoisSolverTest": {
+   "wall": 0.008712999999999999,
+   "cpu": 0.0022589999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.LaguerreSolverTest": {
+   "wall": 0.006346,
+   "cpu": 0.002862,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.MullerSolver2Test": {
+   "wall": 0.0062900000000000005,
+   "cpu": 0.005375,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.MullerSolverTest": {
+   "wall": 0.004398,
+   "cpu": 0.002027,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.NewtonSolverTest": {
+   "wall": 0.004955,
+   "cpu": 0.002854,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.PegasusSolverTest": {
+   "wall": 0.003573,
+   "cpu": 0.004991,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.RegulaFalsiSolverTest": {
+   "wall": 0.071862,
+   "cpu": 0.015318,
+   "status": "fail"
+  },
+  "org.apache.commons.math.analysis.solvers.RiddersSolverTest": {
+   "wall": 0.01377,
+   "cpu": 0.002801,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.SecantSolverTest": {
+   "wall": 0.01752,
+   "cpu": 0.004912,
+   "status": "pass"
+  },
+  "org.apache.commons.math.analysis.solvers.UnivariateRealSolverUtilsTest": {
+   "wall": 0.003153,
+   "cpu": 0.0032040000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.math.complex.ComplexFieldTest": {
+   "wall": 0.017009,
+   "cpu": 0.00675,
+   "status": "pass"
+  },
+  "org.apache.commons.math.complex.ComplexFormatTest": {
+   "wall": 0.024883,
+   "cpu": 0.053412,
+   "status": "pass"
+  },
+  "org.apache.commons.math.complex.ComplexTest": {
+   "wall": 0.018441,
+   "cpu": 0.030969,
+   "status": "pass"
+  },
+  "org.apache.commons.math.complex.ComplexUtilsTest": {
+   "wall": 0.0015149999999999999,
+   "cpu": 0.002646,
+   "status": "pass"
+  },
+  "org.apache.commons.math.complex.FrenchComplexFormatTest": {
+   "wall": 0.0047,
+   "cpu": 0.007643,
+   "status": "pass"
+  },
+  "org.apache.commons.math.dfp.BracketingNthOrderBrentSolverDFPTest": {
+   "wall": 0.651986,
+   "cpu": 0.729727,
+   "status": "pass"
+  },
+  "org.apache.commons.math.dfp.DfpDecTest": {
+   "wall": 0.043609,
+   "cpu": 0.037414,
+   "status": "pass"
+  },
+  "org.apache.commons.math.dfp.DfpMathTest": {
+   "wall": 0.011186999999999999,
+   "cpu": 0.021425999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.math.dfp.DfpTest": {
+   "wall": 0.293782,
+   "cpu": 0.4427,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.AbtractIntegerDistributionTest": {
+   "wall": 0.028655,
+   "cpu": 0.031107,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.BetaDistributionTest": {
+   "wall": 0.027108,
+   "cpu": 0.043686,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.BinomialDistributionTest": {
+   "wall": 0.034593000000000006,
+   "cpu": 0.040407,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.CauchyDistributionTest": {
+   "wall": 0.009076,
+   "cpu": 0.011543,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.ChiSquareDistributionTest": {
+   "wall": 0.004027,
+   "cpu": 0.008317999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.ExponentialDistributionTest": {
+   "wall": 0.008123,
+   "cpu": 0.01316,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.FDistributionTest": {
+   "wall": 0.009742,
+   "cpu": 0.018011,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.GammaDistributionTest": {
+   "wall": 0.0063419999999999995,
+   "cpu": 0.014546,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.HypergeometricDistributionTest": {
+   "wall": 0.098177,
+   "cpu": 0.121392,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.KolmogorovSmirnovDistributionTest": {
+   "wall": 0.079648,
+   "cpu": 0.149916,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.NormalDistributionTest": {
+   "wall": 0.007724,
+   "cpu": 0.009846,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.PascalDistributionTest": {
+   "wall": 0.014292999999999998,
+   "cpu": 0.027809999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.PoissonDistributionTest": {
+   "wall": 0.11315,
+   "cpu": 0.185164,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.TDistributionTest": {
+   "wall": 0.008928,
+   "cpu": 0.013453,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.WeibullDistributionTest": {
+   "wall": 0.00199,
+   "cpu": 0.003611,
+   "status": "pass"
+  },
+  "org.apache.commons.math.distribution.ZipfDistributionTest": {
+   "wall": 0.008960000000000001,
+   "cpu": 0.019393,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.DimensionMismatchExceptionTest": {
+   "wall": 0.000512,
+   "cpu": 0.0009599999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.MaxCountExceededExceptionTest": {
+   "wall": 0.00028799999999999995,
+   "cpu": 0.000501,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.NonMonotonousSequenceExceptionTest": {
+   "wall": 0.000325,
+   "cpu": 0.00053,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.NotPositiveExceptionTest": {
+   "wall": 0.000297,
+   "cpu": 0.0006630000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.NotStrictlyPositiveExceptionTest": {
+   "wall": 0.000224,
+   "cpu": 0.000225,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.NumberIsTooLargeExceptionTest": {
+   "wall": 0.0005110000000000001,
+   "cpu": 0.000968,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.NumberIsTooSmallExceptionTest": {
+   "wall": 0.001032,
+   "cpu": 0.001214,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.OutOfRangeExceptionTest": {
+   "wall": 0.000929,
+   "cpu": 0.000907,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.TooManyEvaluationsExceptionTest": {
+   "wall": 0.004866,
+   "cpu": 0.008837,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.util.ArgUtilsTest": {
+   "wall": 0.001178,
+   "cpu": 0.0022949999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.math.exception.util.ExceptionContextTest": {
+   "wall": 0.007625,
+   "cpu": 0.013631,
+   "status": "pass"
+  },
+  "org.apache.commons.math.filter.KalmanFilterTest": {
+   "wall": 0.009659000000000001,
+   "cpu": 0.007487,
+   "status": "pass"
+  },
+  "org.apache.commons.math.fraction.BigFractionFieldTest": {
+   "wall": 0.0013440000000000001,
+   "cpu": 0.001375,
+   "status": "pass"
+  },
+  "org.apache.commons.math.fraction.BigFractionFormatTest": {
+   "wall": 0.007729,
+   "cpu": 0.011326000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.fraction.BigFractionTest": {
+   "wall": 0.01063,
+   "cpu": 0.023133,
+   "status": "pass"
+  },
+  "org.apache.commons.math.fraction.FractionFieldTest": {
+   "wall": 0.003923,
+   "cpu": 0.006665,
+   "status": "pass"
+  },
+  "org.apache.commons.math.fraction.FractionFormatTest": {
+   "wall": 0.0044329999999999994,
+   "cpu": 0.007687,
+   "status": "pass"
+  },
+  "org.apache.commons.math.fraction.FractionTest": {
+   "wall": 0.003473,
+   "cpu": 0.007969,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.BinaryChromosomeTest": {
+   "wall": 0.0046440000000000006,
+   "cpu": 0.006657,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.BinaryMutationTest": {
+   "wall": 0.003671,
+   "cpu": 0.0038540000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.ChromosomeTest": {
+   "wall": 0.009325,
+   "cpu": 0.010978,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.ElitisticListPopulationTest": {
+   "wall": 0.005344000000000001,
+   "cpu": 0.005934,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.FitnessCachingTest": {
+   "wall": 0.012551999999999999,
+   "cpu": 0.020018,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.FixedGenerationCountTest": {
+   "wall": 0.00266,
+   "cpu": 0.0025710000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.GeneticAlgorithmTestBinary": {
+   "wall": 0.013321,
+   "cpu": 0.020794,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.GeneticAlgorithmTestPermutations": {
+   "wall": 0.163577,
+   "cpu": 0.267621,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.ListPopulationTest": {
+   "wall": 0.0034100000000000003,
+   "cpu": 0.004682,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.OnePointCrossoverTest": {
+   "wall": 0.0005669999999999999,
+   "cpu": 0.001143,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.RandomKeyMutationTest": {
+   "wall": 0.004377,
+   "cpu": 0.004655,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.RandomKeyTest": {
+   "wall": 0.004641,
+   "cpu": 0.009153,
+   "status": "pass"
+  },
+  "org.apache.commons.math.genetics.TournamentSelectionTest": {
+   "wall": 0.000848,
+   "cpu": 0.0013160000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.oned.IntervalsSetTest": {
+   "wall": 0.032512,
+   "cpu": 0.031696999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.FrenchVector3DFormatTest": {
+   "wall": 0.011914999999999999,
+   "cpu": 0.023124,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.LineTest": {
+   "wall": 0.0062380000000000005,
+   "cpu": 0.005431,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.PlaneTest": {
+   "wall": 0.012277,
+   "cpu": 0.012833,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.PolyhedronsSetTest": {
+   "wall": 0.053126,
+   "cpu": 0.09366200000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.RotationOrderTest": {
+   "wall": 0.001053,
+   "cpu": 0.002101,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.RotationTest": {
+   "wall": 0.042317,
+   "cpu": 0.082236,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.Vector3DFormatTest": {
+   "wall": 0.003184,
+   "cpu": 0.00638,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.threed.Vector3DTest": {
+   "wall": 0.016267,
+   "cpu": 0.025138999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.twod.LineTest": {
+   "wall": 0.000889,
+   "cpu": 0.002016,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.twod.PolygonsSetTest": {
+   "wall": 0.013267,
+   "cpu": 0.025317,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.euclidean.twod.SubLineTest": {
+   "wall": 0.001148,
+   "cpu": 0.002402,
+   "status": "pass"
+  },
+  "org.apache.commons.math.geometry.partitioning.utilities.AVLTreeTest": {
+   "wall": 0.000853,
+   "cpu": 0.001952,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.Array2DRowRealMatrixTest": {
+   "wall": 0.025033,
+   "cpu": 0.045698,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.ArrayFieldVectorTest": {
+   "wall": 0.007726,
+   "cpu": 0.017070000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.ArrayRealVectorTest": {
+   "wall": 0.043891,
+   "cpu": 0.060481,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.BiDiagonalTransformerTest": {
+   "wall": 0.0023079999999999997,
+   "cpu": 0.004048,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.BlockFieldMatrixTest": {
+   "wall": 0.46128800000000003,
+   "cpu": 0.567926,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.BlockRealMatrixTest": {
+   "wall": 0.202343,
+   "cpu": 0.196839,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.CholeskyDecompositionImplTest": {
+   "wall": 0.005208999999999999,
+   "cpu": 0.002371,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.CholeskySolverTest": {
+   "wall": 0.001738,
+   "cpu": 0.000744,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.EigenDecompositionImplTest": {
+   "wall": 0.27005399999999996,
+   "cpu": 0.38133100000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.EigenSolverTest": {
+   "wall": 0.002306,
+   "cpu": 0.00421,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.FieldLUDecompositionImplTest": {
+   "wall": 0.004198,
+   "cpu": 0.008425,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.FieldMatrixImplTest": {
+   "wall": 0.038122,
+   "cpu": 0.056616,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.FrenchRealVectorFormatTest": {
+   "wall": 0.0045839999999999995,
+   "cpu": 0.010331,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.LUDecompositionImplTest": {
+   "wall": 0.0009350000000000001,
+   "cpu": 0.001963,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.LUSolverTest": {
+   "wall": 0.000893,
+   "cpu": 0.00186,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.MatrixDimensionMismatchExceptionTest": {
+   "wall": 0.000204,
+   "cpu": 0.00028100000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.MatrixUtilsTest": {
+   "wall": 0.002476,
+   "cpu": 0.004208999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.QRDecompositionImplTest": {
+   "wall": 0.029727,
+   "cpu": 0.061758,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.QRSolverTest": {
+   "wall": 0.018585,
+   "cpu": 0.044738,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.RealVectorFormatTest": {
+   "wall": 0.001469,
+   "cpu": 0.0037170000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.SingularValueDecompositionImplTest": {
+   "wall": 0.091251,
+   "cpu": 0.204796,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.SingularValueSolverTest": {
+   "wall": 0.001684,
+   "cpu": 0.003859,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.SparseFieldMatrixTest": {
+   "wall": 0.004484,
+   "cpu": 0.009635999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.SparseFieldVectorTest": {
+   "wall": 0.003663,
+   "cpu": 0.005706,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.SparseRealMatrixTest": {
+   "wall": 0.007352,
+   "cpu": 0.014256,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.SparseRealVectorTest": {
+   "wall": 0.004998,
+   "cpu": 0.009454,
+   "status": "pass"
+  },
+  "org.apache.commons.math.linear.TriDiagonalTransformerTest": {
+   "wall": 0.000623,
+   "cpu": 0.000732,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.ContinuousOutputModelTest": {
+   "wall": 0.026238,
+   "cpu": 0.046896,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.FirstOrderConverterTest": {
+   "wall": 0.009852,
+   "cpu": 0.022463999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.events.EventStateTest": {
+   "wall": 0.002997,
+   "cpu": 0.004326,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.events.OverlappingEventsTest": {
+   "wall": 0.0043159999999999995,
+   "cpu": 0.010997999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.AdamsBashforthIntegratorTest": {
+   "wall": 0.025223,
+   "cpu": 0.060219,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.AdamsMoultonIntegratorTest": {
+   "wall": 0.022363,
+   "cpu": 0.045145000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaIntegratorTest": {
+   "wall": 0.06747700000000001,
+   "cpu": 0.10177,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaStepInterpolatorTest": {
+   "wall": 0.044196,
+   "cpu": 0.077256,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.DormandPrince54IntegratorTest": {
+   "wall": 0.012308,
+   "cpu": 0.017733000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.DormandPrince54StepInterpolatorTest": {
+   "wall": 0.008205,
+   "cpu": 0.01434,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest": {
+   "wall": 0.005872,
+   "cpu": 0.011949999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolatorTest": {
+   "wall": 0.006405,
+   "cpu": 0.011522000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.EulerIntegratorTest": {
+   "wall": 0.012766,
+   "cpu": 0.021027999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.EulerStepInterpolatorTest": {
+   "wall": 0.006762,
+   "cpu": 0.013143,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.GillIntegratorTest": {
+   "wall": 0.036016,
+   "cpu": 0.066593,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.GillStepInterpolatorTest": {
+   "wall": 0.016149999999999998,
+   "cpu": 0.031882,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.GraggBulirschStoerIntegratorTest": {
+   "wall": 0.013271000000000002,
+   "cpu": 0.03277,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.GraggBulirschStoerStepInterpolatorTest": {
+   "wall": 0.007285,
+   "cpu": 0.018981,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.HighamHall54IntegratorTest": {
+   "wall": 0.013063,
+   "cpu": 0.027326,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.HighamHall54StepInterpolatorTest": {
+   "wall": 0.005776,
+   "cpu": 0.012953,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.MidpointIntegratorTest": {
+   "wall": 0.01811,
+   "cpu": 0.036414999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.MidpointStepInterpolatorTest": {
+   "wall": 0.005367,
+   "cpu": 0.013044,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.ThreeEighthesIntegratorTest": {
+   "wall": 0.029821,
+   "cpu": 0.060502,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.nonstiff.ThreeEighthesStepInterpolatorTest": {
+   "wall": 0.010745,
+   "cpu": 0.020794,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.sampling.DummyStepInterpolatorTest": {
+   "wall": 0.002312,
+   "cpu": 0.004253,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.sampling.NordsieckStepInterpolatorTest": {
+   "wall": 0.008888,
+   "cpu": 0.020917,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.sampling.StepNormalizerOutputOverlapTest": {
+   "wall": 0.003536,
+   "cpu": 0.005392,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.sampling.StepNormalizerOutputTest": {
+   "wall": 0.003025,
+   "cpu": 0.009688,
+   "status": "pass"
+  },
+  "org.apache.commons.math.ode.sampling.StepNormalizerTest": {
+   "wall": 0.001891,
+   "cpu": 0.0039380000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.MultiStartDifferentiableMultivariateRealOptimizerTest": {
+   "wall": 0.00966,
+   "cpu": 0.017827000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.MultiStartDifferentiableMultivariateVectorialOptimizerTest": {
+   "wall": 0.0026089999999999998,
+   "cpu": 0.0046689999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.MultiStartMultivariateRealOptimizerTest": {
+   "wall": 0.003995,
+   "cpu": 0.00747,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.direct.BOBYQAOptimizerTest": {
+   "wall": 2.762698,
+   "cpu": 5.618926,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.direct.CMAESOptimizerTest": {
+   "wall": 2.7094229999999997,
+   "cpu": 5.29223,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.direct.PowellOptimizerTest": {
+   "wall": 0.008756,
+   "cpu": 0.00634,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.direct.SimplexOptimizerMultiDirectionalTest": {
+   "wall": 0.005027,
+   "cpu": 0.003899,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.direct.SimplexOptimizerNelderMeadTest": {
+   "wall": 0.0036349999999999998,
+   "cpu": 0.005068,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.fitting.CurveFitterTest": {
+   "wall": 0.002028,
+   "cpu": 0.002948,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.fitting.GaussianFitterTest": {
+   "wall": 0.009102,
+   "cpu": 0.020703,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.fitting.HarmonicFitterTest": {
+   "wall": 0.0026939999999999998,
+   "cpu": 0.005511,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.fitting.PolynomialFitterTest": {
+   "wall": 0.006064,
+   "cpu": 0.014240000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.general.GaussNewtonOptimizerTest": {
+   "wall": 0.0044269999999999995,
+   "cpu": 0.008663,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizerTest": {
+   "wall": 0.004607999999999999,
+   "cpu": 0.010508,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.general.MinpackTest": {
+   "wall": 0.094373,
+   "cpu": 0.183721,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.general.NonLinearConjugateGradientOptimizerTest": {
+   "wall": 0.0037099999999999998,
+   "cpu": 0.005283,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.linear.SimplexSolverTest": {
+   "wall": 0.093691,
+   "cpu": 0.20571199999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.linear.SimplexTableauTest": {
+   "wall": 0.0019619999999999998,
+   "cpu": 0.006857,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.univariate.BracketFinderTest": {
+   "wall": 0.002305,
+   "cpu": 0.002296,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.univariate.BrentOptimizerTest": {
+   "wall": 0.021096,
+   "cpu": 0.024925,
+   "status": "pass"
+  },
+  "org.apache.commons.math.optimization.univariate.MultiStartUnivariateRealOptimizerTest": {
+   "wall": 0.001593,
+   "cpu": 0.001072,
+   "status": "pass"
+  },
+  "org.apache.commons.math.special.BetaTest": {
+   "wall": 0.000541,
+   "cpu": 0.00106,
+   "status": "pass"
+  },
+  "org.apache.commons.math.special.ErfTest": {
+   "wall": 0.000382,
+   "cpu": 0.000727,
+   "status": "pass"
+  },
+  "org.apache.commons.math.special.GammaTest": {
+   "wall": 0.00043599999999999997,
+   "cpu": 0.000606,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.CertifiedDataTest": {
+   "wall": 0.010289,
+   "cpu": 0.020579999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.FrequencyTest": {
+   "wall": 0.003368,
+   "cpu": 0.006564,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.StatUtilsTest": {
+   "wall": 0.001519,
+   "cpu": 0.002496,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.clustering.EuclideanIntegerPointTest": {
+   "wall": 0.000987,
+   "cpu": 0.002594,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.clustering.KMeansPlusPlusClustererTest": {
+   "wall": 0.02938,
+   "cpu": 0.062121,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.correlation.CovarianceTest": {
+   "wall": 0.001646,
+   "cpu": 0.003213,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.correlation.PearsonsCorrelationTest": {
+   "wall": 0.002755,
+   "cpu": 0.00326,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.correlation.SpearmansRankCorrelationTest": {
+   "wall": 0.003828,
+   "cpu": 0.0052569999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.data.LewTest": {
+   "wall": 0.002975,
+   "cpu": 0.007581,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.data.LotteryTest": {
+   "wall": 0.000751,
+   "cpu": 0.0018540000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.AggregateSummaryStatisticsTest": {
+   "wall": 0.001487,
+   "cpu": 0.002354,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.DescriptiveStatisticsTest": {
+   "wall": 0.0029500000000000004,
+   "cpu": 0.004618000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.InteractionTest": {
+   "wall": 0.000158,
+   "cpu": 0.000163,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.ListUnivariateImplTest": {
+   "wall": 0.005614,
+   "cpu": 0.010329000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.MixedListUnivariateImplTest": {
+   "wall": 0.002403,
+   "cpu": 0.00323,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.MultivariateSummaryStatisticsTest": {
+   "wall": 0.010491,
+   "cpu": 0.024846,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.StatisticalSummaryValuesTest": {
+   "wall": 0.000486,
+   "cpu": 0.000492,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.SummaryStatisticsTest": {
+   "wall": 0.001537,
+   "cpu": 0.005472,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatisticsTest": {
+   "wall": 0.0009469999999999999,
+   "cpu": 0.001956,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.SynchronizedMultivariateSummaryStatisticsTest": {
+   "wall": 0.001916,
+   "cpu": 0.004368,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.SynchronizedSummaryStatisticsTest": {
+   "wall": 0.00149,
+   "cpu": 0.003692,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.FirstMomentTest": {
+   "wall": 0.000559,
+   "cpu": 0.00073,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.FourthMomentTest": {
+   "wall": 0.000614,
+   "cpu": 0.0015429999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.GeometricMeanTest": {
+   "wall": 0.000549,
+   "cpu": 0.0014579999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.KurtosisTest": {
+   "wall": 0.000671,
+   "cpu": 0.0014399999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.MeanTest": {
+   "wall": 0.000439,
+   "cpu": 0.00045,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.SecondMomentTest": {
+   "wall": 0.000399,
+   "cpu": 0.000743,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.SemiVarianceTest": {
+   "wall": 0.0011339999999999998,
+   "cpu": 0.003299,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.SkewnessTest": {
+   "wall": 0.000475,
+   "cpu": 0.000524,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.StandardDeviationTest": {
+   "wall": 0.00121,
+   "cpu": 0.001083,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.ThirdMomentTest": {
+   "wall": 0.00034599999999999995,
+   "cpu": 0.00039400000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.VarianceTest": {
+   "wall": 0.00046800000000000005,
+   "cpu": 0.0005759999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.VectorialCovarianceTest": {
+   "wall": 0.000214,
+   "cpu": 0.000254,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.moment.VectorialMeanTest": {
+   "wall": 0.0008489999999999999,
+   "cpu": 0.001426,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.rank.MaxTest": {
+   "wall": 0.00028799999999999995,
+   "cpu": 0.00029099999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.rank.MedianTest": {
+   "wall": 0.0005769999999999999,
+   "cpu": 0.000249,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.rank.MinTest": {
+   "wall": 0.000289,
+   "cpu": 0.00036199999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.rank.PercentileTest": {
+   "wall": 0.000422,
+   "cpu": 0.000477,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.summary.ProductTest": {
+   "wall": 0.000516,
+   "cpu": 0.001776,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.summary.SumLogTest": {
+   "wall": 0.000453,
+   "cpu": 0.000532,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.summary.SumSqTest": {
+   "wall": 0.00031800000000000003,
+   "cpu": 0.001178,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.descriptive.summary.SumTest": {
+   "wall": 0.000643,
+   "cpu": 0.0010429999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.inference.ChiSquareTestTest": {
+   "wall": 0.000356,
+   "cpu": 0.000361,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.inference.MannWhitneyUTestTest": {
+   "wall": 0.001046,
+   "cpu": 0.00039,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.inference.OneWayAnovaTest": {
+   "wall": 0.001811,
+   "cpu": 0.004237,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.inference.TTestTest": {
+   "wall": 0.001534,
+   "cpu": 0.0024100000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.inference.TestUtilsTest": {
+   "wall": 0.0010840000000000001,
+   "cpu": 0.000945,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.inference.WilcoxonSignedRankTestTest": {
+   "wall": 0.001759,
+   "cpu": 0.002507,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.ranking.NaturalRankingTest": {
+   "wall": 0.00035999999999999997,
+   "cpu": 0.000857,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.regression.GLSMultipleLinearRegressionTest": {
+   "wall": 0.153096,
+   "cpu": 0.323139,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.regression.MillerUpdatingRegressionTest": {
+   "wall": 0.009215,
+   "cpu": 0.018672,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.regression.OLSMultipleLinearRegressionTest": {
+   "wall": 0.002018,
+   "cpu": 0.003455,
+   "status": "pass"
+  },
+  "org.apache.commons.math.stat.regression.SimpleRegressionTest": {
+   "wall": 0.000653,
+   "cpu": 0.001881,
+   "status": "pass"
+  },
+  "org.apache.commons.math.transform.FastCosineTransformerTest": {
+   "wall": 0.003229,
+   "cpu": 0.0034660000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.math.transform.FastFourierTransformerTest": {
+   "wall": 0.0011790000000000001,
+   "cpu": 0.003971,
+   "status": "pass"
+  },
+  "org.apache.commons.math.transform.FastHadamardTransformerTest": {
+   "wall": 0.000736,
+   "cpu": 0.000287,
+   "status": "pass"
+  },
+  "org.apache.commons.math.transform.FastSineTransformerTest": {
+   "wall": 0.001047,
+   "cpu": 0.00098,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.BigRealFieldTest": {
+   "wall": 0.0017439999999999999,
+   "cpu": 0.004202,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.BigRealTest": {
+   "wall": 0.0015329999999999999,
+   "cpu": 0.004452,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.ContinuedFractionTest": {
+   "wall": 0.000705,
+   "cpu": 0.000507,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.DefaultTransformerTest": {
+   "wall": 0.00022700000000000002,
+   "cpu": 0.0005290000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.FastMathStrictComparisonTest": {
+   "wall": 0.01738,
+   "cpu": 0.062732,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.FastMathTest": {
+   "wall": 3.761091,
+   "cpu": 4.93885,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.IncrementorTest": {
+   "wall": 0.0006860000000000001,
+   "cpu": 0.00094,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.MathUtilsTest": {
+   "wall": 0.247195,
+   "cpu": 0.47773000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.MultidimensionalCounterTest": {
+   "wall": 0.002852,
+   "cpu": 0.004849999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.OpenIntToDoubleHashMapTest": {
+   "wall": 0.033995,
+   "cpu": 0.0444,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.OpenIntToFieldTest": {
+   "wall": 0.034665,
+   "cpu": 0.043484,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.PairTest": {
+   "wall": 0.000753,
+   "cpu": 0.001123,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.ResizableDoubleArrayTest": {
+   "wall": 0.0063289999999999996,
+   "cpu": 0.005754,
+   "status": "pass"
+  },
+  "org.apache.commons.math.util.TransformerMapTest": {
+   "wall": 0.002299,
+   "cpu": 0.0047480000000000005,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.5764752919994827,
+  "cpu": 0.6328000000000067
+ },
+ "fixed_suite_seconds": [
+  13.16,
+  11.57,
+  13.76
+ ],
+ "covering": [
+  "org.apache.commons.math.analysis.solvers.IllinoisSolverTest",
+  "org.apache.commons.math.analysis.solvers.PegasusSolverTest",
+  "org.apache.commons.math.analysis.solvers.RegulaFalsiSolverTest",
+  "org.apache.commons.math.analysis.solvers.SecantSolverTest",
+  "org.apache.commons.math.ode.events.EventStateTest",
+  "org.apache.commons.math.ode.events.OverlappingEventsTest"
+ ],
+ "sizes": {
+  "org.apache.commons.math.ConvergenceExceptionTest": 1589,
+  "org.apache.commons.math.MathConfigurationExceptionTest": 1543,
+  "org.apache.commons.math.MathExceptionTest": 4292,
+  "org.apache.commons.math.RetryRunnerTest": 1808,
+  "org.apache.commons.math.analysis.FunctionUtilsTest": 5968,
+  "org.apache.commons.math.analysis.function.GaussianTest": 5695,
+  "org.apache.commons.math.analysis.function.HarmonicOscillatorTest": 4442,
+  "org.apache.commons.math.analysis.function.LogisticTest": 6562,
+  "org.apache.commons.math.analysis.function.LogitTest": 6024,
+  "org.apache.commons.math.analysis.function.SigmoidTest": 3645,
+  "org.apache.commons.math.analysis.function.StepFunctionTest": 3630,
+  "org.apache.commons.math.analysis.integration.LegendreGaussIntegratorTest": 4803,
+  "org.apache.commons.math.analysis.integration.RombergIntegratorTest": 4596,
+  "org.apache.commons.math.analysis.integration.SimpsonIntegratorTest": 4523,
+  "org.apache.commons.math.analysis.integration.TrapezoidIntegratorTest": 4534,
+  "org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatingFunctionTest": 17233,
+  "org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatorTest": 5964,
+  "org.apache.commons.math.analysis.interpolation.DividedDifferenceInterpolatorTest": 5518,
+  "org.apache.commons.math.analysis.interpolation.LinearInterpolatorTest": 6164,
+  "org.apache.commons.math.analysis.interpolation.LoessInterpolatorTest": 9334,
+  "org.apache.commons.math.analysis.interpolation.MicrosphereInterpolatorTest": 4427,
+  "org.apache.commons.math.analysis.interpolation.NevilleInterpolatorTest": 5467,
+  "org.apache.commons.math.analysis.interpolation.SmoothingPolynomialBicubicSplineInterpolatorTest": 6520,
+  "org.apache.commons.math.analysis.interpolation.SplineInterpolatorTest": 10184,
+  "org.apache.commons.math.analysis.interpolation.TricubicSplineInterpolatingFunctionTest": 24378,
+  "org.apache.commons.math.analysis.interpolation.TricubicSplineInterpolatorTest": 7650,
+  "org.apache.commons.math.analysis.interpolation.UnivariateRealPeriodicInterpolatorTest": 6138,
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionLagrangeFormTest": 5416,
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionNewtonFormTest": 5540,
+  "org.apache.commons.math.analysis.polynomials.PolynomialFunctionTest": 10035,
+  "org.apache.commons.math.analysis.polynomials.PolynomialSplineFunctionTest": 5699,
+  "org.apache.commons.math.analysis.polynomials.PolynomialsUtilsTest": 10040,
+  "org.apache.commons.math.analysis.solvers.BisectionSolverTest": 3486,
+  "org.apache.commons.math.analysis.solvers.BracketingNthOrderBrentSolverTest": 7458,
+  "org.apache.commons.math.analysis.solvers.BrentSolverTest": 11240,
+  "org.apache.commons.math.analysis.solvers.IllinoisSolverTest": 1281,
+  "org.apache.commons.math.analysis.solvers.LaguerreSolverTest": 7210,
+  "org.apache.commons.math.analysis.solvers.MullerSolver2Test": 5878,
+  "org.apache.commons.math.analysis.solvers.MullerSolverTest": 6057,
+  "org.apache.commons.math.analysis.solvers.NewtonSolverTest": 3292,
+  "org.apache.commons.math.analysis.solvers.PegasusSolverTest": 1274,
+  "org.apache.commons.math.analysis.solvers.RegulaFalsiSolverTest": 2234,
+  "org.apache.commons.math.analysis.solvers.RiddersSolverTest": 5678,
+  "org.apache.commons.math.analysis.solvers.SecantSolverTest": 1451,
+  "org.apache.commons.math.analysis.solvers.UnivariateRealSolverUtilsTest": 6457,
+  "org.apache.commons.math.complex.ComplexFieldTest": 1478,
+  "org.apache.commons.math.complex.ComplexFormatTest": 1107,
+  "org.apache.commons.math.complex.ComplexTest": 43820,
+  "org.apache.commons.math.complex.ComplexUtilsTest": 4214,
+  "org.apache.commons.math.complex.FrenchComplexFormatTest": 1118,
+  "org.apache.commons.math.dfp.BracketingNthOrderBrentSolverDFPTest": 7269,
+  "org.apache.commons.math.dfp.DfpDecTest": 23553,
+  "org.apache.commons.math.dfp.DfpMathTest": 18774,
+  "org.apache.commons.math.dfp.DfpTest": 65168,
+  "org.apache.commons.math.distribution.AbtractIntegerDistributionTest": 5812,
+  "org.apache.commons.math.distribution.BetaDistributionTest": 15940,
+  "org.apache.commons.math.distribution.BinomialDistributionTest": 5072,
+  "org.apache.commons.math.distribution.CauchyDistributionTest": 4672,
+  "org.apache.commons.math.distribution.ChiSquareDistributionTest": 6046,
+  "org.apache.commons.math.distribution.ExponentialDistributionTest": 5582,
+  "org.apache.commons.math.distribution.FDistributionTest": 5603,
+  "org.apache.commons.math.distribution.GammaDistributionTest": 7664,
+  "org.apache.commons.math.distribution.HypergeometricDistributionTest": 11892,
+  "org.apache.commons.math.distribution.KolmogorovSmirnovDistributionTest": 5664,
+  "org.apache.commons.math.distribution.NormalDistributionTest": 9301,
+  "org.apache.commons.math.distribution.PascalDistributionTest": 5495,
+  "org.apache.commons.math.distribution.PoissonDistributionTest": 8787,
+  "org.apache.commons.math.distribution.TDistributionTest": 5509,
+  "org.apache.commons.math.distribution.WeibullDistributionTest": 4853,
+  "org.apache.commons.math.distribution.ZipfDistributionTest": 3890,
+  "org.apache.commons.math.exception.DimensionMismatchExceptionTest": 1253,
+  "org.apache.commons.math.exception.MaxCountExceededExceptionTest": 1193,
+  "org.apache.commons.math.exception.NonMonotonousSequenceExceptionTest": 1874,
+  "org.apache.commons.math.exception.NotPositiveExceptionTest": 1272,
+  "org.apache.commons.math.exception.NotStrictlyPositiveExceptionTest": 1303,
+  "org.apache.commons.math.exception.NumberIsTooLargeExceptionTest": 1299,
+  "org.apache.commons.math.exception.NumberIsTooSmallExceptionTest": 1301,
+  "org.apache.commons.math.exception.OutOfRangeExceptionTest": 1266,
+  "org.apache.commons.math.exception.TooManyEvaluationsExceptionTest": 1467,
+  "org.apache.commons.math.exception.util.ArgUtilsTest": 2222,
+  "org.apache.commons.math.exception.util.ExceptionContextTest": 4782,
+  "org.apache.commons.math.filter.KalmanFilterTest": 4936,
+  "org.apache.commons.math.fraction.BigFractionFieldTest": 1508,
+  "org.apache.commons.math.fraction.BigFractionFormatTest": 11172,
+  "org.apache.commons.math.fraction.BigFractionTest": 25888,
+  "org.apache.commons.math.fraction.FractionFieldTest": 1487,
+  "org.apache.commons.math.fraction.FractionFormatTest": 9878,
+  "org.apache.commons.math.fraction.FractionTest": 22851,
+  "org.apache.commons.math.genetics.BinaryChromosomeTest": 2336,
+  "org.apache.commons.math.genetics.BinaryMutationTest": 1678,
+  "org.apache.commons.math.genetics.ChromosomeTest": 3261,
+  "org.apache.commons.math.genetics.ElitisticListPopulationTest": 1652,
+  "org.apache.commons.math.genetics.FitnessCachingTest": 3356,
+  "org.apache.commons.math.genetics.FixedGenerationCountTest": 1990,
+  "org.apache.commons.math.genetics.GeneticAlgorithmTestBinary": 4142,
+  "org.apache.commons.math.genetics.GeneticAlgorithmTestPermutations": 4580,
+  "org.apache.commons.math.genetics.ListPopulationTest": 1864,
+  "org.apache.commons.math.genetics.OnePointCrossoverTest": 2507,
+  "org.apache.commons.math.genetics.RandomKeyMutationTest": 1606,
+  "org.apache.commons.math.genetics.RandomKeyTest": 6763,
+  "org.apache.commons.math.genetics.TournamentSelectionTest": 1912,
+  "org.apache.commons.math.geometry.euclidean.oned.IntervalsSetTest": 5189,
+  "org.apache.commons.math.geometry.euclidean.threed.FrenchVector3DFormatTest": 1138,
+  "org.apache.commons.math.geometry.euclidean.threed.LineTest": 3222,
+  "org.apache.commons.math.geometry.euclidean.threed.PlaneTest": 6734,
+  "org.apache.commons.math.geometry.euclidean.threed.PolyhedronsSetTest": 10501,
+  "org.apache.commons.math.geometry.euclidean.threed.RotationOrderTest": 1873,
+  "org.apache.commons.math.geometry.euclidean.threed.RotationTest": 18249,
+  "org.apache.commons.math.geometry.euclidean.threed.Vector3DFormatTest": 1128,
+  "org.apache.commons.math.geometry.euclidean.threed.Vector3DTest": 13897,
+  "org.apache.commons.math.geometry.euclidean.twod.LineTest": 5295,
+  "org.apache.commons.math.geometry.euclidean.twod.PolygonsSetTest": 38255,
+  "org.apache.commons.math.geometry.euclidean.twod.SubLineTest": 7029,
+  "org.apache.commons.math.geometry.partitioning.utilities.AVLTreeTest": 6453,
+  "org.apache.commons.math.linear.Array2DRowRealMatrixTest": 45105,
+  "org.apache.commons.math.linear.ArrayFieldVectorTest": 26434,
+  "org.apache.commons.math.linear.ArrayRealVectorTest": 60456,
+  "org.apache.commons.math.linear.BiDiagonalTransformerTest": 8725,
+  "org.apache.commons.math.linear.BlockFieldMatrixTest": 56794,
+  "org.apache.commons.math.linear.BlockRealMatrixTest": 47973,
+  "org.apache.commons.math.linear.CholeskyDecompositionImplTest": 5375,
+  "org.apache.commons.math.linear.CholeskySolverTest": 4507,
+  "org.apache.commons.math.linear.EigenDecompositionImplTest": 24485,
+  "org.apache.commons.math.linear.EigenSolverTest": 5868,
+  "org.apache.commons.math.linear.FieldLUDecompositionImplTest": 13563,
+  "org.apache.commons.math.linear.FieldMatrixImplTest": 50501,
+  "org.apache.commons.math.linear.FrenchRealVectorFormatTest": 1123,
+  "org.apache.commons.math.linear.LUDecompositionImplTest": 10737,
+  "org.apache.commons.math.linear.LUSolverTest": 7263,
+  "org.apache.commons.math.linear.MatrixDimensionMismatchExceptionTest": 1437,
+  "org.apache.commons.math.linear.MatrixUtilsTest": 13312,
+  "org.apache.commons.math.linear.QRDecompositionImplTest": 9704,
+  "org.apache.commons.math.linear.QRSolverTest": 8572,
+  "org.apache.commons.math.linear.RealVectorFormatTest": 1113,
+  "org.apache.commons.math.linear.SingularValueDecompositionImplTest": 13127,
+  "org.apache.commons.math.linear.SingularValueSolverTest": 6154,
+  "org.apache.commons.math.linear.SparseFieldMatrixTest": 33189,
+  "org.apache.commons.math.linear.SparseFieldVectorTest": 12304,
+  "org.apache.commons.math.linear.SparseRealMatrixTest": 26929,
+  "org.apache.commons.math.linear.SparseRealVectorTest": 39574,
+  "org.apache.commons.math.linear.TriDiagonalTransformerTest": 7316,
+  "org.apache.commons.math.ode.ContinuousOutputModelTest": 7297,
+  "org.apache.commons.math.ode.FirstOrderConverterTest": 3682,
+  "org.apache.commons.math.ode.events.EventStateTest": 3003,
+  "org.apache.commons.math.ode.events.OverlappingEventsTest": 7056,
+  "org.apache.commons.math.ode.nonstiff.AdamsBashforthIntegratorTest": 7014,
+  "org.apache.commons.math.ode.nonstiff.AdamsMoultonIntegratorTest": 6987,
+  "org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaIntegratorTest": 11743,
+  "org.apache.commons.math.ode.nonstiff.ClassicalRungeKuttaStepInterpolatorTest": 3610,
+  "org.apache.commons.math.ode.nonstiff.DormandPrince54IntegratorTest": 13400,
+  "org.apache.commons.math.ode.nonstiff.DormandPrince54StepInterpolatorTest": 6431,
+  "org.apache.commons.math.ode.nonstiff.DormandPrince853IntegratorTest": 14695,
+  "org.apache.commons.math.ode.nonstiff.DormandPrince853StepInterpolatorTest": 6375,
+  "org.apache.commons.math.ode.nonstiff.EulerIntegratorTest": 7154,
+  "org.apache.commons.math.ode.nonstiff.EulerStepInterpolatorTest": 6500,
+  "org.apache.commons.math.ode.nonstiff.GillIntegratorTest": 8998,
+  "org.apache.commons.math.ode.nonstiff.GillStepInterpolatorTest": 3599,
+  "org.apache.commons.math.ode.nonstiff.GraggBulirschStoerIntegratorTest": 15147,
+  "org.apache.commons.math.ode.nonstiff.GraggBulirschStoerStepInterpolatorTest": 6115,
+  "org.apache.commons.math.ode.nonstiff.HighamHall54IntegratorTest": 14321,
+  "org.apache.commons.math.ode.nonstiff.HighamHall54StepInterpolatorTest": 6302,
+  "org.apache.commons.math.ode.nonstiff.MidpointIntegratorTest": 7147,
+  "org.apache.commons.math.ode.nonstiff.MidpointStepInterpolatorTest": 3605,
+  "org.apache.commons.math.ode.nonstiff.ThreeEighthesIntegratorTest": 8644,
+  "org.apache.commons.math.ode.nonstiff.ThreeEighthesStepInterpolatorTest": 3580,
+  "org.apache.commons.math.ode.sampling.DummyStepInterpolatorTest": 4744,
+  "org.apache.commons.math.ode.sampling.NordsieckStepInterpolatorTest": 3648,
+  "org.apache.commons.math.ode.sampling.StepNormalizerOutputOverlapTest": 1716,
+  "org.apache.commons.math.ode.sampling.StepNormalizerOutputTest": 1717,
+  "org.apache.commons.math.ode.sampling.StepNormalizerTest": 4806,
+  "org.apache.commons.math.optimization.MultiStartDifferentiableMultivariateRealOptimizerTest": 5684,
+  "org.apache.commons.math.optimization.MultiStartDifferentiableMultivariateVectorialOptimizerTest": 8856,
+  "org.apache.commons.math.optimization.MultiStartMultivariateRealOptimizerTest": 3123,
+  "org.apache.commons.math.optimization.direct.BOBYQAOptimizerTest": 19343,
+  "org.apache.commons.math.optimization.direct.CMAESOptimizerTest": 24241,
+  "org.apache.commons.math.optimization.direct.PowellOptimizerTest": 4858,
+  "org.apache.commons.math.optimization.direct.SimplexOptimizerMultiDirectionalTest": 8326,
+  "org.apache.commons.math.optimization.direct.SimplexOptimizerNelderMeadTest": 10398,
+  "org.apache.commons.math.optimization.fitting.CurveFitterTest": 5977,
+  "org.apache.commons.math.optimization.fitting.GaussianFitterTest": 12030,
+  "org.apache.commons.math.optimization.fitting.HarmonicFitterTest": 6417,
+  "org.apache.commons.math.optimization.fitting.PolynomialFitterTest": 5166,
+  "org.apache.commons.math.optimization.general.GaussNewtonOptimizerTest": 24021,
+  "org.apache.commons.math.optimization.general.LevenbergMarquardtOptimizerTest": 28084,
+  "org.apache.commons.math.optimization.general.MinpackTest": 59489,
+  "org.apache.commons.math.optimization.general.NonLinearConjugateGradientOptimizerTest": 18258,
+  "org.apache.commons.math.optimization.linear.SimplexSolverTest": 34258,
+  "org.apache.commons.math.optimization.linear.SimplexTableauTest": 5135,
+  "org.apache.commons.math.optimization.univariate.BracketFinderTest": 4160,
+  "org.apache.commons.math.optimization.univariate.BrentOptimizerTest": 5366,
+  "org.apache.commons.math.optimization.univariate.MultiStartUnivariateRealOptimizerTest": 4754,
+  "org.apache.commons.math.special.BetaTest": 3498,
+  "org.apache.commons.math.special.ErfTest": 8271,
+  "org.apache.commons.math.special.GammaTest": 6041,
+  "org.apache.commons.math.stat.CertifiedDataTest": 5395,
+  "org.apache.commons.math.stat.FrequencyTest": 10273,
+  "org.apache.commons.math.stat.StatUtilsTest": 16069,
+  "org.apache.commons.math.stat.clustering.EuclideanIntegerPointTest": 2487,
+  "org.apache.commons.math.stat.clustering.KMeansPlusPlusClustererTest": 11562,
+  "org.apache.commons.math.stat.correlation.CovarianceTest": 10259,
+  "org.apache.commons.math.stat.correlation.PearsonsCorrelationTest": 14175,
+  "org.apache.commons.math.stat.correlation.SpearmansRankCorrelationTest": 5576,
+  "org.apache.commons.math.stat.data.LewTest": 1054,
+  "org.apache.commons.math.stat.data.LotteryTest": 1062,
+  "org.apache.commons.math.stat.descriptive.AggregateSummaryStatisticsTest": 11846,
+  "org.apache.commons.math.stat.descriptive.DescriptiveStatisticsTest": 10958,
+  "org.apache.commons.math.stat.descriptive.InteractionTest": 2532,
+  "org.apache.commons.math.stat.descriptive.ListUnivariateImplTest": 5907,
+  "org.apache.commons.math.stat.descriptive.MixedListUnivariateImplTest": 6822,
+  "org.apache.commons.math.stat.descriptive.MultivariateSummaryStatisticsTest": 13071,
+  "org.apache.commons.math.stat.descriptive.StatisticalSummaryValuesTest": 3457,
+  "org.apache.commons.math.stat.descriptive.SummaryStatisticsTest": 11463,
+  "org.apache.commons.math.stat.descriptive.SynchronizedDescriptiveStatisticsTest": 1199,
+  "org.apache.commons.math.stat.descriptive.SynchronizedMultivariateSummaryStatisticsTest": 1318,
+  "org.apache.commons.math.stat.descriptive.SynchronizedSummaryStatisticsTest": 1174,
+  "org.apache.commons.math.stat.descriptive.moment.FirstMomentTest": 1683,
+  "org.apache.commons.math.stat.descriptive.moment.FourthMomentTest": 1694,
+  "org.apache.commons.math.stat.descriptive.moment.GeometricMeanTest": 2567,
+  "org.apache.commons.math.stat.descriptive.moment.KurtosisTest": 2093,
+  "org.apache.commons.math.stat.descriptive.moment.MeanTest": 2267,
+  "org.apache.commons.math.stat.descriptive.moment.SecondMomentTest": 1696,
+  "org.apache.commons.math.stat.descriptive.moment.SemiVarianceTest": 6475,
+  "org.apache.commons.math.stat.descriptive.moment.SkewnessTest": 2009,
+  "org.apache.commons.math.stat.descriptive.moment.StandardDeviationTest": 3188,
+  "org.apache.commons.math.stat.descriptive.moment.ThirdMomentTest": 1688,
+  "org.apache.commons.math.stat.descriptive.moment.VarianceTest": 4157,
+  "org.apache.commons.math.stat.descriptive.moment.VectorialCovarianceTest": 3121,
+  "org.apache.commons.math.stat.descriptive.moment.VectorialMeanTest": 2808,
+  "org.apache.commons.math.stat.descriptive.rank.MaxTest": 2655,
+  "org.apache.commons.math.stat.descriptive.rank.MedianTest": 1455,
+  "org.apache.commons.math.stat.descriptive.rank.MinTest": 2654,
+  "org.apache.commons.math.stat.descriptive.rank.PercentileTest": 6178,
+  "org.apache.commons.math.stat.descriptive.summary.ProductTest": 3190,
+  "org.apache.commons.math.stat.descriptive.summary.SumLogTest": 2730,
+  "org.apache.commons.math.stat.descriptive.summary.SumSqTest": 2451,
+  "org.apache.commons.math.stat.descriptive.summary.SumTest": 2856,
+  "org.apache.commons.math.stat.inference.ChiSquareTestTest": 10637,
+  "org.apache.commons.math.stat.inference.MannWhitneyUTestTest": 3535,
+  "org.apache.commons.math.stat.inference.OneWayAnovaTest": 4183,
+  "org.apache.commons.math.stat.inference.TTestTest": 12479,
+  "org.apache.commons.math.stat.inference.TestUtilsTest": 19467,
+  "org.apache.commons.math.stat.inference.WilcoxonSignedRankTestTest": 7058,
+  "org.apache.commons.math.stat.ranking.NaturalRankingTest": 8937,
+  "org.apache.commons.math.stat.regression.GLSMultipleLinearRegressionTest": 12369,
+  "org.apache.commons.math.stat.regression.MillerUpdatingRegressionTest": 45085,
+  "org.apache.commons.math.stat.regression.OLSMultipleLinearRegressionTest": 30958,
+  "org.apache.commons.math.stat.regression.SimpleRegressionTest": 16949,
+  "org.apache.commons.math.transform.FastCosineTransformerTest": 4485,
+  "org.apache.commons.math.transform.FastFourierTransformerTest": 7638,
+  "org.apache.commons.math.transform.FastHadamardTransformerTest": 4262,
+  "org.apache.commons.math.transform.FastSineTransformerTest": 4373,
+  "org.apache.commons.math.util.BigRealFieldTest": 1476,
+  "org.apache.commons.math.util.BigRealTest": 5566,
+  "org.apache.commons.math.util.ContinuedFractionTest": 1422,
+  "org.apache.commons.math.util.DefaultTransformerTest": 3163,
+  "org.apache.commons.math.util.FastMathStrictComparisonTest": 10492,
+  "org.apache.commons.math.util.FastMathTest": 49666,
+  "org.apache.commons.math.util.IncrementorTest": 2416,
+  "org.apache.commons.math.util.MathUtilsTest": 81977,
+  "org.apache.commons.math.util.MultidimensionalCounterTest": 6067,
+  "org.apache.commons.math.util.OpenIntToDoubleHashMapTest": 11458,
+  "org.apache.commons.math.util.OpenIntToFieldTest": 12523,
+  "org.apache.commons.math.util.PairTest": 1871,
+  "org.apache.commons.math.util.ResizableDoubleArrayTest": 21005,
+  "org.apache.commons.math.util.TransformerMapTest": 3930
+ }
+}

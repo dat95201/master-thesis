@@ -1,0 +1,250 @@
+{
+ "bug": "Jsoup-24",
+ "pid": "Jsoup",
+ "bid": 24,
+ "modified_class": "org.jsoup.parser.TokeniserState",
+ "src_file": "src/main/java/org/jsoup/parser/TokeniserState.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/junit/junit/4.5/junit-4.5.jar:/Users/datnguyen/Study/research/master-thesis/work/Jsoup-24/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Jsoup-24/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/com/google/code/gson/gson/2.7/gson-2.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/commons-lang/commons-lang/2.4/commons-lang-2.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-http/9.2.22.v20170606/jetty-http-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-http/9.2.26.v20180806/jetty-http-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-http/9.2.28.v20190418/jetty-http-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-io/9.2.22.v20170606/jetty-io-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-io/9.2.26.v20180806/jetty-io-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-io/9.2.28.v20190418/jetty-io-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-security/9.2.22.v20170606/jetty-security-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-security/9.2.26.v20180806/jetty-security-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-security/9.2.28.v20190418/jetty-security-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-server/9.2.22.v20170606/jetty-server-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-server/9.2.26.v20180806/jetty-server-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-server/9.2.28.v20190418/jetty-server-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-servlet/9.2.22.v20170606/jetty-servlet-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-servlet/9.2.26.v20180806/jetty-servlet-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-servlet/9.2.28.v20190418/jetty-servlet-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-util/9.2.22.v20170606/jetty-util-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-util/9.2.26.v20180806/jetty-util-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-util/9.2.28.v20190418/jetty-util-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/junit/junit/4.5/junit-4.5.jar:/Users/datnguyen/Study/research/master-thesis/work/Jsoup-24/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Jsoup-24/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/com/google/code/gson/gson/2.7/gson-2.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/commons-lang/commons-lang/2.4/commons-lang-2.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/javax/servlet/javax.servlet-api/3.1.0/javax.servlet-api-3.1.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-http/9.2.22.v20170606/jetty-http-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-http/9.2.26.v20180806/jetty-http-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-http/9.2.28.v20190418/jetty-http-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-io/9.2.22.v20170606/jetty-io-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-io/9.2.26.v20180806/jetty-io-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-io/9.2.28.v20190418/jetty-io-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-security/9.2.22.v20170606/jetty-security-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-security/9.2.26.v20180806/jetty-security-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-security/9.2.28.v20190418/jetty-security-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-server/9.2.22.v20170606/jetty-server-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-server/9.2.26.v20180806/jetty-server-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-server/9.2.28.v20190418/jetty-server-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-servlet/9.2.22.v20170606/jetty-servlet-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-servlet/9.2.26.v20180806/jetty-servlet-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-servlet/9.2.28.v20190418/jetty-servlet-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-util/9.2.22.v20170606/jetty-util-9.2.22.v20170606.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-util/9.2.26.v20180806/jetty-util-9.2.26.v20180806.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/eclipse/jetty/jetty-util/9.2.28.v20190418/jetty-util-9.2.28.v20190418.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Jsoup/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Jsoup-24/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Jsoup-24/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "read(Tokeniser,CharacterReader)#27",
+   "name": "read",
+   "nparams": 2
+  }
+ ],
+ "buggy_methods": {
+  "read(Tokeniser,CharacterReader)#27": "void read(Tokeniser t, CharacterReader r) {\n            if (r.matchesLetter()) {\n                String name = r.consumeLetterSequence();\n                t.tagPending.appendTagName(name.toLowerCase());\n                t.dataBuffer.append(name);\n                r.advance();\n                return;\n            }\n\n            if (t.isAppropriateEndTagToken() && !r.isEmpty()) {\n                char c = r.consume();\n                switch (c) {\n                    case '\\t':\n                    case '\\n':\n                    case '\\f':\n                    case ' ':\n                        t.transition(BeforeAttributeName);\n                        break;\n                    case '/':\n                        t.transition(SelfClosingStartTag);\n                        break;\n                    case '>':\n                        t.emitTagPending();\n                        t.transition(Data);\n                        break;\n                    default:\n                        t.dataBuffer.append(c);\n                        anythingElse(t, r);\n                        break;\n                }\n            } else {\n                anythingElse(t, r);\n            }\n        }"
+ },
+ "fixed_methods": {
+  "read(Tokeniser,CharacterReader)#27": "void read(Tokeniser t, CharacterReader r) {\n            if (r.matchesLetter()) {\n                String name = r.consumeLetterSequence();\n                t.tagPending.appendTagName(name.toLowerCase());\n                t.dataBuffer.append(name);\n                return;\n            }\n\n            if (t.isAppropriateEndTagToken() && !r.isEmpty()) {\n                char c = r.consume();\n                switch (c) {\n                    case '\\t':\n                    case '\\n':\n                    case '\\f':\n                    case ' ':\n                        t.transition(BeforeAttributeName);\n                        break;\n                    case '/':\n                        t.transition(SelfClosingStartTag);\n                        break;\n                    case '>':\n                        t.emitTagPending();\n                        t.transition(Data);\n                        break;\n                    default:\n                        t.dataBuffer.append(c);\n                        anythingElse(t, r);\n                        break;\n                }\n            } else {\n                anythingElse(t, r);\n            }\n        }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.jsoup.parser.HtmlParserTest::handlesQuotesInCommentsInScripts",
+   "error": "junit.framework.AssertionFailedError: expected:<...ocument.write('</scr['] + 'ipt>');"
+  }
+ ],
+ "triggering_classes": [
+  "org.jsoup.parser.HtmlParserTest"
+ ],
+ "loaded_classes": [
+  "org.jsoup.helper.DescendableLinkedList",
+  "org.jsoup.helper.StringUtil",
+  "org.jsoup.helper.Validate",
+  "org.jsoup.Jsoup",
+  "org.jsoup.nodes.Attribute",
+  "org.jsoup.nodes.Attributes",
+  "org.jsoup.nodes.Comment",
+  "org.jsoup.nodes.DataNode",
+  "org.jsoup.nodes.Document",
+  "org.jsoup.nodes.DocumentType",
+  "org.jsoup.nodes.Element",
+  "org.jsoup.nodes.Entities",
+  "org.jsoup.nodes.Node",
+  "org.jsoup.nodes.TextNode",
+  "org.jsoup.parser.CharacterReader",
+  "org.jsoup.parser.HtmlTreeBuilder",
+  "org.jsoup.parser.HtmlTreeBuilderState",
+  "org.jsoup.parser.ParseErrorList",
+  "org.jsoup.parser.Parser",
+  "org.jsoup.parser.Tag",
+  "org.jsoup.parser.Token",
+  "org.jsoup.parser.Tokeniser",
+  "org.jsoup.parser.TokeniserState",
+  "org.jsoup.parser.TreeBuilder",
+  "org.jsoup.parser.XmlTreeBuilder",
+  "org.jsoup.select.Evaluator",
+  "org.jsoup.select.NodeTraversor",
+  "org.jsoup.select.NodeVisitor"
+ ],
+ "suite": [
+  "org.jsoup.helper.DataUtilTest",
+  "org.jsoup.helper.HttpConnectionTest",
+  "org.jsoup.helper.StringUtilTest",
+  "org.jsoup.integration.ParseTest",
+  "org.jsoup.integration.UrlConnectTest",
+  "org.jsoup.nodes.AttributeTest",
+  "org.jsoup.nodes.AttributesTest",
+  "org.jsoup.nodes.DocumentTest",
+  "org.jsoup.nodes.DocumentTypeTest",
+  "org.jsoup.nodes.ElementTest",
+  "org.jsoup.nodes.EntitiesTest",
+  "org.jsoup.nodes.NodeTest",
+  "org.jsoup.nodes.TextNodeTest",
+  "org.jsoup.parser.AttributeParseTest",
+  "org.jsoup.parser.CharacterReaderTest",
+  "org.jsoup.parser.HtmlParserTest",
+  "org.jsoup.parser.TagTest",
+  "org.jsoup.parser.TokenQueueTest",
+  "org.jsoup.parser.XmlTreeBuilderTest",
+  "org.jsoup.safety.CleanerTest",
+  "org.jsoup.select.ElementsTest",
+  "org.jsoup.select.QueryParserTest",
+  "org.jsoup.select.SelectorTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.jsoup.helper.DataUtilTest": {
+   "wall": 0.307107,
+   "cpu": 0.240215,
+   "status": "pass"
+  },
+  "org.jsoup.helper.HttpConnectionTest": {
+   "wall": 0.062439999999999996,
+   "cpu": 0.037448,
+   "status": "pass"
+  },
+  "org.jsoup.helper.StringUtilTest": {
+   "wall": 0.006352,
+   "cpu": 0.002021,
+   "status": "pass"
+  },
+  "org.jsoup.integration.ParseTest": {
+   "wall": 0.36219999999999997,
+   "cpu": 0.511114,
+   "status": "pass"
+  },
+  "org.jsoup.integration.UrlConnectTest": {
+   "wall": 0.004021,
+   "cpu": 0.006768,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.AttributeTest": {
+   "wall": 0.0012980000000000001,
+   "cpu": 0.000745,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.AttributesTest": {
+   "wall": 0.076558,
+   "cpu": 0.040329000000000004,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.DocumentTest": {
+   "wall": 0.058198,
+   "cpu": 0.037073,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.DocumentTypeTest": {
+   "wall": 0.003932,
+   "cpu": 0.0066760000000000005,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.ElementTest": {
+   "wall": 0.010971,
+   "cpu": 0.020715,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.EntitiesTest": {
+   "wall": 0.009015,
+   "cpu": 0.009000999999999999,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.NodeTest": {
+   "wall": 0.023725000000000003,
+   "cpu": 0.031735,
+   "status": "pass"
+  },
+  "org.jsoup.nodes.TextNodeTest": {
+   "wall": 0.0014570000000000002,
+   "cpu": 0.003234,
+   "status": "pass"
+  },
+  "org.jsoup.parser.AttributeParseTest": {
+   "wall": 0.0068650000000000004,
+   "cpu": 0.005777999999999999,
+   "status": "pass"
+  },
+  "org.jsoup.parser.CharacterReaderTest": {
+   "wall": 0.0008269999999999999,
+   "cpu": 0.0013839999999999998,
+   "status": "pass"
+  },
+  "org.jsoup.parser.HtmlParserTest": {
+   "wall": 0.040809,
+   "cpu": 0.066312,
+   "status": "fail"
+  },
+  "org.jsoup.parser.TagTest": {
+   "wall": 0.0033250000000000003,
+   "cpu": 0.0027890000000000002,
+   "status": "pass"
+  },
+  "org.jsoup.parser.TokenQueueTest": {
+   "wall": 0.002145,
+   "cpu": 0.003832,
+   "status": "pass"
+  },
+  "org.jsoup.parser.XmlTreeBuilderTest": {
+   "wall": 0.012307,
+   "cpu": 0.016568000000000003,
+   "status": "pass"
+  },
+  "org.jsoup.safety.CleanerTest": {
+   "wall": 0.029556000000000002,
+   "cpu": 0.040323,
+   "status": "pass"
+  },
+  "org.jsoup.select.ElementsTest": {
+   "wall": 0.015125999999999999,
+   "cpu": 0.021176999999999998,
+   "status": "pass"
+  },
+  "org.jsoup.select.QueryParserTest": {
+   "wall": 0.0013109999999999999,
+   "cpu": 0.001914,
+   "status": "pass"
+  },
+  "org.jsoup.select.SelectorTest": {
+   "wall": 0.037277,
+   "cpu": 0.060554000000000004,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.3025748329991913,
+  "cpu": 0.26999799999999907
+ },
+ "fixed_suite_seconds": [
+  1.02,
+  0.91,
+  0.77
+ ],
+ "covering": [
+  "org.jsoup.integration.ParseTest",
+  "org.jsoup.parser.HtmlParserTest"
+ ],
+ "sizes": {
+  "org.jsoup.helper.DataUtilTest": 1479,
+  "org.jsoup.helper.HttpConnectionTest": 5578,
+  "org.jsoup.helper.StringUtilTest": 2848,
+  "org.jsoup.integration.ParseTest": 7724,
+  "org.jsoup.integration.UrlConnectTest": 7091,
+  "org.jsoup.nodes.AttributeTest": 321,
+  "org.jsoup.nodes.AttributesTest": 792,
+  "org.jsoup.nodes.DocumentTest": 3611,
+  "org.jsoup.nodes.DocumentTypeTest": 1576,
+  "org.jsoup.nodes.ElementTest": 23305,
+  "org.jsoup.nodes.EntitiesTest": 2861,
+  "org.jsoup.nodes.NodeTest": 8311,
+  "org.jsoup.nodes.TextNodeTest": 2417,
+  "org.jsoup.parser.AttributeParseTest": 2336,
+  "org.jsoup.parser.CharacterReaderTest": 2386,
+  "org.jsoup.parser.HtmlParserTest": 36026,
+  "org.jsoup.parser.TagTest": 1655,
+  "org.jsoup.parser.TokenQueueTest": 2079,
+  "org.jsoup.parser.XmlTreeBuilderTest": 3730,
+  "org.jsoup.safety.CleanerTest": 5515,
+  "org.jsoup.select.ElementsTest": 9259,
+  "org.jsoup.select.QueryParserTest": 1769,
+  "org.jsoup.select.SelectorTest": 23827
+ }
+}

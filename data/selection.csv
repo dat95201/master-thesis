@@ -1,0 +1,185 @@
+bug,accepted,reason
+Chart-13,1,ok
+Cli-21,0,fix modifies more than one class
+Closure-159,1,ok
+Codec-1,0,fix modifies more than one class
+Collections-5,1,ok
+Compress-20,1,ok
+Csv-13,0,fix modifies more than one class
+Gson-16,0,source file not found: gson/src/main/java/com/google/gson/internal/.java
+JacksonCore-13,0,"fix adds, removes or renames a method"
+JacksonDatabind-59,0,fix modifies more than one class
+JacksonXml-6,0,"fix adds, removes or renames a method"
+Jsoup-77,1,ok
+JxPath-20,0,"fix adds, removes or renames a method"
+Lang-64,0,"fix adds, removes or renames a method"
+Math-56,1,ok
+Mockito-11,1,ok
+Time-4,1,ok
+Chart-9,1,ok
+Cli-14,1,ok
+Closure-86,1,ok
+Codec-12,0,"fix adds, removes or renames a method"
+Collections-19,1,ok
+Compress-29,0,fix modifies more than one class
+Csv-14,1,ok
+Gson-4,0,fix modifies more than one class
+JacksonCore-8,1,ok
+JacksonDatabind-6,1,ok
+JacksonXml-4,1,ok
+Jsoup-29,0,fix changes code outside methods
+JxPath-1,0,fix modifies more than one class
+Lang-41,1,ok
+Math-16,0,fix changes code outside methods
+Mockito-17,0,fix modifies more than one class
+Time-23,1,ok
+Chart-7,0,fix changes more than one file
+Cli-33,0,"fix adds, removes or renames a method"
+Closure-166,1,ok
+Codec-18,1,ok
+Collections-14,1,ok
+Compress-41,1,ok
+Csv-15,1,ok
+Gson-2,1,ok
+JacksonCore-12,0,fix modifies more than one class
+JacksonDatabind-25,0,fix modifies more than one class
+JacksonXml-5,1,ok
+Jsoup-74,0,"fix adds, removes or renames a method"
+JxPath-4,0,fix modifies more than one class
+Lang-11,1,ok
+Math-55,1,ok
+Mockito-15,0,fix changes code outside methods
+Time-2,0,fix modifies more than one class
+Chart-3,1,ok
+Cli-31,0,fix modifies more than one class
+Closure-121,1,ok
+Codec-11,0,"fix adds, removes or renames a method"
+Collections-12,1,ok
+Compress-16,1,ok
+Csv-16,0,"fix adds, removes or renames a method"
+Gson-11,1,ok
+JacksonCore-16,0,fix changes code outside methods
+JacksonDatabind-21,0,"fix adds, removes or renames a method"
+JacksonXml-2,0,"fix adds, removes or renames a method"
+Jsoup-27,1,ok
+JxPath-21,0,triggering class org.apache.commons.jxpath.ri.model.MixedModelTest is not stable on the fixed program
+Lang-14,1,ok
+Math-70,1,ok
+Mockito-4,1,ok
+Time-16,1,ok
+Chart-23,0,"fix adds, removes or renames a method"
+Cli-3,1,ok
+Closure-73,1,ok
+Codec-15,1,ok
+Collections-13,1,ok
+Compress-13,1,ok
+Csv-2,0,only 9 stable test classes
+Gson-10,1,ok
+JacksonCore-14,1,ok
+JacksonDatabind-35,1,ok
+JacksonXml-1,1,ok
+Jsoup-85,1,ok
+JxPath-10,1,ok
+Lang-51,1,ok
+Math-10,1,ok
+Mockito-34,0,triggering class org.mockito.internal.invocation.InvocationMatcherTest is not stable on the fixed program
+Time-13,1,ok
+Chart-6,1,ok
+Cli-27,1,ok
+Closure-109,1,ok
+Codec-4,1,ok
+Collections-24,0,fix changes code outside methods
+Compress-31,1,ok
+Csv-5,1,ok
+Gson-8,0,"fix adds, removes or renames a method"
+JacksonCore-20,1,ok
+JacksonDatabind-74,1,ok
+JacksonXml-3,1,ok
+Jsoup-80,1,ok
+JxPath-12,0,triggering class org.apache.commons.jxpath.ri.model.ExternalXMLNamespaceTest is not stable on the fixed program
+Lang-4,0,fix changes code outside methods
+Math-25,1,ok
+Mockito-21,0,"fix adds, removes or renames a method"
+Time-7,1,ok
+Chart-19,1,ok
+Cli-4,1,ok
+Closure-153,0,fix modifies more than one class
+Codec-8,0,fix modifies more than one class
+Collections-10,0,fix changes no method
+Compress-8,1,ok
+Csv-3,0,only 9 stable test classes
+Gson-3,0,fix changes code outside methods
+JacksonCore-23,1,ok
+JacksonDatabind-55,0,"fix adds, removes or renames a method"
+Jsoup-13,1,ok
+JxPath-9,0,fix modifies more than one class
+Lang-36,1,ok
+Math-50,1,ok
+Mockito-7,1,ok
+Time-11,0,"fix adds, removes or renames a method"
+Chart-20,1,ok
+Cli-12,1,ok
+Closure-100,1,ok
+Codec-10,1,ok
+Collections-25,1,ok
+Compress-30,1,ok
+Csv-7,0,fix changes code outside methods
+Gson-13,1,ok
+JacksonCore-22,0,"fix adds, removes or renames a method"
+JacksonDatabind-106,1,ok
+Jsoup-73,0,fix changes code outside methods
+JxPath-3,0,"fix adds, removes or renames a method"
+Lang-32,0,"fix adds, removes or renames a method"
+Math-101,1,ok
+Mockito-1,1,ok
+Time-25,1,ok
+Chart-25,1,ok
+Cli-17,1,ok
+Closure-117,1,ok
+Codec-6,1,ok
+Collections-3,1,ok
+Compress-23,1,ok
+Csv-1,0,only 5 stable test classes
+Gson-14,1,ok
+JacksonCore-15,1,ok
+JacksonDatabind-16,1,ok
+Jsoup-61,1,ok
+JxPath-11,0,fix modifies more than one class
+Lang-45,1,ok
+Math-46,1,ok
+Mockito-31,0,fix changes code outside methods
+Time-24,1,ok
+Chart-5,1,ok
+Cli-40,1,ok
+Closure-56,1,ok
+Codec-3,1,ok
+Collections-20,1,ok
+Compress-45,1,ok
+Csv-8,1,ok
+Gson-18,1,ok
+JacksonCore-5,1,ok
+JacksonDatabind-47,1,ok
+Jsoup-24,1,ok
+JxPath-8,1,ok
+Lang-59,1,ok
+Math-100,1,ok
+Mockito-14,0,fix modifies more than one class
+Time-26,0,fix modifies more than one class
+Chart-12,1,ok
+Cli-9,1,ok
+Closure-168,1,ok
+Codec-5,1,ok
+Collections-18,1,ok
+Compress-33,0,fix modifies more than one class
+Csv-12,0,fix changes no method
+Gson-15,1,ok
+JacksonCore-10,1,ok
+JacksonDatabind-83,1,ok
+Jsoup-52,0,fix modifies more than one class
+JxPath-18,0,fix changes code outside methods
+Lang-7,1,ok
+Math-94,1,ok
+Mockito-8,1,ok
+Time-9,0,fix changes code outside methods
+Chart-2,1,ok
+Cli-10,0,fix changes code outside methods

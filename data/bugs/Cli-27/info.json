@@ -1,0 +1,246 @@
+{
+ "bug": "Cli-27",
+ "pid": "Cli",
+ "bid": 27,
+ "modified_class": "org.apache.commons.cli.OptionGroup",
+ "src_file": "src/java/org/apache/commons/cli/OptionGroup.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Cli/lib/junit/junit/3.8.2/junit-3.8.2.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-27/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-27/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Cli/lib/junit/junit/3.8.2/junit-3.8.2.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-27/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-27/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-27/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-27/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "setSelected(Option)",
+   "name": "setSelected",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "setSelected(Option)": "public void setSelected(Option option) throws AlreadySelectedException\n    {\n        if (option == null)\n        {\n            // reset the option previously selected\n            selected = null;\n            return;\n        }\n        \n        // if no option has already been selected or the \n        // same option is being reselected then set the\n        // selected member variable\n        if (selected == null || selected.equals(option.getOpt()))\n        {\n            selected = option.getOpt();\n        }\n        else\n        {\n            throw new AlreadySelectedException(this, option);\n        }\n    }"
+ },
+ "fixed_methods": {
+  "setSelected(Option)": "public void setSelected(Option option) throws AlreadySelectedException\n    {\n        if (option == null)\n        {\n            // reset the option previously selected\n            selected = null;\n            return;\n        }\n        \n        // if no option has already been selected or the \n        // same option is being reselected then set the\n        // selected member variable\n        if (selected == null || selected.equals(option.getKey()))\n        {\n            selected = option.getKey();\n        }\n        else\n        {\n            throw new AlreadySelectedException(this, option);\n        }\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.cli.BasicParserTest::testOptionGroupLong",
+   "error": "junit.framework.ComparisonFailure: selected option expected:<bar> but was:<null>"
+  },
+  {
+   "test": "org.apache.commons.cli.GnuParserTest::testOptionGroupLong",
+   "error": "junit.framework.ComparisonFailure: selected option expected:<bar> but was:<null>"
+  },
+  {
+   "test": "org.apache.commons.cli.PosixParserTest::testOptionGroupLong",
+   "error": "junit.framework.ComparisonFailure: selected option expected:<bar> but was:<null>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.cli.BasicParserTest",
+  "org.apache.commons.cli.GnuParserTest",
+  "org.apache.commons.cli.PosixParserTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.cli.AlreadySelectedException",
+  "org.apache.commons.cli.AmbiguousOptionException",
+  "org.apache.commons.cli.BasicParser",
+  "org.apache.commons.cli.CommandLine",
+  "org.apache.commons.cli.CommandLineParser",
+  "org.apache.commons.cli.GnuParser",
+  "org.apache.commons.cli.MissingArgumentException",
+  "org.apache.commons.cli.MissingOptionException",
+  "org.apache.commons.cli.Option",
+  "org.apache.commons.cli.OptionBuilder",
+  "org.apache.commons.cli.OptionGroup",
+  "org.apache.commons.cli.Options",
+  "org.apache.commons.cli.OptionValidator",
+  "org.apache.commons.cli.ParseException",
+  "org.apache.commons.cli.Parser",
+  "org.apache.commons.cli.PosixParser",
+  "org.apache.commons.cli.UnrecognizedOptionException",
+  "org.apache.commons.cli.Util"
+ ],
+ "suite": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.ArgumentIsOptionTest",
+  "org.apache.commons.cli.BasicParserTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.CommandLineTest",
+  "org.apache.commons.cli.GnuParserTest",
+  "org.apache.commons.cli.HelpFormatterTest",
+  "org.apache.commons.cli.OptionBuilderTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.OptionTest",
+  "org.apache.commons.cli.OptionsTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.PosixParserTest",
+  "org.apache.commons.cli.UtilTest",
+  "org.apache.commons.cli.ValueTest",
+  "org.apache.commons.cli.ValuesTest",
+  "org.apache.commons.cli.bug.BugCLI133Test",
+  "org.apache.commons.cli.bug.BugCLI13Test",
+  "org.apache.commons.cli.bug.BugCLI148Test",
+  "org.apache.commons.cli.bug.BugCLI162Test",
+  "org.apache.commons.cli.bug.BugCLI18Test",
+  "org.apache.commons.cli.bug.BugCLI71Test"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.cli.ApplicationTest": {
+   "wall": 0.069728,
+   "cpu": 0.08342000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ArgumentIsOptionTest": {
+   "wall": 0.0022400000000000002,
+   "cpu": 0.00401,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BasicParserTest": {
+   "wall": 0.029247,
+   "cpu": 0.029307,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.BugsTest": {
+   "wall": 0.006524,
+   "cpu": 0.011742,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.CommandLineTest": {
+   "wall": 0.001027,
+   "cpu": 0.0009509999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.GnuParserTest": {
+   "wall": 0.005021,
+   "cpu": 0.013071999999999999,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.HelpFormatterTest": {
+   "wall": 0.007652,
+   "cpu": 0.011352000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionBuilderTest": {
+   "wall": 0.002058,
+   "cpu": 0.003654,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionGroupTest": {
+   "wall": 0.001415,
+   "cpu": 0.002455,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionTest": {
+   "wall": 0.003653,
+   "cpu": 0.005418,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionsTest": {
+   "wall": 0.0008489999999999999,
+   "cpu": 0.0014299999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PatternOptionBuilderTest": {
+   "wall": 0.014652,
+   "cpu": 0.023131,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PosixParserTest": {
+   "wall": 0.004325,
+   "cpu": 0.010605,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.UtilTest": {
+   "wall": 0.00069,
+   "cpu": 0.000696,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValueTest": {
+   "wall": 0.003423,
+   "cpu": 0.0058460000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValuesTest": {
+   "wall": 0.001018,
+   "cpu": 0.004306,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI133Test": {
+   "wall": 0.000348,
+   "cpu": 0.000372,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI13Test": {
+   "wall": 0.000434,
+   "cpu": 0.000366,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI148Test": {
+   "wall": 0.001306,
+   "cpu": 0.0037949999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI162Test": {
+   "wall": 0.001658,
+   "cpu": 0.004888,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI18Test": {
+   "wall": 0.000379,
+   "cpu": 0.000897,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI71Test": {
+   "wall": 0.000493,
+   "cpu": 0.001575,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2603399579998071,
+  "cpu": 0.2372920000000002
+ },
+ "fixed_suite_seconds": [
+  0.43,
+  0.77,
+  0.48
+ ],
+ "covering": [
+  "org.apache.commons.cli.BasicParserTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.GnuParserTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.PosixParserTest"
+ ],
+ "sizes": {
+  "org.apache.commons.cli.ApplicationTest": 13461,
+  "org.apache.commons.cli.ArgumentIsOptionTest": 2666,
+  "org.apache.commons.cli.BasicParserTest": 3448,
+  "org.apache.commons.cli.BugsTest": 12412,
+  "org.apache.commons.cli.CommandLineTest": 2160,
+  "org.apache.commons.cli.GnuParserTest": 2649,
+  "org.apache.commons.cli.HelpFormatterTest": 18023,
+  "org.apache.commons.cli.OptionBuilderTest": 6379,
+  "org.apache.commons.cli.OptionGroupTest": 8877,
+  "org.apache.commons.cli.OptionTest": 4238,
+  "org.apache.commons.cli.OptionsTest": 5940,
+  "org.apache.commons.cli.PatternOptionBuilderTest": 7574,
+  "org.apache.commons.cli.PosixParserTest": 1545,
+  "org.apache.commons.cli.UtilTest": 1379,
+  "org.apache.commons.cli.ValueTest": 9393,
+  "org.apache.commons.cli.ValuesTest": 7507,
+  "org.apache.commons.cli.bug.BugCLI133Test": 1496,
+  "org.apache.commons.cli.bug.BugCLI13Test": 1938,
+  "org.apache.commons.cli.bug.BugCLI148Test": 2369,
+  "org.apache.commons.cli.bug.BugCLI162Test": 12741,
+  "org.apache.commons.cli.bug.BugCLI18Test": 1967,
+  "org.apache.commons.cli.bug.BugCLI71Test": 3201
+ }
+}

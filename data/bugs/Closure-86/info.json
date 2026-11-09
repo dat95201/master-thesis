@@ -1,0 +1,1562 @@
+{
+ "bug": "Closure-86",
+ "pid": "Closure",
+ "bid": 86,
+ "modified_class": "com.google.javascript.jscomp.NodeUtil",
+ "src_file": "src/com/google/javascript/jscomp/NodeUtil.java",
+ "test_dir": "test",
+ "bin_dir": "build/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/build/classes:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/ant-launcher.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/ant.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/args4j.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/caja-r4314.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/guava.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/json.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/jsr305.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/junit.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/libtrunk_rhino_parser_jarjared.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/protobuf-java.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/build/test",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/build/classes:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/ant-launcher.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/ant.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/args4j.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/caja-r4314.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/guava.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/json.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/jsr305.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/junit.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/libtrunk_rhino_parser_jarjared.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/protobuf-java.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/build/test"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/build/classes:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/ant-launcher.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/ant.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/args4j.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/caja-r4314.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/guava.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/json.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/jsr305.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/junit.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/libtrunk_rhino_parser_jarjared.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/b/lib/protobuf-java.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/build/classes:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/ant-launcher.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/ant.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/args4j.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/caja-r4314.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/guava.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/json.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/jsr305.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/junit.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/libtrunk_rhino_parser_jarjared.jar:/Users/datnguyen/Study/research/master-thesis/work/Closure-86/f/lib/protobuf-java.jar"
+ },
+ "faulty": [
+  {
+   "key": "evaluatesToLocalValue(Node,Predicate<Node>)",
+   "name": "evaluatesToLocalValue",
+   "nparams": 2
+  }
+ ],
+ "buggy_methods": {
+  "evaluatesToLocalValue(Node,Predicate<Node>)": "static boolean evaluatesToLocalValue(Node value, Predicate<Node> locals) {\n    switch (value.getType()) {\n      case Token.ASSIGN:\n        // A result that is aliased by a non-local name, is the effectively the\n        // same as returning a non-local name, but this doesn't matter if the\n        // value is immutable.\n        return NodeUtil.isImmutableValue(value.getLastChild())\n            || (locals.apply(value)\n                && evaluatesToLocalValue(value.getLastChild(), locals));\n      case Token.COMMA:\n        return evaluatesToLocalValue(value.getLastChild(), locals);\n      case Token.AND:\n      case Token.OR:\n        return evaluatesToLocalValue(value.getFirstChild(), locals)\n           && evaluatesToLocalValue(value.getLastChild(), locals);\n      case Token.HOOK:\n        return evaluatesToLocalValue(value.getFirstChild().getNext(), locals)\n           && evaluatesToLocalValue(value.getLastChild(), locals);\n      case Token.INC:\n      case Token.DEC:\n        if (value.getBooleanProp(Node.INCRDECR_PROP)) {\n          return evaluatesToLocalValue(value.getFirstChild(), locals);\n        } else {\n          return true;\n        }\n      case Token.THIS:\n        return locals.apply(value);\n      case Token.NAME:\n        return isImmutableValue(value) || locals.apply(value);\n      case Token.GETELEM:\n      case Token.GETPROP:\n        // There is no information about the locality of object properties.\n        return locals.apply(value);\n      case Token.CALL:\n        return callHasLocalResult(value)\n            || isToStringMethodCall(value)\n            || locals.apply(value);\n      case Token.NEW:\n        // TODO(nicksantos): This needs to be changed so that it\n        // returns true iff we're sure the value was never aliased from inside\n        // the constructor (similar to callHasLocalResult)\n        return true;\n      case Token.FUNCTION:\n      case Token.REGEXP:\n      case Token.ARRAYLIT:\n      case Token.OBJECTLIT:\n        // Literals objects with non-literal children are allowed.\n        return true;\n      case Token.IN:\n        // TODO(johnlenz): should IN operator be included in #isSimpleOperator?\n        return true;\n      default:\n        // Other op force a local value:\n        //  x = '' + g (x is now an local string)\n        //  x -= g (x is now an local number)\n        if (isAssignmentOp(value)\n            || isSimpleOperator(value)\n            || isImmutableValue(value)) {\n          return true;\n        }\n\n        throw new IllegalStateException(\n            \"Unexpected expression node\" + value +\n            \"\\n parent:\" + value.getParent());\n    }\n  }"
+ },
+ "fixed_methods": {
+  "evaluatesToLocalValue(Node,Predicate<Node>)": "static boolean evaluatesToLocalValue(Node value, Predicate<Node> locals) {\n    switch (value.getType()) {\n      case Token.ASSIGN:\n        // A result that is aliased by a non-local name, is the effectively the\n        // same as returning a non-local name, but this doesn't matter if the\n        // value is immutable.\n        return NodeUtil.isImmutableValue(value.getLastChild())\n            || (locals.apply(value)\n                && evaluatesToLocalValue(value.getLastChild(), locals));\n      case Token.COMMA:\n        return evaluatesToLocalValue(value.getLastChild(), locals);\n      case Token.AND:\n      case Token.OR:\n        return evaluatesToLocalValue(value.getFirstChild(), locals)\n           && evaluatesToLocalValue(value.getLastChild(), locals);\n      case Token.HOOK:\n        return evaluatesToLocalValue(value.getFirstChild().getNext(), locals)\n           && evaluatesToLocalValue(value.getLastChild(), locals);\n      case Token.INC:\n      case Token.DEC:\n        if (value.getBooleanProp(Node.INCRDECR_PROP)) {\n          return evaluatesToLocalValue(value.getFirstChild(), locals);\n        } else {\n          return true;\n        }\n      case Token.THIS:\n        return locals.apply(value);\n      case Token.NAME:\n        return isImmutableValue(value) || locals.apply(value);\n      case Token.GETELEM:\n      case Token.GETPROP:\n        // There is no information about the locality of object properties.\n        return locals.apply(value);\n      case Token.CALL:\n        return callHasLocalResult(value)\n            || isToStringMethodCall(value)\n            || locals.apply(value);\n      case Token.NEW:\n        // TODO(nicksantos): This needs to be changed so that it\n        // returns true iff we're sure the value was never aliased from inside\n        // the constructor (similar to callHasLocalResult)\n        return false;\n      case Token.FUNCTION:\n      case Token.REGEXP:\n      case Token.ARRAYLIT:\n      case Token.OBJECTLIT:\n        // Literals objects with non-literal children are allowed.\n        return true;\n      case Token.IN:\n        // TODO(johnlenz): should IN operator be included in #isSimpleOperator?\n        return true;\n      default:\n        // Other op force a local value:\n        //  x = '' + g (x is now an local string)\n        //  x -= g (x is now an local number)\n        if (isAssignmentOp(value)\n            || isSimpleOperator(value)\n            || isImmutableValue(value)) {\n          return true;\n        }\n\n        throw new IllegalStateException(\n            \"Unexpected expression node\" + value +\n            \"\\n parent:\" + value.getParent());\n    }\n  }"
+ },
+ "trigger_tests": [
+  {
+   "test": "com.google.javascript.jscomp.NodeUtilTest::testLocalValue1",
+   "error": "junit.framework.AssertionFailedError"
+  },
+  {
+   "test": "com.google.javascript.jscomp.PureFunctionIdentifierTest::testLocalizedSideEffects8",
+   "error": "junit.framework.AssertionFailedError: expected:<[A]> but was:<[A, f]>"
+  },
+  {
+   "test": "com.google.javascript.jscomp.PureFunctionIdentifierTest::testLocalizedSideEffects9",
+   "error": "junit.framework.AssertionFailedError: expected:<[A]> but was:<[A, f]>"
+  },
+  {
+   "test": "com.google.javascript.jscomp.PureFunctionIdentifierTest::testAnnotationInExterns_new4",
+   "error": "junit.framework.AssertionFailedError: expected:<[externObjSEThis]> but was:<[externObjSEThis, NEW STRING externObjSEThisMethod]>"
+  },
+  {
+   "test": "com.google.javascript.jscomp.PureFunctionIdentifierTest::testAnnotationInExterns_new6",
+   "error": "junit.framework.AssertionFailedError: expected:<[externObjSEThis]> but was:<[externObjSEThis, NEW STRING externObjSEThisMethod, f]>"
+  },
+  {
+   "test": "com.google.javascript.jscomp.PureFunctionIdentifierTest::testIssue303b",
+   "error": "junit.framework.AssertionFailedError: expected:<[]> but was:<[NEW STRING setLocation]>"
+  },
+  {
+   "test": "com.google.javascript.jscomp.PureFunctionIdentifierTest::testIssue303",
+   "error": "junit.framework.AssertionFailedError: expected:<[]> but was:<[NEW STRING setLocation]>"
+  }
+ ],
+ "triggering_classes": [
+  "com.google.javascript.jscomp.NodeUtilTest",
+  "com.google.javascript.jscomp.PureFunctionIdentifierTest"
+ ],
+ "loaded_classes": [
+  "com.google.javascript.jscomp.AbstractCompiler",
+  "com.google.javascript.jscomp.AbstractMessageFormatter",
+  "com.google.javascript.jscomp.AnonymousFunctionNamingCallback",
+  "com.google.javascript.jscomp.AnonymousFunctionNamingPolicy",
+  "com.google.javascript.jscomp.BasicErrorManager",
+  "com.google.javascript.jscomp.ChainableReverseAbstractInterpreter",
+  "com.google.javascript.jscomp.CheckAccessControls",
+  "com.google.javascript.jscomp.CheckGlobalNames",
+  "com.google.javascript.jscomp.CheckLevel",
+  "com.google.javascript.jscomp.CheckRegExp",
+  "com.google.javascript.jscomp.CheckSideEffects",
+  "com.google.javascript.jscomp.CheckUnreachableCode",
+  "com.google.javascript.jscomp.ClosureCodingConvention",
+  "com.google.javascript.jscomp.CodeChangeHandler",
+  "com.google.javascript.jscomp.CodeConsumer",
+  "com.google.javascript.jscomp.CodeGenerator",
+  "com.google.javascript.jscomp.CodePrinter",
+  "com.google.javascript.jscomp.CodingConvention",
+  "com.google.javascript.jscomp.Compiler",
+  "com.google.javascript.jscomp.CompilerInput",
+  "com.google.javascript.jscomp.CompilerOptions",
+  "com.google.javascript.jscomp.CompilerPass",
+  "com.google.javascript.jscomp.ComposeWarningsGuard",
+  "com.google.javascript.jscomp.ControlFlowAnalysis",
+  "com.google.javascript.jscomp.ControlFlowGraph",
+  "com.google.javascript.jscomp.DataFlowAnalysis",
+  "com.google.javascript.jscomp.DefaultCodingConvention",
+  "com.google.javascript.jscomp.DefaultPassConfig",
+  "com.google.javascript.jscomp.DefinitionProvider",
+  "com.google.javascript.jscomp.DefinitionSite",
+  "com.google.javascript.jscomp.DefinitionsRemover",
+  "com.google.javascript.jscomp.deps.DependencyInfo",
+  "com.google.javascript.jscomp.deps.SortedDependencies",
+  "com.google.javascript.jscomp.DiagnosticGroup",
+  "com.google.javascript.jscomp.DiagnosticGroups",
+  "com.google.javascript.jscomp.DiagnosticGroupWarningsGuard",
+  "com.google.javascript.jscomp.DiagnosticType",
+  "com.google.javascript.jscomp.ErrorFormat",
+  "com.google.javascript.jscomp.ErrorManager",
+  "com.google.javascript.jscomp.FlowScope",
+  "com.google.javascript.jscomp.FunctionNames",
+  "com.google.javascript.jscomp.FunctionTypeBuilder",
+  "com.google.javascript.jscomp.GoogleCodingConvention",
+  "com.google.javascript.jscomp.graph.AdjacencyGraph",
+  "com.google.javascript.jscomp.graph.Annotatable",
+  "com.google.javascript.jscomp.graph.Annotation",
+  "com.google.javascript.jscomp.graph.DiGraph",
+  "com.google.javascript.jscomp.graph.FixedPointGraphTraversal",
+  "com.google.javascript.jscomp.graph.Graph",
+  "com.google.javascript.jscomp.graph.GraphNode",
+  "com.google.javascript.jscomp.graph.GraphvizGraph",
+  "com.google.javascript.jscomp.graph.LinkedDirectedGraph",
+  "com.google.javascript.jscomp.graph.SubGraph",
+  "com.google.javascript.jscomp.InferJSDocInfo",
+  "com.google.javascript.jscomp.JoinOp",
+  "com.google.javascript.jscomp.JsAst",
+  "com.google.javascript.jscomp.JSError",
+  "com.google.javascript.jscomp.JSModule",
+  "com.google.javascript.jscomp.JSModuleGraph",
+  "com.google.javascript.jscomp.JSSourceFile",
+  "com.google.javascript.jscomp.LatticeElement",
+  "com.google.javascript.jscomp.LightweightMessageFormatter",
+  "com.google.javascript.jscomp.LineNumberCheck",
+  "com.google.javascript.jscomp.LinkedFlowScope",
+  "com.google.javascript.jscomp.LoggerErrorManager",
+  "com.google.javascript.jscomp.MemoizedScopeCreator",
+  "com.google.javascript.jscomp.MessageFormatter",
+  "com.google.javascript.jscomp.NodeNameExtractor",
+  "com.google.javascript.jscomp.NodeTraversal",
+  "com.google.javascript.jscomp.NodeUtil",
+  "com.google.javascript.jscomp.parsing.Annotation",
+  "com.google.javascript.jscomp.parsing.Config",
+  "com.google.javascript.jscomp.parsing.IRFactory",
+  "com.google.javascript.jscomp.parsing.JsDocInfoParser",
+  "com.google.javascript.jscomp.parsing.JsDocToken",
+  "com.google.javascript.jscomp.parsing.JsDocTokenStream",
+  "com.google.javascript.jscomp.parsing.ParserRunner",
+  "com.google.javascript.jscomp.parsing.TypeSafeDispatcher",
+  "com.google.javascript.jscomp.PassConfig",
+  "com.google.javascript.jscomp.PassFactory",
+  "com.google.javascript.jscomp.PrepareAst",
+  "com.google.javascript.jscomp.ProcessDefines",
+  "com.google.javascript.jscomp.PropertyRenamingPolicy",
+  "com.google.javascript.jscomp.PureFunctionIdentifier",
+  "com.google.javascript.jscomp.ReferenceCollectingCallback",
+  "com.google.javascript.jscomp.Region",
+  "com.google.javascript.jscomp.ReverseAbstractInterpreter",
+  "com.google.javascript.jscomp.RhinoErrorReporter",
+  "com.google.javascript.jscomp.Scope",
+  "com.google.javascript.jscomp.ScopeCreator",
+  "com.google.javascript.jscomp.SemanticReverseAbstractInterpreter",
+  "com.google.javascript.jscomp.SimpleDefinitionFinder",
+  "com.google.javascript.jscomp.SourceAst",
+  "com.google.javascript.jscomp.SourceExcerptProvider",
+  "com.google.javascript.jscomp.SourceFile",
+  "com.google.javascript.jscomp.SourceMap",
+  "com.google.javascript.jscomp.SuppressDocWarningsGuard",
+  "com.google.javascript.jscomp.SyntacticScopeCreator",
+  "com.google.javascript.jscomp.Tracer",
+  "com.google.javascript.jscomp.TypeCheck",
+  "com.google.javascript.jscomp.TypedCodeGenerator",
+  "com.google.javascript.jscomp.TypedScopeCreator",
+  "com.google.javascript.jscomp.TypeInference",
+  "com.google.javascript.jscomp.TypeInferencePass",
+  "com.google.javascript.jscomp.TypeValidator",
+  "com.google.javascript.jscomp.UseSite",
+  "com.google.javascript.jscomp.VarCheck",
+  "com.google.javascript.jscomp.VariableReferenceCheck",
+  "com.google.javascript.jscomp.VariableRenamingPolicy",
+  "com.google.javascript.jscomp.WarningsGuard",
+  "com.google.javascript.rhino.Context",
+  "com.google.javascript.rhino.EcmaError",
+  "com.google.javascript.rhino.ErrorReporter",
+  "com.google.javascript.rhino.EvaluatorException",
+  "com.google.javascript.rhino.FunctionNode",
+  "com.google.javascript.rhino.JSDocInfo",
+  "com.google.javascript.rhino.JSDocInfoBuilder",
+  "com.google.javascript.rhino.jstype.AllType",
+  "com.google.javascript.rhino.jstype.ArrowType",
+  "com.google.javascript.rhino.jstype.BooleanType",
+  "com.google.javascript.rhino.jstype.EnumElementType",
+  "com.google.javascript.rhino.jstype.EnumType",
+  "com.google.javascript.rhino.jstype.ErrorFunctionType",
+  "com.google.javascript.rhino.jstype.FunctionBuilder",
+  "com.google.javascript.rhino.jstype.FunctionParamBuilder",
+  "com.google.javascript.rhino.jstype.FunctionPrototypeType",
+  "com.google.javascript.rhino.jstype.FunctionType",
+  "com.google.javascript.rhino.jstype.IndexedType",
+  "com.google.javascript.rhino.jstype.InstanceObjectType",
+  "com.google.javascript.rhino.jstype.JSType",
+  "com.google.javascript.rhino.jstype.JSTypeNative",
+  "com.google.javascript.rhino.jstype.JSTypeRegistry",
+  "com.google.javascript.rhino.jstype.NamedType",
+  "com.google.javascript.rhino.jstype.NoObjectType",
+  "com.google.javascript.rhino.jstype.NoType",
+  "com.google.javascript.rhino.jstype.NullType",
+  "com.google.javascript.rhino.jstype.NumberType",
+  "com.google.javascript.rhino.jstype.ObjectType",
+  "com.google.javascript.rhino.jstype.ParameterizedType",
+  "com.google.javascript.rhino.jstype.PrototypeObjectType",
+  "com.google.javascript.rhino.jstype.ProxyObjectType",
+  "com.google.javascript.rhino.jstype.RecordType",
+  "com.google.javascript.rhino.jstype.SimpleSlot",
+  "com.google.javascript.rhino.jstype.StaticScope",
+  "com.google.javascript.rhino.jstype.StaticSlot",
+  "com.google.javascript.rhino.jstype.StringType",
+  "com.google.javascript.rhino.jstype.TemplateType",
+  "com.google.javascript.rhino.jstype.UnionType",
+  "com.google.javascript.rhino.jstype.UnionTypeBuilder",
+  "com.google.javascript.rhino.jstype.UnknownType",
+  "com.google.javascript.rhino.jstype.UnresolvedTypeExpression",
+  "com.google.javascript.rhino.jstype.ValueType",
+  "com.google.javascript.rhino.jstype.Visitor",
+  "com.google.javascript.rhino.jstype.VoidType",
+  "com.google.javascript.rhino.JSTypeExpression",
+  "com.google.javascript.rhino.Node",
+  "com.google.javascript.rhino.RhinoException",
+  "com.google.javascript.rhino.ScriptOrFnNode",
+  "com.google.javascript.rhino.ScriptRuntime",
+  "com.google.javascript.rhino.testing.BaseJSTypeTestCase",
+  "com.google.javascript.rhino.Token",
+  "com.google.javascript.rhino.TokenStream"
+ ],
+ "suite": [
+  "com.google.javascript.jscomp.AliasExternalsTest",
+  "com.google.javascript.jscomp.AliasKeywordsTest",
+  "com.google.javascript.jscomp.AliasStringsTest",
+  "com.google.javascript.jscomp.AmbiguatePropertiesTest",
+  "com.google.javascript.jscomp.AstParallelizerTest",
+  "com.google.javascript.jscomp.BasicErrorManagerTest",
+  "com.google.javascript.jscomp.CallGraphTest",
+  "com.google.javascript.jscomp.ChainCallsTest",
+  "com.google.javascript.jscomp.CheckAccessControlsTest",
+  "com.google.javascript.jscomp.CheckAccidentalSemicolonTest",
+  "com.google.javascript.jscomp.CheckGlobalNamesTest",
+  "com.google.javascript.jscomp.CheckGlobalThisTest",
+  "com.google.javascript.jscomp.CheckMissingGetCssNameTest",
+  "com.google.javascript.jscomp.CheckMissingReturnTest",
+  "com.google.javascript.jscomp.CheckPathsBetweenNodesTest",
+  "com.google.javascript.jscomp.CheckProvidesTest",
+  "com.google.javascript.jscomp.CheckRegExpTest",
+  "com.google.javascript.jscomp.CheckRequiresForConstructorsTest",
+  "com.google.javascript.jscomp.CheckSideEffectsTest",
+  "com.google.javascript.jscomp.CheckUnreachableCodeTest",
+  "com.google.javascript.jscomp.ClosureCodeRemovalTest",
+  "com.google.javascript.jscomp.ClosureCodingConventionTest",
+  "com.google.javascript.jscomp.ClosureReverseAbstractInterpreterTest",
+  "com.google.javascript.jscomp.CoalesceVariableNamesTest",
+  "com.google.javascript.jscomp.CodePrinterTest",
+  "com.google.javascript.jscomp.CollapseAnonymousFunctionsTest",
+  "com.google.javascript.jscomp.CollapsePropertiesTest",
+  "com.google.javascript.jscomp.CollapseVariableDeclarationsTest",
+  "com.google.javascript.jscomp.CombinedCompilerPassTest",
+  "com.google.javascript.jscomp.CommandLineRunnerTest",
+  "com.google.javascript.jscomp.CompilerOptionsTest",
+  "com.google.javascript.jscomp.CompilerTest",
+  "com.google.javascript.jscomp.ConcreteTypeTest",
+  "com.google.javascript.jscomp.ConstCheckTest",
+  "com.google.javascript.jscomp.ControlFlowAnalysisTest",
+  "com.google.javascript.jscomp.ControlStructureCheckTest",
+  "com.google.javascript.jscomp.ConvertToDottedPropertiesTest",
+  "com.google.javascript.jscomp.CreateSyntheticBlocksTest",
+  "com.google.javascript.jscomp.CrossModuleCodeMotionTest",
+  "com.google.javascript.jscomp.CrossModuleMethodMotionTest",
+  "com.google.javascript.jscomp.DataFlowAnalysisTest",
+  "com.google.javascript.jscomp.DeadAssignmentsEliminationTest",
+  "com.google.javascript.jscomp.DefaultCodingConventionTest",
+  "com.google.javascript.jscomp.DefinitionsRemoverTest",
+  "com.google.javascript.jscomp.DenormalizeTest",
+  "com.google.javascript.jscomp.DevirtualizePrototypeMethodsTest",
+  "com.google.javascript.jscomp.DiagnosticGroupTest",
+  "com.google.javascript.jscomp.DisambiguatePropertiesTest",
+  "com.google.javascript.jscomp.DotFormatterTest",
+  "com.google.javascript.jscomp.ExportTestFunctionsTest",
+  "com.google.javascript.jscomp.ExpressionDecomposerTest",
+  "com.google.javascript.jscomp.ExternExportsPassTest",
+  "com.google.javascript.jscomp.ExtractPrototypeMemberDeclarationsTest",
+  "com.google.javascript.jscomp.FixedPointGraphTraversalTest",
+  "com.google.javascript.jscomp.FlowSensitiveInlineVariablesTest",
+  "com.google.javascript.jscomp.FunctionArgumentInjectorTest",
+  "com.google.javascript.jscomp.FunctionInjectorTest",
+  "com.google.javascript.jscomp.FunctionNamesTest",
+  "com.google.javascript.jscomp.FunctionRewriterTest",
+  "com.google.javascript.jscomp.FunctionToBlockMutatorTest",
+  "com.google.javascript.jscomp.FunctionTypeBuilderTest",
+  "com.google.javascript.jscomp.GatherRawExportsTest",
+  "com.google.javascript.jscomp.GatherSideEffectSubexpressionsCallbackTest",
+  "com.google.javascript.jscomp.GenerateExportsTest",
+  "com.google.javascript.jscomp.GlobalNamespaceTest",
+  "com.google.javascript.jscomp.GoogleCodingConventionTest",
+  "com.google.javascript.jscomp.GroupVariableDeclarationsTest",
+  "com.google.javascript.jscomp.IgnoreCajaPropertiesTest",
+  "com.google.javascript.jscomp.InferJSDocInfoTest",
+  "com.google.javascript.jscomp.InlineCostEstimatorTest",
+  "com.google.javascript.jscomp.InlineFunctionsTest",
+  "com.google.javascript.jscomp.InlineSimpleMethodsTest",
+  "com.google.javascript.jscomp.InlineVariablesConstantsTest",
+  "com.google.javascript.jscomp.InlineVariablesTest",
+  "com.google.javascript.jscomp.InstrumentFunctionsTest",
+  "com.google.javascript.jscomp.JSCompilerSourceExcerptProviderTest",
+  "com.google.javascript.jscomp.JSModuleGraphTest",
+  "com.google.javascript.jscomp.JSModuleTest",
+  "com.google.javascript.jscomp.JsMessageExtractorTest",
+  "com.google.javascript.jscomp.JsMessageTest",
+  "com.google.javascript.jscomp.JsMessageVisitorTest",
+  "com.google.javascript.jscomp.LightweightMessageFormatterTest",
+  "com.google.javascript.jscomp.LinkedFlowScopeTest",
+  "com.google.javascript.jscomp.LiveVariableAnalysisTest",
+  "com.google.javascript.jscomp.LooseTypeCheckTest",
+  "com.google.javascript.jscomp.MakeDeclaredNamesUniqueTest",
+  "com.google.javascript.jscomp.MarkNoSideEffectCallsTest",
+  "com.google.javascript.jscomp.MaybeReachingVariableUseTest",
+  "com.google.javascript.jscomp.MemoizedScopeCreatorTest",
+  "com.google.javascript.jscomp.MinimizeExitPointsTest",
+  "com.google.javascript.jscomp.MoveFunctionDeclarationsTest",
+  "com.google.javascript.jscomp.MustBeReachingVariableDefTest",
+  "com.google.javascript.jscomp.NameAnalyzerTest",
+  "com.google.javascript.jscomp.NameAnonymousFunctionsMappedTest",
+  "com.google.javascript.jscomp.NameAnonymousFunctionsTest",
+  "com.google.javascript.jscomp.NodeIteratorsTest",
+  "com.google.javascript.jscomp.NodeTraversalTest",
+  "com.google.javascript.jscomp.NodeUtilTest",
+  "com.google.javascript.jscomp.NormalizeTest",
+  "com.google.javascript.jscomp.ObjectPropertyStringPostprocessTest",
+  "com.google.javascript.jscomp.ObjectPropertyStringPreprocessTest",
+  "com.google.javascript.jscomp.OptimizeArgumentsArrayTest",
+  "com.google.javascript.jscomp.OptimizeParametersTest",
+  "com.google.javascript.jscomp.OptimizeReturnsTest",
+  "com.google.javascript.jscomp.ParallelCompilerPassTest",
+  "com.google.javascript.jscomp.PeepholeFoldConstantsTest",
+  "com.google.javascript.jscomp.PeepholeFoldWithTypesTest",
+  "com.google.javascript.jscomp.PeepholeIntegrationTest",
+  "com.google.javascript.jscomp.PeepholeOptimizationsPassTest",
+  "com.google.javascript.jscomp.PeepholeRemoveDeadCodeTest",
+  "com.google.javascript.jscomp.PeepholeSubstituteAlternateSyntaxTest",
+  "com.google.javascript.jscomp.PhaseOptimizerTest",
+  "com.google.javascript.jscomp.PrepareAstTest",
+  "com.google.javascript.jscomp.ProcessClosurePrimitivesTest",
+  "com.google.javascript.jscomp.ProcessDefinesTest",
+  "com.google.javascript.jscomp.PureFunctionIdentifierTest",
+  "com.google.javascript.jscomp.RecordFunctionInformationTest",
+  "com.google.javascript.jscomp.RemoveTryCatchTest",
+  "com.google.javascript.jscomp.RemoveUnusedNamesTest",
+  "com.google.javascript.jscomp.RemoveUnusedPrototypePropertiesTest",
+  "com.google.javascript.jscomp.RemoveUnusedVarsTest",
+  "com.google.javascript.jscomp.RenameLabelsTest",
+  "com.google.javascript.jscomp.RenameLocalVarsTest",
+  "com.google.javascript.jscomp.RenamePropertiesTest",
+  "com.google.javascript.jscomp.RenamePrototypesTest",
+  "com.google.javascript.jscomp.RenameVarsTest",
+  "com.google.javascript.jscomp.ReplaceCssNamesTest",
+  "com.google.javascript.jscomp.ReplaceIdGeneratorsTest",
+  "com.google.javascript.jscomp.ReplaceMessagesTest",
+  "com.google.javascript.jscomp.ReplaceStringsTest",
+  "com.google.javascript.jscomp.RhinoErrorReporterTest",
+  "com.google.javascript.jscomp.RuntimeTypeCheckTest",
+  "com.google.javascript.jscomp.SanityCheckTest",
+  "com.google.javascript.jscomp.ScopedAliasesTest",
+  "com.google.javascript.jscomp.SemanticReverseAbstractInterpreterTest",
+  "com.google.javascript.jscomp.SideEffectsAnalysisTest",
+  "com.google.javascript.jscomp.SimpleDefinitionFinderTest",
+  "com.google.javascript.jscomp.SimpleFunctionAliasAnalysisTest",
+  "com.google.javascript.jscomp.SourceMap2Test",
+  "com.google.javascript.jscomp.SourceMapTest",
+  "com.google.javascript.jscomp.SpecializeModuleTest$SpecializeModuleSpecializationStateTest",
+  "com.google.javascript.jscomp.SpecializeModuleTest",
+  "com.google.javascript.jscomp.StrictModeCheckTest",
+  "com.google.javascript.jscomp.StripCodeTest",
+  "com.google.javascript.jscomp.SuspiciousPropertiesCheckTest",
+  "com.google.javascript.jscomp.SyntacticScopeCreatorTest",
+  "com.google.javascript.jscomp.TightenTypesTest",
+  "com.google.javascript.jscomp.TypeCheckFunctionCheckTest",
+  "com.google.javascript.jscomp.TypeCheckTest",
+  "com.google.javascript.jscomp.TypeInferenceTest",
+  "com.google.javascript.jscomp.TypeValidatorTest",
+  "com.google.javascript.jscomp.TypedScopeCreatorTest",
+  "com.google.javascript.jscomp.UnfoldCompoundAssignmentsTest",
+  "com.google.javascript.jscomp.UnreachableCodeEliminationTest",
+  "com.google.javascript.jscomp.VarCheckTest",
+  "com.google.javascript.jscomp.VariableMapTest",
+  "com.google.javascript.jscomp.VariableReferenceCheckTest",
+  "com.google.javascript.jscomp.VariableShadowDeclarationCheckTest",
+  "com.google.javascript.jscomp.VariableVisibilityAnalysisTest",
+  "com.google.javascript.jscomp.deps.DepsFileParserTest",
+  "com.google.javascript.jscomp.deps.JsFileLineParserTest",
+  "com.google.javascript.jscomp.deps.JsFileParserTest",
+  "com.google.javascript.jscomp.deps.JsFunctionParserTest",
+  "com.google.javascript.jscomp.deps.SortedDependenciesTest",
+  "com.google.javascript.jscomp.graph.GraphColoringTest",
+  "com.google.javascript.jscomp.graph.GraphReachabilityTest",
+  "com.google.javascript.jscomp.graph.GraphTest",
+  "com.google.javascript.jscomp.graph.StandardUnionFindTest",
+  "com.google.javascript.jscomp.jsonml.JsonMLConversionTest",
+  "com.google.javascript.jscomp.jsonml.JsonMLValidationTest",
+  "com.google.javascript.jscomp.jsonml.SecureCompilerTest",
+  "com.google.javascript.jscomp.parsing.IRFactoryTest",
+  "com.google.javascript.jscomp.parsing.JsDocInfoParserTest",
+  "com.google.javascript.jscomp.parsing.JsDocTokenStreamTest",
+  "com.google.javascript.jscomp.parsing.ParserTest",
+  "com.google.javascript.rhino.JSDocInfoTest",
+  "com.google.javascript.rhino.NodeTest",
+  "com.google.javascript.rhino.ParserTest",
+  "com.google.javascript.rhino.TokenStreamTest",
+  "com.google.javascript.rhino.jstype.BooleanLiteralSetTest",
+  "com.google.javascript.rhino.jstype.FunctionParamBuilderTest",
+  "com.google.javascript.rhino.jstype.FunctionTypeTest",
+  "com.google.javascript.rhino.jstype.JSTypeRegistryTest",
+  "com.google.javascript.rhino.jstype.JSTypeTest",
+  "com.google.javascript.rhino.jstype.TernaryValueTest",
+  "com.google.javascript.rhino.jstype.UnionTypeBuilderTest",
+  "com.google.javascript.rhino.jstype.UnionTypeTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "com.google.javascript.jscomp.AliasExternalsTest": {
+   "wall": 2.030618,
+   "cpu": 0.739911,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.AliasKeywordsTest": {
+   "wall": 0.085691,
+   "cpu": 0.121614,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.AliasStringsTest": {
+   "wall": 0.109089,
+   "cpu": 0.22536699999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.AmbiguatePropertiesTest": {
+   "wall": 0.706746,
+   "cpu": 0.42844099999999996,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.AstParallelizerTest": {
+   "wall": 0.030216,
+   "cpu": 0.038574,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.BasicErrorManagerTest": {
+   "wall": 0.000969,
+   "cpu": 0.001955,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CallGraphTest": {
+   "wall": 0.187122,
+   "cpu": 0.18564,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ChainCallsTest": {
+   "wall": 0.028934,
+   "cpu": 0.053692000000000004,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckAccessControlsTest": {
+   "wall": 0.08115900000000001,
+   "cpu": 0.16713499999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckAccidentalSemicolonTest": {
+   "wall": 0.024581,
+   "cpu": 0.03504,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckGlobalNamesTest": {
+   "wall": 0.043243000000000004,
+   "cpu": 0.071438,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckGlobalThisTest": {
+   "wall": 0.021966,
+   "cpu": 0.043135,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckMissingGetCssNameTest": {
+   "wall": 0.005325,
+   "cpu": 0.012393000000000001,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckMissingReturnTest": {
+   "wall": 0.07883899999999999,
+   "cpu": 0.14200200000000002,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckPathsBetweenNodesTest": {
+   "wall": 0.007573000000000001,
+   "cpu": 0.009666000000000001,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckProvidesTest": {
+   "wall": 0.020371,
+   "cpu": 0.023484,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckRegExpTest": {
+   "wall": 0.004207,
+   "cpu": 0.012189,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckRequiresForConstructorsTest": {
+   "wall": 0.34164999999999995,
+   "cpu": 0.182638,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckSideEffectsTest": {
+   "wall": 0.008326,
+   "cpu": 0.018760000000000002,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CheckUnreachableCodeTest": {
+   "wall": 0.046719000000000004,
+   "cpu": 0.08852,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ClosureCodeRemovalTest": {
+   "wall": 0.014965,
+   "cpu": 0.026258,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ClosureCodingConventionTest": {
+   "wall": 0.0023940000000000003,
+   "cpu": 0.005657,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ClosureReverseAbstractInterpreterTest": {
+   "wall": 0.152357,
+   "cpu": 0.157791,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CoalesceVariableNamesTest": {
+   "wall": 0.16110400000000002,
+   "cpu": 0.164221,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CodePrinterTest": {
+   "wall": 0.103129,
+   "cpu": 0.12030400000000001,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CollapseAnonymousFunctionsTest": {
+   "wall": 0.031476,
+   "cpu": 0.038325000000000005,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CollapsePropertiesTest": {
+   "wall": 0.193554,
+   "cpu": 0.290182,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CollapseVariableDeclarationsTest": {
+   "wall": 0.037524,
+   "cpu": 0.047691000000000004,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CombinedCompilerPassTest": {
+   "wall": 0.015792,
+   "cpu": 0.016940999999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CommandLineRunnerTest": {
+   "wall": 4.352873,
+   "cpu": 1.6558810000000002,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CompilerOptionsTest": {
+   "wall": 0.0005290000000000001,
+   "cpu": 0.000559,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CompilerTest": {
+   "wall": 0.001045,
+   "cpu": 0.003075,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ConcreteTypeTest": {
+   "wall": 0.23464500000000002,
+   "cpu": 0.055619999999999996,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ConstCheckTest": {
+   "wall": 0.013121,
+   "cpu": 0.025928,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ControlFlowAnalysisTest": {
+   "wall": 0.050628,
+   "cpu": 0.061468,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ControlStructureCheckTest": {
+   "wall": 0.010441,
+   "cpu": 0.01644,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ConvertToDottedPropertiesTest": {
+   "wall": 0.010136,
+   "cpu": 0.018296,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CreateSyntheticBlocksTest": {
+   "wall": 0.030536999999999998,
+   "cpu": 0.036668,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CrossModuleCodeMotionTest": {
+   "wall": 0.042715,
+   "cpu": 0.060020000000000004,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.CrossModuleMethodMotionTest": {
+   "wall": 0.039989,
+   "cpu": 0.055862,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DataFlowAnalysisTest": {
+   "wall": 0.080708,
+   "cpu": 0.077866,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DeadAssignmentsEliminationTest": {
+   "wall": 0.095724,
+   "cpu": 0.12762,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DefaultCodingConventionTest": {
+   "wall": 0.004816,
+   "cpu": 0.004879,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DefinitionsRemoverTest": {
+   "wall": 0.030756,
+   "cpu": 0.032832,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DenormalizeTest": {
+   "wall": 0.011108,
+   "cpu": 0.01583,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DevirtualizePrototypeMethodsTest": {
+   "wall": 0.07338599999999999,
+   "cpu": 0.086677,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DiagnosticGroupTest": {
+   "wall": 0.000382,
+   "cpu": 0.0004,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DisambiguatePropertiesTest": {
+   "wall": 0.2326,
+   "cpu": 0.38406799999999996,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.DotFormatterTest": {
+   "wall": 0.001123,
+   "cpu": 0.001415,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ExportTestFunctionsTest": {
+   "wall": 0.031033,
+   "cpu": 0.033334,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ExpressionDecomposerTest": {
+   "wall": 0.025528,
+   "cpu": 0.035885,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ExternExportsPassTest": {
+   "wall": 0.10691800000000001,
+   "cpu": 0.154718,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ExtractPrototypeMemberDeclarationsTest": {
+   "wall": 0.030541,
+   "cpu": 0.042557000000000005,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FixedPointGraphTraversalTest": {
+   "wall": 0.043785,
+   "cpu": 0.03754,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FlowSensitiveInlineVariablesTest": {
+   "wall": 0.10291700000000001,
+   "cpu": 0.14345,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FunctionArgumentInjectorTest": {
+   "wall": 0.0048449999999999995,
+   "cpu": 0.011231,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FunctionInjectorTest": {
+   "wall": 0.06129,
+   "cpu": 0.097816,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FunctionNamesTest": {
+   "wall": 0.014129,
+   "cpu": 0.0169,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FunctionRewriterTest": {
+   "wall": 0.019677,
+   "cpu": 0.021866,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FunctionToBlockMutatorTest": {
+   "wall": 0.14287899999999998,
+   "cpu": 0.092793,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.FunctionTypeBuilderTest": {
+   "wall": 0.029831,
+   "cpu": 0.028165,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.GatherRawExportsTest": {
+   "wall": 0.00456,
+   "cpu": 0.009016,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.GatherSideEffectSubexpressionsCallbackTest": {
+   "wall": 0.0009739999999999999,
+   "cpu": 0.002108,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.GenerateExportsTest": {
+   "wall": 0.024109000000000002,
+   "cpu": 0.031391999999999996,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.GlobalNamespaceTest": {
+   "wall": 0.000389,
+   "cpu": 0.001472,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.GoogleCodingConventionTest": {
+   "wall": 0.00309,
+   "cpu": 0.005723,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.GroupVariableDeclarationsTest": {
+   "wall": 0.094332,
+   "cpu": 0.057685,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.IgnoreCajaPropertiesTest": {
+   "wall": 0.059302999999999995,
+   "cpu": 0.046326,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InferJSDocInfoTest": {
+   "wall": 0.029078,
+   "cpu": 0.029875,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InlineCostEstimatorTest": {
+   "wall": 0.001295,
+   "cpu": 0.0032080000000000003,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InlineFunctionsTest": {
+   "wall": 0.097748,
+   "cpu": 0.19042699999999999,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InlineSimpleMethodsTest": {
+   "wall": 0.007758,
+   "cpu": 0.015707000000000002,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InlineVariablesConstantsTest": {
+   "wall": 0.01183,
+   "cpu": 0.021582999999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InlineVariablesTest": {
+   "wall": 0.046371,
+   "cpu": 0.092169,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.InstrumentFunctionsTest": {
+   "wall": 0.247848,
+   "cpu": 0.191559,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.JSCompilerSourceExcerptProviderTest": {
+   "wall": 0.008615,
+   "cpu": 0.008946999999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.JSModuleGraphTest": {
+   "wall": 0.005381,
+   "cpu": 0.01089,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.JSModuleTest": {
+   "wall": 0.0031320000000000002,
+   "cpu": 0.004816,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.JsMessageExtractorTest": {
+   "wall": 0.093112,
+   "cpu": 0.09654,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.JsMessageTest": {
+   "wall": 0.000575,
+   "cpu": 0.00254,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.JsMessageVisitorTest": {
+   "wall": 0.018170000000000002,
+   "cpu": 0.028504,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.LightweightMessageFormatterTest": {
+   "wall": 0.007282,
+   "cpu": 0.011613,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.LinkedFlowScopeTest": {
+   "wall": 0.059566,
+   "cpu": 0.107744,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.LiveVariableAnalysisTest": {
+   "wall": 0.008909,
+   "cpu": 0.019058,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.LooseTypeCheckTest": {
+   "wall": 0.346,
+   "cpu": 0.781708,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MakeDeclaredNamesUniqueTest": {
+   "wall": 0.014827,
+   "cpu": 0.025869,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MarkNoSideEffectCallsTest": {
+   "wall": 0.011916,
+   "cpu": 0.021963999999999997,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MaybeReachingVariableUseTest": {
+   "wall": 0.014147,
+   "cpu": 0.016137000000000002,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MemoizedScopeCreatorTest": {
+   "wall": 0.000503,
+   "cpu": 0.001009,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MinimizeExitPointsTest": {
+   "wall": 0.022186,
+   "cpu": 0.040517000000000004,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MoveFunctionDeclarationsTest": {
+   "wall": 0.017425,
+   "cpu": 0.020737,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.MustBeReachingVariableDefTest": {
+   "wall": 0.042099,
+   "cpu": 0.100694,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.NameAnalyzerTest": {
+   "wall": 0.13283,
+   "cpu": 0.193886,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.NameAnonymousFunctionsMappedTest": {
+   "wall": 0.036017,
+   "cpu": 0.040369,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.NameAnonymousFunctionsTest": {
+   "wall": 0.0019950000000000002,
+   "cpu": 0.002011,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.NodeIteratorsTest": {
+   "wall": 0.001564,
+   "cpu": 0.003569,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.NodeTraversalTest": {
+   "wall": 0.020481000000000003,
+   "cpu": 0.024328,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.NodeUtilTest": {
+   "wall": 0.011464,
+   "cpu": 0.017763,
+   "status": "fail"
+  },
+  "com.google.javascript.jscomp.NormalizeTest": {
+   "wall": 0.05931,
+   "cpu": 0.087108,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ObjectPropertyStringPostprocessTest": {
+   "wall": 0.006025,
+   "cpu": 0.007486,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ObjectPropertyStringPreprocessTest": {
+   "wall": 0.034542,
+   "cpu": 0.032305999999999994,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.OptimizeArgumentsArrayTest": {
+   "wall": 0.004352,
+   "cpu": 0.008602,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.OptimizeParametersTest": {
+   "wall": 0.018733,
+   "cpu": 0.033138,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.OptimizeReturnsTest": {
+   "wall": 0.010278,
+   "cpu": 0.016039,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ParallelCompilerPassTest": {
+   "wall": 0.045807,
+   "cpu": 0.05482,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PeepholeFoldConstantsTest": {
+   "wall": 0.19606,
+   "cpu": 0.369221,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PeepholeFoldWithTypesTest": {
+   "wall": 0.010898,
+   "cpu": 0.014928,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PeepholeIntegrationTest": {
+   "wall": 0.01328,
+   "cpu": 0.027967,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PeepholeOptimizationsPassTest": {
+   "wall": 0.023779,
+   "cpu": 0.0265,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PeepholeRemoveDeadCodeTest": {
+   "wall": 0.018134,
+   "cpu": 0.037422,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PeepholeSubstituteAlternateSyntaxTest": {
+   "wall": 0.028850999999999998,
+   "cpu": 0.066314,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PhaseOptimizerTest": {
+   "wall": 0.022126,
+   "cpu": 0.026084,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PrepareAstTest": {
+   "wall": 0.000871,
+   "cpu": 0.002798,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ProcessClosurePrimitivesTest": {
+   "wall": 0.040411,
+   "cpu": 0.068325,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ProcessDefinesTest": {
+   "wall": 0.13352099999999997,
+   "cpu": 0.025428,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.PureFunctionIdentifierTest": {
+   "wall": 0.258879,
+   "cpu": 0.43763799999999997,
+   "status": "fail"
+  },
+  "com.google.javascript.jscomp.RecordFunctionInformationTest": {
+   "wall": 0.048189,
+   "cpu": 0.052399,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RemoveTryCatchTest": {
+   "wall": 0.008595,
+   "cpu": 0.012336,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RemoveUnusedNamesTest": {
+   "wall": 0.028269,
+   "cpu": 0.035142,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RemoveUnusedPrototypePropertiesTest": {
+   "wall": 0.011712,
+   "cpu": 0.024027,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RemoveUnusedVarsTest": {
+   "wall": 0.02093,
+   "cpu": 0.042935,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RenameLabelsTest": {
+   "wall": 0.0042450000000000005,
+   "cpu": 0.007069,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RenameLocalVarsTest": {
+   "wall": 0.007287,
+   "cpu": 0.011751,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RenamePropertiesTest": {
+   "wall": 0.020222,
+   "cpu": 0.029318,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RenamePrototypesTest": {
+   "wall": 0.071306,
+   "cpu": 0.072187,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RenameVarsTest": {
+   "wall": 0.020492,
+   "cpu": 0.029342,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ReplaceCssNamesTest": {
+   "wall": 0.0222,
+   "cpu": 0.029169,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ReplaceIdGeneratorsTest": {
+   "wall": 0.029829,
+   "cpu": 0.02982,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ReplaceMessagesTest": {
+   "wall": 0.010594,
+   "cpu": 0.015234,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ReplaceStringsTest": {
+   "wall": 0.027726,
+   "cpu": 0.043152,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RhinoErrorReporterTest": {
+   "wall": 0.0007009999999999999,
+   "cpu": 0.001395,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.RuntimeTypeCheckTest": {
+   "wall": 0.153614,
+   "cpu": 0.199292,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SanityCheckTest": {
+   "wall": 0.022234999999999998,
+   "cpu": 0.027,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.ScopedAliasesTest": {
+   "wall": 0.022933,
+   "cpu": 0.032003,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SemanticReverseAbstractInterpreterTest": {
+   "wall": 0.010955999999999999,
+   "cpu": 0.016592,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SideEffectsAnalysisTest": {
+   "wall": 0.12974100000000002,
+   "cpu": 0.131207,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SimpleDefinitionFinderTest": {
+   "wall": 0.013005000000000001,
+   "cpu": 0.023274999999999997,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SimpleFunctionAliasAnalysisTest": {
+   "wall": 0.09707299999999999,
+   "cpu": 0.074156,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SourceMap2Test": {
+   "wall": 0.134647,
+   "cpu": 0.11810599999999999,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SourceMapTest": {
+   "wall": 0.035613,
+   "cpu": 0.052474,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SpecializeModuleTest$SpecializeModuleSpecializationStateTest": {
+   "wall": 0.073484,
+   "cpu": 0.056249,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SpecializeModuleTest": {
+   "wall": 0.066922,
+   "cpu": 0.074146,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.StrictModeCheckTest": {
+   "wall": 0.015551,
+   "cpu": 0.020852,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.StripCodeTest": {
+   "wall": 0.043921,
+   "cpu": 0.050417000000000003,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SuspiciousPropertiesCheckTest": {
+   "wall": 0.036679,
+   "cpu": 0.04075,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.SyntacticScopeCreatorTest": {
+   "wall": 0.006906,
+   "cpu": 0.007304000000000001,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.TightenTypesTest": {
+   "wall": 0.0593,
+   "cpu": 0.086923,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.TypeCheckFunctionCheckTest": {
+   "wall": 0.01756,
+   "cpu": 0.024117,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.TypeCheckTest": {
+   "wall": 0.316895,
+   "cpu": 0.675061,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.TypeInferenceTest": {
+   "wall": 0.008231,
+   "cpu": 0.018047999999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.TypeValidatorTest": {
+   "wall": 0.022895,
+   "cpu": 0.020867999999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.TypedScopeCreatorTest": {
+   "wall": 0.048195,
+   "cpu": 0.060506,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.UnfoldCompoundAssignmentsTest": {
+   "wall": 0.012891,
+   "cpu": 0.015541000000000001,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.UnreachableCodeEliminationTest": {
+   "wall": 0.013327,
+   "cpu": 0.023014,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.VarCheckTest": {
+   "wall": 0.024354,
+   "cpu": 0.030044,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.VariableMapTest": {
+   "wall": 0.003732,
+   "cpu": 0.006429000000000001,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.VariableReferenceCheckTest": {
+   "wall": 0.008265,
+   "cpu": 0.009125,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.VariableShadowDeclarationCheckTest": {
+   "wall": 0.036191,
+   "cpu": 0.036514000000000005,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.VariableVisibilityAnalysisTest": {
+   "wall": 0.011953,
+   "cpu": 0.015273,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.deps.DepsFileParserTest": {
+   "wall": 0.012815,
+   "cpu": 0.014405,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.deps.JsFileLineParserTest": {
+   "wall": 0.01183,
+   "cpu": 0.009934,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.deps.JsFileParserTest": {
+   "wall": 0.0005480000000000001,
+   "cpu": 0.001189,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.deps.JsFunctionParserTest": {
+   "wall": 0.021068,
+   "cpu": 0.019746,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.deps.SortedDependenciesTest": {
+   "wall": 0.002447,
+   "cpu": 0.003036,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.graph.GraphColoringTest": {
+   "wall": 0.229133,
+   "cpu": 0.40625,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.graph.GraphReachabilityTest": {
+   "wall": 0.0022930000000000003,
+   "cpu": 0.0011519999999999998,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.graph.GraphTest": {
+   "wall": 0.023132,
+   "cpu": 0.003263,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.graph.StandardUnionFindTest": {
+   "wall": 0.025681000000000002,
+   "cpu": 0.027386,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.jsonml.JsonMLConversionTest": {
+   "wall": 0.268433,
+   "cpu": 0.414103,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.jsonml.JsonMLValidationTest": {
+   "wall": 0.00259,
+   "cpu": 0.006485,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.jsonml.SecureCompilerTest": {
+   "wall": 0.018843,
+   "cpu": 0.024627,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.parsing.IRFactoryTest": {
+   "wall": 0.048693,
+   "cpu": 0.061600999999999996,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.parsing.JsDocInfoParserTest": {
+   "wall": 0.06682500000000001,
+   "cpu": 0.154394,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.parsing.JsDocTokenStreamTest": {
+   "wall": 0.006588,
+   "cpu": 0.008513,
+   "status": "pass"
+  },
+  "com.google.javascript.jscomp.parsing.ParserTest": {
+   "wall": 0.032136000000000005,
+   "cpu": 0.052829999999999995,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.JSDocInfoTest": {
+   "wall": 0.009892,
+   "cpu": 0.012273,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.NodeTest": {
+   "wall": 0.002024,
+   "cpu": 0.00429,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.ParserTest": {
+   "wall": 0.012118,
+   "cpu": 0.017065,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.TokenStreamTest": {
+   "wall": 0.001363,
+   "cpu": 0.0056029999999999995,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.BooleanLiteralSetTest": {
+   "wall": 0.001153,
+   "cpu": 0.001343,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.FunctionParamBuilderTest": {
+   "wall": 0.000832,
+   "cpu": 0.001155,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.FunctionTypeTest": {
+   "wall": 0.001238,
+   "cpu": 0.001445,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.JSTypeRegistryTest": {
+   "wall": 0.034534999999999996,
+   "cpu": 0.034203000000000004,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.JSTypeTest": {
+   "wall": 0.03603,
+   "cpu": 0.077429,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.TernaryValueTest": {
+   "wall": 0.000699,
+   "cpu": 0.001065,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.UnionTypeBuilderTest": {
+   "wall": 0.0009350000000000001,
+   "cpu": 0.0020299999999999997,
+   "status": "pass"
+  },
+  "com.google.javascript.rhino.jstype.UnionTypeTest": {
+   "wall": 0.0011330000000000001,
+   "cpu": 0.0014550000000000001,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 3.3081350829999234,
+  "cpu": 2.989066999999986
+ },
+ "fixed_suite_seconds": [
+  11.9,
+  8.11,
+  7.27
+ ],
+ "covering": [
+  "com.google.javascript.jscomp.CommandLineRunnerTest",
+  "com.google.javascript.jscomp.NodeUtilTest",
+  "com.google.javascript.jscomp.PeepholeIntegrationTest",
+  "com.google.javascript.jscomp.PeepholeRemoveDeadCodeTest",
+  "com.google.javascript.jscomp.PureFunctionIdentifierTest",
+  "com.google.javascript.jscomp.RemoveUnusedNamesTest",
+  "com.google.javascript.jscomp.UnreachableCodeEliminationTest"
+ ],
+ "sizes": {
+  "com.google.javascript.jscomp.AliasExternalsTest": 12975,
+  "com.google.javascript.jscomp.AliasKeywordsTest": 5715,
+  "com.google.javascript.jscomp.AliasStringsTest": 9977,
+  "com.google.javascript.jscomp.AmbiguatePropertiesTest": 16919,
+  "com.google.javascript.jscomp.AstParallelizerTest": 4618,
+  "com.google.javascript.jscomp.BasicErrorManagerTest": 3910,
+  "com.google.javascript.jscomp.CallGraphTest": 39063,
+  "com.google.javascript.jscomp.ChainCallsTest": 3439,
+  "com.google.javascript.jscomp.CheckAccessControlsTest": 24003,
+  "com.google.javascript.jscomp.CheckAccidentalSemicolonTest": 2042,
+  "com.google.javascript.jscomp.CheckGlobalNamesTest": 5844,
+  "com.google.javascript.jscomp.CheckGlobalThisTest": 6700,
+  "com.google.javascript.jscomp.CheckMissingGetCssNameTest": 2311,
+  "com.google.javascript.jscomp.CheckMissingReturnTest": 7476,
+  "com.google.javascript.jscomp.CheckPathsBetweenNodesTest": 10409,
+  "com.google.javascript.jscomp.CheckProvidesTest": 2914,
+  "com.google.javascript.jscomp.CheckRegExpTest": 2313,
+  "com.google.javascript.jscomp.CheckRequiresForConstructorsTest": 8502,
+  "com.google.javascript.jscomp.CheckSideEffectsTest": 2980,
+  "com.google.javascript.jscomp.CheckUnreachableCodeTest": 6812,
+  "com.google.javascript.jscomp.ClosureCodeRemovalTest": 2867,
+  "com.google.javascript.jscomp.ClosureCodingConventionTest": 5156,
+  "com.google.javascript.jscomp.ClosureReverseAbstractInterpreterTest": 5276,
+  "com.google.javascript.jscomp.CoalesceVariableNamesTest": 12979,
+  "com.google.javascript.jscomp.CodePrinterTest": 38774,
+  "com.google.javascript.jscomp.CollapseAnonymousFunctionsTest": 3818,
+  "com.google.javascript.jscomp.CollapsePropertiesTest": 45845,
+  "com.google.javascript.jscomp.CollapseVariableDeclarationsTest": 5533,
+  "com.google.javascript.jscomp.CombinedCompilerPassTest": 7636,
+  "com.google.javascript.jscomp.CommandLineRunnerTest": 24470,
+  "com.google.javascript.jscomp.CompilerOptionsTest": 1692,
+  "com.google.javascript.jscomp.CompilerTest": 2008,
+  "com.google.javascript.jscomp.ConcreteTypeTest": 12755,
+  "com.google.javascript.jscomp.ConstCheckTest": 3827,
+  "com.google.javascript.jscomp.ControlFlowAnalysisTest": 54452,
+  "com.google.javascript.jscomp.ControlStructureCheckTest": 3767,
+  "com.google.javascript.jscomp.ConvertToDottedPropertiesTest": 2004,
+  "com.google.javascript.jscomp.CreateSyntheticBlocksTest": 3765,
+  "com.google.javascript.jscomp.CrossModuleCodeMotionTest": 17966,
+  "com.google.javascript.jscomp.CrossModuleMethodMotionTest": 14475,
+  "com.google.javascript.jscomp.DataFlowAnalysisTest": 23420,
+  "com.google.javascript.jscomp.DeadAssignmentsEliminationTest": 15411,
+  "com.google.javascript.jscomp.DefaultCodingConventionTest": 4615,
+  "com.google.javascript.jscomp.DefinitionsRemoverTest": 2940,
+  "com.google.javascript.jscomp.DenormalizeTest": 4470,
+  "com.google.javascript.jscomp.DevirtualizePrototypeMethodsTest": 24448,
+  "com.google.javascript.jscomp.DiagnosticGroupTest": 1014,
+  "com.google.javascript.jscomp.DisambiguatePropertiesTest": 41735,
+  "com.google.javascript.jscomp.DotFormatterTest": 2940,
+  "com.google.javascript.jscomp.ExportTestFunctionsTest": 3918,
+  "com.google.javascript.jscomp.ExpressionDecomposerTest": 19985,
+  "com.google.javascript.jscomp.ExternExportsPassTest": 15911,
+  "com.google.javascript.jscomp.ExtractPrototypeMemberDeclarationsTest": 5979,
+  "com.google.javascript.jscomp.FixedPointGraphTraversalTest": 5539,
+  "com.google.javascript.jscomp.FlowSensitiveInlineVariablesTest": 12462,
+  "com.google.javascript.jscomp.FunctionArgumentInjectorTest": 12369,
+  "com.google.javascript.jscomp.FunctionInjectorTest": 53096,
+  "com.google.javascript.jscomp.FunctionNamesTest": 3151,
+  "com.google.javascript.jscomp.FunctionRewriterTest": 5917,
+  "com.google.javascript.jscomp.FunctionToBlockMutatorTest": 8975,
+  "com.google.javascript.jscomp.FunctionTypeBuilderTest": 4370,
+  "com.google.javascript.jscomp.GatherRawExportsTest": 2916,
+  "com.google.javascript.jscomp.GatherSideEffectSubexpressionsCallbackTest": 6504,
+  "com.google.javascript.jscomp.GenerateExportsTest": 3485,
+  "com.google.javascript.jscomp.GlobalNamespaceTest": 2034,
+  "com.google.javascript.jscomp.GoogleCodingConventionTest": 5146,
+  "com.google.javascript.jscomp.GroupVariableDeclarationsTest": 8000,
+  "com.google.javascript.jscomp.IgnoreCajaPropertiesTest": 4908,
+  "com.google.javascript.jscomp.InferJSDocInfoTest": 7341,
+  "com.google.javascript.jscomp.InlineCostEstimatorTest": 2099,
+  "com.google.javascript.jscomp.InlineFunctionsTest": 51648,
+  "com.google.javascript.jscomp.InlineSimpleMethodsTest": 9927,
+  "com.google.javascript.jscomp.InlineVariablesConstantsTest": 5030,
+  "com.google.javascript.jscomp.InlineVariablesTest": 25841,
+  "com.google.javascript.jscomp.InstrumentFunctionsTest": 8946,
+  "com.google.javascript.jscomp.JSCompilerSourceExcerptProviderTest": 4399,
+  "com.google.javascript.jscomp.JSModuleGraphTest": 9313,
+  "com.google.javascript.jscomp.JSModuleTest": 5042,
+  "com.google.javascript.jscomp.JsMessageExtractorTest": 7771,
+  "com.google.javascript.jscomp.JsMessageTest": 1906,
+  "com.google.javascript.jscomp.JsMessageVisitorTest": 20948,
+  "com.google.javascript.jscomp.LightweightMessageFormatterTest": 3904,
+  "com.google.javascript.jscomp.LinkedFlowScopeTest": 10919,
+  "com.google.javascript.jscomp.LiveVariableAnalysisTest": 14386,
+  "com.google.javascript.jscomp.LooseTypeCheckTest": 250414,
+  "com.google.javascript.jscomp.MakeDeclaredNamesUniqueTest": 10659,
+  "com.google.javascript.jscomp.MarkNoSideEffectCallsTest": 11327,
+  "com.google.javascript.jscomp.MaybeReachingVariableUseTest": 5557,
+  "com.google.javascript.jscomp.MemoizedScopeCreatorTest": 2179,
+  "com.google.javascript.jscomp.MinimizeExitPointsTest": 10433,
+  "com.google.javascript.jscomp.MoveFunctionDeclarationsTest": 1446,
+  "com.google.javascript.jscomp.MustBeReachingVariableDefTest": 6213,
+  "com.google.javascript.jscomp.NameAnalyzerTest": 41540,
+  "com.google.javascript.jscomp.NameAnonymousFunctionsMappedTest": 5333,
+  "com.google.javascript.jscomp.NameAnonymousFunctionsTest": 4573,
+  "com.google.javascript.jscomp.NodeIteratorsTest": 5901,
+  "com.google.javascript.jscomp.NodeTraversalTest": 7170,
+  "com.google.javascript.jscomp.NodeUtilTest": 41462,
+  "com.google.javascript.jscomp.NormalizeTest": 18066,
+  "com.google.javascript.jscomp.ObjectPropertyStringPostprocessTest": 1476,
+  "com.google.javascript.jscomp.ObjectPropertyStringPreprocessTest": 2172,
+  "com.google.javascript.jscomp.OptimizeArgumentsArrayTest": 5712,
+  "com.google.javascript.jscomp.OptimizeParametersTest": 15871,
+  "com.google.javascript.jscomp.OptimizeReturnsTest": 6299,
+  "com.google.javascript.jscomp.ParallelCompilerPassTest": 3522,
+  "com.google.javascript.jscomp.PeepholeFoldConstantsTest": 30546,
+  "com.google.javascript.jscomp.PeepholeFoldWithTypesTest": 2600,
+  "com.google.javascript.jscomp.PeepholeIntegrationTest": 10165,
+  "com.google.javascript.jscomp.PeepholeOptimizationsPassTest": 7857,
+  "com.google.javascript.jscomp.PeepholeRemoveDeadCodeTest": 16300,
+  "com.google.javascript.jscomp.PeepholeSubstituteAlternateSyntaxTest": 21799,
+  "com.google.javascript.jscomp.PhaseOptimizerTest": 6532,
+  "com.google.javascript.jscomp.PrepareAstTest": 2620,
+  "com.google.javascript.jscomp.ProcessClosurePrimitivesTest": 27419,
+  "com.google.javascript.jscomp.ProcessDefinesTest": 11064,
+  "com.google.javascript.jscomp.PureFunctionIdentifierTest": 44407,
+  "com.google.javascript.jscomp.RecordFunctionInformationTest": 6610,
+  "com.google.javascript.jscomp.RemoveTryCatchTest": 2366,
+  "com.google.javascript.jscomp.RemoveUnusedNamesTest": 4502,
+  "com.google.javascript.jscomp.RemoveUnusedPrototypePropertiesTest": 14013,
+  "com.google.javascript.jscomp.RemoveUnusedVarsTest": 18184,
+  "com.google.javascript.jscomp.RenameLabelsTest": 2615,
+  "com.google.javascript.jscomp.RenameLocalVarsTest": 3748,
+  "com.google.javascript.jscomp.RenamePropertiesTest": 13964,
+  "com.google.javascript.jscomp.RenamePrototypesTest": 9231,
+  "com.google.javascript.jscomp.RenameVarsTest": 19707,
+  "com.google.javascript.jscomp.ReplaceCssNamesTest": 8746,
+  "com.google.javascript.jscomp.ReplaceIdGeneratorsTest": 2015,
+  "com.google.javascript.jscomp.ReplaceMessagesTest": 10676,
+  "com.google.javascript.jscomp.ReplaceStringsTest": 11754,
+  "com.google.javascript.jscomp.RhinoErrorReporterTest": 2302,
+  "com.google.javascript.jscomp.RuntimeTypeCheckTest": 8908,
+  "com.google.javascript.jscomp.SanityCheckTest": 3335,
+  "com.google.javascript.jscomp.ScopedAliasesTest": 12869,
+  "com.google.javascript.jscomp.SemanticReverseAbstractInterpreterTest": 19701,
+  "com.google.javascript.jscomp.SideEffectsAnalysisTest": 17025,
+  "com.google.javascript.jscomp.SimpleDefinitionFinderTest": 13480,
+  "com.google.javascript.jscomp.SimpleFunctionAliasAnalysisTest": 6213,
+  "com.google.javascript.jscomp.SourceMap2Test": 27482,
+  "com.google.javascript.jscomp.SourceMapTest": 32862,
+  "com.google.javascript.jscomp.SpecializeModuleTest$SpecializeModuleSpecializationStateTest": 16431,
+  "com.google.javascript.jscomp.SpecializeModuleTest": 16431,
+  "com.google.javascript.jscomp.StrictModeCheckTest": 5402,
+  "com.google.javascript.jscomp.StripCodeTest": 13809,
+  "com.google.javascript.jscomp.SuspiciousPropertiesCheckTest": 5946,
+  "com.google.javascript.jscomp.SyntacticScopeCreatorTest": 4465,
+  "com.google.javascript.jscomp.TightenTypesTest": 27809,
+  "com.google.javascript.jscomp.TypeCheckFunctionCheckTest": 6038,
+  "com.google.javascript.jscomp.TypeCheckTest": 285139,
+  "com.google.javascript.jscomp.TypeInferenceTest": 23981,
+  "com.google.javascript.jscomp.TypeValidatorTest": 5047,
+  "com.google.javascript.jscomp.TypedScopeCreatorTest": 30604,
+  "com.google.javascript.jscomp.UnfoldCompoundAssignmentsTest": 2885,
+  "com.google.javascript.jscomp.UnreachableCodeEliminationTest": 9246,
+  "com.google.javascript.jscomp.VarCheckTest": 12506,
+  "com.google.javascript.jscomp.VariableMapTest": 2003,
+  "com.google.javascript.jscomp.VariableReferenceCheckTest": 5943,
+  "com.google.javascript.jscomp.VariableShadowDeclarationCheckTest": 2570,
+  "com.google.javascript.jscomp.VariableVisibilityAnalysisTest": 6935,
+  "com.google.javascript.jscomp.deps.DepsFileParserTest": 4264,
+  "com.google.javascript.jscomp.deps.JsFileLineParserTest": 2516,
+  "com.google.javascript.jscomp.deps.JsFileParserTest": 4769,
+  "com.google.javascript.jscomp.deps.JsFunctionParserTest": 5966,
+  "com.google.javascript.jscomp.deps.SortedDependenciesTest": 6155,
+  "com.google.javascript.jscomp.graph.GraphColoringTest": 7422,
+  "com.google.javascript.jscomp.graph.GraphReachabilityTest": 2747,
+  "com.google.javascript.jscomp.graph.GraphTest": 11979,
+  "com.google.javascript.jscomp.graph.StandardUnionFindTest": 7064,
+  "com.google.javascript.jscomp.jsonml.JsonMLConversionTest": 21009,
+  "com.google.javascript.jscomp.jsonml.JsonMLValidationTest": 29419,
+  "com.google.javascript.jscomp.jsonml.SecureCompilerTest": 2863,
+  "com.google.javascript.jscomp.parsing.IRFactoryTest": 29057,
+  "com.google.javascript.jscomp.parsing.JsDocInfoParserTest": 85676,
+  "com.google.javascript.jscomp.parsing.JsDocTokenStreamTest": 14331,
+  "com.google.javascript.jscomp.parsing.ParserTest": 25353,
+  "com.google.javascript.rhino.JSDocInfoTest": 14080,
+  "com.google.javascript.rhino.NodeTest": 10329,
+  "com.google.javascript.rhino.ParserTest": 10863,
+  "com.google.javascript.rhino.TokenStreamTest": 20961,
+  "com.google.javascript.rhino.jstype.BooleanLiteralSetTest": 4104,
+  "com.google.javascript.rhino.jstype.FunctionParamBuilderTest": 2758,
+  "com.google.javascript.rhino.jstype.FunctionTypeTest": 6803,
+  "com.google.javascript.rhino.jstype.JSTypeRegistryTest": 10481,
+  "com.google.javascript.rhino.jstype.JSTypeTest": 232157,
+  "com.google.javascript.rhino.jstype.TernaryValueTest": 4369,
+  "com.google.javascript.rhino.jstype.UnionTypeBuilderTest": 4157,
+  "com.google.javascript.rhino.jstype.UnionTypeTest": 11047
+ }
+}

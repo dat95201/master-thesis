@@ -1,0 +1,533 @@
+{
+ "bug": "Compress-20",
+ "pid": "Compress",
+ "bid": 20,
+ "modified_class": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream",
+ "src_file": "src/main/java/org/apache/commons/compress/archivers/cpio/CpioArchiveInputStream.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.3/xz-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Compress-20/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Compress-20/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.3/xz-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/Compress-20/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Compress-20/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Compress-20/b/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.3/xz-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Compress-20/f/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.3/xz-1.3.jar"
+ },
+ "faulty": [
+  {
+   "key": "readNewEntry(boolean)",
+   "name": "readNewEntry",
+   "nparams": 1
+  },
+  {
+   "key": "readOldAsciiEntry()",
+   "name": "readOldAsciiEntry",
+   "nparams": 0
+  },
+  {
+   "key": "readOldBinaryEntry(boolean)",
+   "name": "readOldBinaryEntry",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "readNewEntry(boolean)": "private CpioArchiveEntry readNewEntry(final boolean hasCrc)\n            throws IOException {\n        CpioArchiveEntry ret;\n        if (hasCrc) {\n            ret = new CpioArchiveEntry(FORMAT_NEW_CRC);\n        } else {\n            ret = new CpioArchiveEntry(FORMAT_NEW);\n        }\n\n        ret.setInode(readAsciiLong(8, 16));\n        long mode = readAsciiLong(8, 16);\n        if (mode != 0){\n            ret.setMode(mode);\n        }\n        ret.setUID(readAsciiLong(8, 16));\n        ret.setGID(readAsciiLong(8, 16));\n        ret.setNumberOfLinks(readAsciiLong(8, 16));\n        ret.setTime(readAsciiLong(8, 16));\n        ret.setSize(readAsciiLong(8, 16));\n        ret.setDeviceMaj(readAsciiLong(8, 16));\n        ret.setDeviceMin(readAsciiLong(8, 16));\n        ret.setRemoteDeviceMaj(readAsciiLong(8, 16));\n        ret.setRemoteDeviceMin(readAsciiLong(8, 16));\n        long namesize = readAsciiLong(8, 16);\n        ret.setChksum(readAsciiLong(8, 16));\n        String name = readCString((int) namesize);\n        ret.setName(name);\n        if (mode == 0 && !name.equals(CPIO_TRAILER)){\n            throw new IOException(\"Mode 0 only allowed in the trailer. Found entry name: \"+name + \" Occured at byte: \" + getBytesRead());\n        }\n        skip(ret.getHeaderPadCount());\n\n        return ret;\n    }",
+  "readOldAsciiEntry()": "private CpioArchiveEntry readOldAsciiEntry() throws IOException {\n        CpioArchiveEntry ret = new CpioArchiveEntry(FORMAT_OLD_ASCII);\n\n        ret.setDevice(readAsciiLong(6, 8));\n        ret.setInode(readAsciiLong(6, 8));\n        final long mode = readAsciiLong(6, 8);\n        if (mode != 0) {\n            ret.setMode(mode);\n        }\n        ret.setUID(readAsciiLong(6, 8));\n        ret.setGID(readAsciiLong(6, 8));\n        ret.setNumberOfLinks(readAsciiLong(6, 8));\n        ret.setRemoteDevice(readAsciiLong(6, 8));\n        ret.setTime(readAsciiLong(11, 8));\n        long namesize = readAsciiLong(6, 8);\n        ret.setSize(readAsciiLong(11, 8));\n        final String name = readCString((int) namesize);\n        ret.setName(name);\n        if (mode == 0 && !name.equals(CPIO_TRAILER)){\n            throw new IOException(\"Mode 0 only allowed in the trailer. Found entry: \"+ name + \" Occured at byte: \" + getBytesRead());\n        }\n\n        return ret;\n    }",
+  "readOldBinaryEntry(boolean)": "private CpioArchiveEntry readOldBinaryEntry(final boolean swapHalfWord)\n            throws IOException {\n        CpioArchiveEntry ret = new CpioArchiveEntry(FORMAT_OLD_BINARY);\n\n        ret.setDevice(readBinaryLong(2, swapHalfWord));\n        ret.setInode(readBinaryLong(2, swapHalfWord));\n        final long mode = readBinaryLong(2, swapHalfWord);\n        if (mode != 0){\n            ret.setMode(mode);\n        }\n        ret.setUID(readBinaryLong(2, swapHalfWord));\n        ret.setGID(readBinaryLong(2, swapHalfWord));\n        ret.setNumberOfLinks(readBinaryLong(2, swapHalfWord));\n        ret.setRemoteDevice(readBinaryLong(2, swapHalfWord));\n        ret.setTime(readBinaryLong(4, swapHalfWord));\n        long namesize = readBinaryLong(2, swapHalfWord);\n        ret.setSize(readBinaryLong(4, swapHalfWord));\n        final String name = readCString((int) namesize);\n        ret.setName(name);\n        if (mode == 0 && !name.equals(CPIO_TRAILER)){\n            throw new IOException(\"Mode 0 only allowed in the trailer. Found entry: \"+name + \"Occured at byte: \" + getBytesRead());\n        }\n        skip(ret.getHeaderPadCount());\n\n        return ret;\n    }"
+ },
+ "fixed_methods": {
+  "readNewEntry(boolean)": "private CpioArchiveEntry readNewEntry(final boolean hasCrc)\n            throws IOException {\n        CpioArchiveEntry ret;\n        if (hasCrc) {\n            ret = new CpioArchiveEntry(FORMAT_NEW_CRC);\n        } else {\n            ret = new CpioArchiveEntry(FORMAT_NEW);\n        }\n\n        ret.setInode(readAsciiLong(8, 16));\n        long mode = readAsciiLong(8, 16);\n        if (CpioUtil.fileType(mode) != 0){ // mode is initialised to 0\n            ret.setMode(mode);\n        }\n        ret.setUID(readAsciiLong(8, 16));\n        ret.setGID(readAsciiLong(8, 16));\n        ret.setNumberOfLinks(readAsciiLong(8, 16));\n        ret.setTime(readAsciiLong(8, 16));\n        ret.setSize(readAsciiLong(8, 16));\n        ret.setDeviceMaj(readAsciiLong(8, 16));\n        ret.setDeviceMin(readAsciiLong(8, 16));\n        ret.setRemoteDeviceMaj(readAsciiLong(8, 16));\n        ret.setRemoteDeviceMin(readAsciiLong(8, 16));\n        long namesize = readAsciiLong(8, 16);\n        ret.setChksum(readAsciiLong(8, 16));\n        String name = readCString((int) namesize);\n        ret.setName(name);\n        if (CpioUtil.fileType(mode) == 0 && !name.equals(CPIO_TRAILER)){\n            throw new IOException(\"Mode 0 only allowed in the trailer. Found entry name: \"+name + \" Occured at byte: \" + getBytesRead());\n        }\n        skip(ret.getHeaderPadCount());\n\n        return ret;\n    }",
+  "readOldAsciiEntry()": "private CpioArchiveEntry readOldAsciiEntry() throws IOException {\n        CpioArchiveEntry ret = new CpioArchiveEntry(FORMAT_OLD_ASCII);\n\n        ret.setDevice(readAsciiLong(6, 8));\n        ret.setInode(readAsciiLong(6, 8));\n        final long mode = readAsciiLong(6, 8);\n        if (CpioUtil.fileType(mode) != 0) {\n            ret.setMode(mode);\n        }\n        ret.setUID(readAsciiLong(6, 8));\n        ret.setGID(readAsciiLong(6, 8));\n        ret.setNumberOfLinks(readAsciiLong(6, 8));\n        ret.setRemoteDevice(readAsciiLong(6, 8));\n        ret.setTime(readAsciiLong(11, 8));\n        long namesize = readAsciiLong(6, 8);\n        ret.setSize(readAsciiLong(11, 8));\n        final String name = readCString((int) namesize);\n        ret.setName(name);\n        if (CpioUtil.fileType(mode) == 0 && !name.equals(CPIO_TRAILER)){\n            throw new IOException(\"Mode 0 only allowed in the trailer. Found entry: \"+ name + \" Occured at byte: \" + getBytesRead());\n        }\n\n        return ret;\n    }",
+  "readOldBinaryEntry(boolean)": "private CpioArchiveEntry readOldBinaryEntry(final boolean swapHalfWord)\n            throws IOException {\n        CpioArchiveEntry ret = new CpioArchiveEntry(FORMAT_OLD_BINARY);\n\n        ret.setDevice(readBinaryLong(2, swapHalfWord));\n        ret.setInode(readBinaryLong(2, swapHalfWord));\n        final long mode = readBinaryLong(2, swapHalfWord);\n        if (CpioUtil.fileType(mode) != 0){\n            ret.setMode(mode);\n        }\n        ret.setUID(readBinaryLong(2, swapHalfWord));\n        ret.setGID(readBinaryLong(2, swapHalfWord));\n        ret.setNumberOfLinks(readBinaryLong(2, swapHalfWord));\n        ret.setRemoteDevice(readBinaryLong(2, swapHalfWord));\n        ret.setTime(readBinaryLong(4, swapHalfWord));\n        long namesize = readBinaryLong(2, swapHalfWord);\n        ret.setSize(readBinaryLong(4, swapHalfWord));\n        final String name = readCString((int) namesize);\n        ret.setName(name);\n        if (CpioUtil.fileType(mode) == 0 && !name.equals(CPIO_TRAILER)){\n            throw new IOException(\"Mode 0 only allowed in the trailer. Found entry: \"+name + \"Occured at byte: \" + getBytesRead());\n        }\n        skip(ret.getHeaderPadCount());\n\n        return ret;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest::testCpioUnarchiveCreatedByRedlineRpm",
+   "error": "java.lang.IllegalArgumentException: Unknown mode. Full: 1a4 Masked: 0"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStream",
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStream",
+  "org.apache.commons.compress.archivers.ArchiveEntry",
+  "org.apache.commons.compress.archivers.ArchiveException",
+  "org.apache.commons.compress.archivers.ArchiveInputStream",
+  "org.apache.commons.compress.archivers.ArchiveOutputStream",
+  "org.apache.commons.compress.archivers.ArchiveStreamFactory",
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStream",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveEntry",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStream",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStream",
+  "org.apache.commons.compress.archivers.cpio.CpioConstants",
+  "org.apache.commons.compress.archivers.cpio.CpioUtil",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStream",
+  "org.apache.commons.compress.archivers.jar.JarArchiveInputStream",
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStream",
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStream",
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStream",
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStream",
+  "org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream",
+  "org.apache.commons.compress.utils.ArchiveUtils"
+ ],
+ "suite": [
+  "org.apache.commons.compress.ArchiveUtilsTest",
+  "org.apache.commons.compress.ChainingTestCase",
+  "org.apache.commons.compress.DetectArchiverTestCase",
+  "org.apache.commons.compress.DetectCompressorTestCase",
+  "org.apache.commons.compress.IOMethodsTest",
+  "org.apache.commons.compress.archivers.ArTestCase",
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest",
+  "org.apache.commons.compress.archivers.CpioTestCase",
+  "org.apache.commons.compress.archivers.DumpTestCase",
+  "org.apache.commons.compress.archivers.ExceptionMessageTest",
+  "org.apache.commons.compress.archivers.JarTestCase",
+  "org.apache.commons.compress.archivers.LongPathTest",
+  "org.apache.commons.compress.archivers.SevenZTestCase",
+  "org.apache.commons.compress.archivers.TarTestCase",
+  "org.apache.commons.compress.archivers.ZipTestCase",
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioUtilTest",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveEntryTest",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveUtilTest",
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.memory.MemoryArchiveTestCase",
+  "org.apache.commons.compress.archivers.sevenz.SevenZFileTest",
+  "org.apache.commons.compress.archivers.tar.SparseFilesTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest",
+  "org.apache.commons.compress.archivers.zip.AsiExtraFieldTest",
+  "org.apache.commons.compress.archivers.zip.EncryptedArchiveTest",
+  "org.apache.commons.compress.archivers.zip.ExtraFieldUtilsTest",
+  "org.apache.commons.compress.archivers.zip.GeneralPurposeBitTest",
+  "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest",
+  "org.apache.commons.compress.archivers.zip.TestZipEncodings",
+  "org.apache.commons.compress.archivers.zip.UTF8ZipFilesTest",
+  "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest",
+  "org.apache.commons.compress.archivers.zip.X7875_NewUnixTest",
+  "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraFieldTest",
+  "org.apache.commons.compress.archivers.zip.ZipArchiveEntryTest",
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.zip.ZipEightByteIntegerTest",
+  "org.apache.commons.compress.archivers.zip.ZipFileTest",
+  "org.apache.commons.compress.archivers.zip.ZipLongTest",
+  "org.apache.commons.compress.archivers.zip.ZipShortTest",
+  "org.apache.commons.compress.archivers.zip.ZipUtilTest",
+  "org.apache.commons.compress.changes.ChangeSetTestCase",
+  "org.apache.commons.compress.compressors.BZip2TestCase",
+  "org.apache.commons.compress.compressors.BZip2UtilsTestCase",
+  "org.apache.commons.compress.compressors.GZipTestCase",
+  "org.apache.commons.compress.compressors.GzipUtilsTestCase",
+  "org.apache.commons.compress.compressors.Pack200TestCase",
+  "org.apache.commons.compress.compressors.XZTestCase",
+  "org.apache.commons.compress.compressors.XZUtilsTestCase",
+  "org.apache.commons.compress.compressors.bzip2.BlockSortTest",
+  "org.apache.commons.compress.compressors.pack200.Pack200UtilsTest",
+  "org.apache.commons.compress.utils.CharsetsTest",
+  "org.apache.commons.compress.utils.CountingStreamTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.compress.ArchiveUtilsTest": {
+   "wall": 0.07913500000000001,
+   "cpu": 0.083628,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.ChainingTestCase": {
+   "wall": 0.032052,
+   "cpu": 0.027625,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.DetectArchiverTestCase": {
+   "wall": 0.032151000000000006,
+   "cpu": 0.042512,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.DetectCompressorTestCase": {
+   "wall": 0.023466,
+   "cpu": 0.040894,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.IOMethodsTest": {
+   "wall": 0.062146,
+   "cpu": 0.07234600000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArTestCase": {
+   "wall": 0.025366,
+   "cpu": 0.014787000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest": {
+   "wall": 0.014594,
+   "cpu": 0.010031,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest": {
+   "wall": 0.011022,
+   "cpu": 0.021439,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.CpioTestCase": {
+   "wall": 0.028861,
+   "cpu": 0.017268000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.DumpTestCase": {
+   "wall": 0.026413,
+   "cpu": 0.021826,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ExceptionMessageTest": {
+   "wall": 0.000629,
+   "cpu": 0.000887,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.JarTestCase": {
+   "wall": 0.01393,
+   "cpu": 0.010733000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.LongPathTest": {
+   "wall": 0.04122,
+   "cpu": 0.035171,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.SevenZTestCase": {
+   "wall": 0.118618,
+   "cpu": 0.0185,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.TarTestCase": {
+   "wall": 0.13659000000000002,
+   "cpu": 0.027388000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ZipTestCase": {
+   "wall": 0.167505,
+   "cpu": 0.039958,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStreamTest": {
+   "wall": 0.004707,
+   "cpu": 0.002901,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStreamTest": {
+   "wall": 0.008888,
+   "cpu": 0.004016,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStreamTest": {
+   "wall": 0.003012,
+   "cpu": 0.002472,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest": {
+   "wall": 0.006556,
+   "cpu": 0.008631,
+   "status": "fail"
+  },
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest": {
+   "wall": 0.006253999999999999,
+   "cpu": 0.00663,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.cpio.CpioUtilTest": {
+   "wall": 0.000995,
+   "cpu": 0.0034159999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.dump.DumpArchiveEntryTest": {
+   "wall": 0.000321,
+   "cpu": 0.000377,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStreamTest": {
+   "wall": 0.008103999999999998,
+   "cpu": 0.009442,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.dump.DumpArchiveUtilTest": {
+   "wall": 0.000426,
+   "cpu": 0.000442,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStreamTest": {
+   "wall": 0.003081,
+   "cpu": 0.002492,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.memory.MemoryArchiveTestCase": {
+   "wall": 0.000871,
+   "cpu": 0.0007239999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.sevenz.SevenZFileTest": {
+   "wall": 0.008969,
+   "cpu": 0.012416,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.SparseFilesTest": {
+   "wall": 0.000775,
+   "cpu": 0.001934,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest": {
+   "wall": 0.010362999999999999,
+   "cpu": 0.021816,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest": {
+   "wall": 0.005739,
+   "cpu": 0.012523999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest": {
+   "wall": 0.049377000000000004,
+   "cpu": 0.076557,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest": {
+   "wall": 0.002184,
+   "cpu": 0.00447,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.AsiExtraFieldTest": {
+   "wall": 0.000496,
+   "cpu": 0.001601,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.EncryptedArchiveTest": {
+   "wall": 0.001921,
+   "cpu": 0.00409,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ExtraFieldUtilsTest": {
+   "wall": 0.0005340000000000001,
+   "cpu": 0.0017050000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.GeneralPurposeBitTest": {
+   "wall": 0.000356,
+   "cpu": 0.000884,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest": {
+   "wall": 0.073515,
+   "cpu": 0.080854,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.TestZipEncodings": {
+   "wall": 0.0027879999999999997,
+   "cpu": 0.005115000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.UTF8ZipFilesTest": {
+   "wall": 0.161321,
+   "cpu": 0.068845,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest": {
+   "wall": 0.006095,
+   "cpu": 0.011807,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.X7875_NewUnixTest": {
+   "wall": 0.002913,
+   "cpu": 0.007749,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraFieldTest": {
+   "wall": 0.000678,
+   "cpu": 0.00164,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipArchiveEntryTest": {
+   "wall": 0.0006969999999999999,
+   "cpu": 0.002112,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest": {
+   "wall": 0.0035470000000000002,
+   "cpu": 0.007902,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipEightByteIntegerTest": {
+   "wall": 0.00043,
+   "cpu": 0.000523,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipFileTest": {
+   "wall": 0.011583999999999999,
+   "cpu": 0.015391,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipLongTest": {
+   "wall": 0.00041099999999999996,
+   "cpu": 0.000425,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipShortTest": {
+   "wall": 0.000375,
+   "cpu": 0.000384,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipUtilTest": {
+   "wall": 0.00062,
+   "cpu": 0.002139,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.changes.ChangeSetTestCase": {
+   "wall": 0.301041,
+   "cpu": 0.220166,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.BZip2TestCase": {
+   "wall": 0.013798999999999999,
+   "cpu": 0.014923,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.BZip2UtilsTestCase": {
+   "wall": 0.000696,
+   "cpu": 0.000614,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.GZipTestCase": {
+   "wall": 0.010308,
+   "cpu": 0.008971999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.GzipUtilsTestCase": {
+   "wall": 0.000718,
+   "cpu": 0.000655,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.Pack200TestCase": {
+   "wall": 0.07855200000000001,
+   "cpu": 0.088629,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.XZTestCase": {
+   "wall": 0.054573,
+   "cpu": 0.055341,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.XZUtilsTestCase": {
+   "wall": 0.00035499999999999996,
+   "cpu": 0.000539,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.bzip2.BlockSortTest": {
+   "wall": 0.007195,
+   "cpu": 0.011032,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.pack200.Pack200UtilsTest": {
+   "wall": 0.024167,
+   "cpu": 0.021813,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.CharsetsTest": {
+   "wall": 0.000759,
+   "cpu": 0.0009649999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.CountingStreamTest": {
+   "wall": 0.00047,
+   "cpu": 0.000415,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.15324712500185367,
+  "cpu": 0.1799180000000027
+ },
+ "fixed_suite_seconds": [
+  2.22,
+  1.5,
+  1.35
+ ],
+ "covering": [
+  "org.apache.commons.compress.IOMethodsTest",
+  "org.apache.commons.compress.archivers.CpioTestCase",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest",
+  "org.apache.commons.compress.changes.ChangeSetTestCase"
+ ],
+ "sizes": {
+  "org.apache.commons.compress.ArchiveUtilsTest": 2800,
+  "org.apache.commons.compress.ChainingTestCase": 2058,
+  "org.apache.commons.compress.DetectArchiverTestCase": 4984,
+  "org.apache.commons.compress.DetectCompressorTestCase": 3066,
+  "org.apache.commons.compress.IOMethodsTest": 6859,
+  "org.apache.commons.compress.archivers.ArTestCase": 13422,
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest": 6537,
+  "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest": 3830,
+  "org.apache.commons.compress.archivers.CpioTestCase": 11072,
+  "org.apache.commons.compress.archivers.DumpTestCase": 4035,
+  "org.apache.commons.compress.archivers.ExceptionMessageTest": 2998,
+  "org.apache.commons.compress.archivers.JarTestCase": 3815,
+  "org.apache.commons.compress.archivers.LongPathTest": 6597,
+  "org.apache.commons.compress.archivers.SevenZTestCase": 3150,
+  "org.apache.commons.compress.archivers.TarTestCase": 12678,
+  "org.apache.commons.compress.archivers.ZipTestCase": 13799,
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStreamTest": 2145,
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStreamTest": 2927,
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStreamTest": 1805,
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest": 2237,
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest": 2512,
+  "org.apache.commons.compress.archivers.cpio.CpioUtilTest": 2065,
+  "org.apache.commons.compress.archivers.dump.DumpArchiveEntryTest": 1688,
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStreamTest": 2677,
+  "org.apache.commons.compress.archivers.dump.DumpArchiveUtilTest": 1743,
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStreamTest": 2657,
+  "org.apache.commons.compress.archivers.memory.MemoryArchiveTestCase": 1869,
+  "org.apache.commons.compress.archivers.sevenz.SevenZFileTest": 2318,
+  "org.apache.commons.compress.archivers.tar.SparseFilesTest": 1618,
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest": 5450,
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest": 7210,
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest": 20651,
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest": 16766,
+  "org.apache.commons.compress.archivers.zip.AsiExtraFieldTest": 6708,
+  "org.apache.commons.compress.archivers.zip.EncryptedArchiveTest": 3005,
+  "org.apache.commons.compress.archivers.zip.ExtraFieldUtilsTest": 8522,
+  "org.apache.commons.compress.archivers.zip.GeneralPurposeBitTest": 3968,
+  "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest": 4707,
+  "org.apache.commons.compress.archivers.zip.TestZipEncodings": 6675,
+  "org.apache.commons.compress.archivers.zip.UTF8ZipFilesTest": 14349,
+  "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest": 20558,
+  "org.apache.commons.compress.archivers.zip.X7875_NewUnixTest": 10401,
+  "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraFieldTest": 9810,
+  "org.apache.commons.compress.archivers.zip.ZipArchiveEntryTest": 9517,
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest": 4213,
+  "org.apache.commons.compress.archivers.zip.ZipEightByteIntegerTest": 4625,
+  "org.apache.commons.compress.archivers.zip.ZipFileTest": 10304,
+  "org.apache.commons.compress.archivers.zip.ZipLongTest": 2881,
+  "org.apache.commons.compress.archivers.zip.ZipShortTest": 2711,
+  "org.apache.commons.compress.archivers.zip.ZipUtilTest": 7132,
+  "org.apache.commons.compress.changes.ChangeSetTestCase": 41610,
+  "org.apache.commons.compress.compressors.BZip2TestCase": 4590,
+  "org.apache.commons.compress.compressors.BZip2UtilsTestCase": 3389,
+  "org.apache.commons.compress.compressors.GZipTestCase": 5050,
+  "org.apache.commons.compress.compressors.GzipUtilsTestCase": 4878,
+  "org.apache.commons.compress.compressors.Pack200TestCase": 7746,
+  "org.apache.commons.compress.compressors.XZTestCase": 3966,
+  "org.apache.commons.compress.compressors.XZUtilsTestCase": 2819,
+  "org.apache.commons.compress.compressors.bzip2.BlockSortTest": 5563,
+  "org.apache.commons.compress.compressors.pack200.Pack200UtilsTest": 4329,
+  "org.apache.commons.compress.utils.CharsetsTest": 2154,
+  "org.apache.commons.compress.utils.CountingStreamTest": 2677
+ }
+}

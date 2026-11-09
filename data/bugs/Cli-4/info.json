@@ -1,0 +1,222 @@
+{
+ "bug": "Cli-4",
+ "pid": "Cli",
+ "bid": 4,
+ "modified_class": "org.apache.commons.cli.Parser",
+ "src_file": "src/java/org/apache/commons/cli/Parser.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-4/b/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-4/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-4/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-4/f/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-4/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-4/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-4/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-4/b/target/lib/junit-3.8.1.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-4/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-4/f/target/lib/junit-3.8.1.jar"
+ },
+ "faulty": [
+  {
+   "key": "checkRequiredOptions()",
+   "name": "checkRequiredOptions",
+   "nparams": 0
+  }
+ ],
+ "buggy_methods": {
+  "checkRequiredOptions()": "private void checkRequiredOptions()\n        throws MissingOptionException\n    {\n        // if there are required options that have not been\n        // processsed\n        if (requiredOptions.size() > 0)\n        {\n            Iterator iter = requiredOptions.iterator();\n            StringBuffer buff = new StringBuffer();\n\n\n            // loop through the required options\n            while (iter.hasNext())\n            {\n                buff.append(iter.next());\n            }\n\n            throw new MissingOptionException(buff.toString());\n        }\n    }"
+ },
+ "fixed_methods": {
+  "checkRequiredOptions()": "private void checkRequiredOptions()\n        throws MissingOptionException\n    {\n        // if there are required options that have not been\n        // processsed\n        if (requiredOptions.size() > 0)\n        {\n            Iterator iter = requiredOptions.iterator();\n            StringBuffer buff = new StringBuffer(\"Missing required option\");\n            buff.append(requiredOptions.size() == 1 ? \"\" : \"s\");\n            buff.append(\": \");\n\n\n            // loop through the required options\n            while (iter.hasNext())\n            {\n                buff.append(iter.next());\n            }\n\n            throw new MissingOptionException(buff.toString());\n        }\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.cli.OptionsTest::testMissingOptionsException",
+   "error": "junit.framework.ComparisonFailure: expected:<[Missing required options: ]fx> but was:<[]fx>"
+  },
+  {
+   "test": "org.apache.commons.cli.OptionsTest::testMissingOptionException",
+   "error": "junit.framework.ComparisonFailure: expected:<[Missing required option: ]f> but was:<[]f>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.cli.OptionsTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.cli.CommandLine",
+  "org.apache.commons.cli.CommandLineParser",
+  "org.apache.commons.cli.MissingArgumentException",
+  "org.apache.commons.cli.MissingOptionException",
+  "org.apache.commons.cli.Option",
+  "org.apache.commons.cli.OptionBuilder",
+  "org.apache.commons.cli.Options",
+  "org.apache.commons.cli.OptionValidator",
+  "org.apache.commons.cli.ParseException",
+  "org.apache.commons.cli.Parser",
+  "org.apache.commons.cli.PosixParser",
+  "org.apache.commons.cli.UnrecognizedOptionException"
+ ],
+ "suite": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.ArgumentIsOptionTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.BuildTest",
+  "org.apache.commons.cli.GnuParseTest",
+  "org.apache.commons.cli.OptionBuilderTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.OptionTest",
+  "org.apache.commons.cli.OptionsTest",
+  "org.apache.commons.cli.ParseRequiredTest",
+  "org.apache.commons.cli.ParseTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.TestHelpFormatter",
+  "org.apache.commons.cli.ValueTest",
+  "org.apache.commons.cli.ValuesTest",
+  "org.apache.commons.cli.bug.BugCLI13Test",
+  "org.apache.commons.cli.bug.BugCLI18Test",
+  "org.apache.commons.cli.bug.BugCLI51Test",
+  "org.apache.commons.cli.bug.BugCLI71Test"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.cli.ApplicationTest": {
+   "wall": 0.107545,
+   "cpu": 0.084935,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ArgumentIsOptionTest": {
+   "wall": 0.001899,
+   "cpu": 0.0029100000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BugsTest": {
+   "wall": 0.014349,
+   "cpu": 0.018943,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BuildTest": {
+   "wall": 0.001075,
+   "cpu": 0.001958,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.GnuParseTest": {
+   "wall": 0.00434,
+   "cpu": 0.007864,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionBuilderTest": {
+   "wall": 0.00314,
+   "cpu": 0.0028380000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionGroupTest": {
+   "wall": 0.003856,
+   "cpu": 0.0050999999999999995,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionTest": {
+   "wall": 0.000549,
+   "cpu": 0.00074,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionsTest": {
+   "wall": 0.0029649999999999998,
+   "cpu": 0.006772,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.ParseRequiredTest": {
+   "wall": 0.0014579999999999999,
+   "cpu": 0.0028450000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ParseTest": {
+   "wall": 0.0014990000000000001,
+   "cpu": 0.002346,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PatternOptionBuilderTest": {
+   "wall": 0.016227000000000002,
+   "cpu": 0.013823,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.TestHelpFormatter": {
+   "wall": 0.000898,
+   "cpu": 0.0011979999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValueTest": {
+   "wall": 0.004255,
+   "cpu": 0.007115,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValuesTest": {
+   "wall": 0.001845,
+   "cpu": 0.002864,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI13Test": {
+   "wall": 0.000791,
+   "cpu": 0.0009509999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI18Test": {
+   "wall": 0.0006860000000000001,
+   "cpu": 0.001322,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI51Test": {
+   "wall": 0.000978,
+   "cpu": 0.001196,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI71Test": {
+   "wall": 0.0012829999999999999,
+   "cpu": 0.001371,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.30320149999837204,
+  "cpu": 0.20947200000000088
+ },
+ "fixed_suite_seconds": [
+  0.68,
+  0.27,
+  0.32
+ ],
+ "covering": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.ArgumentIsOptionTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.GnuParseTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.OptionsTest",
+  "org.apache.commons.cli.ParseRequiredTest",
+  "org.apache.commons.cli.ParseTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.ValueTest",
+  "org.apache.commons.cli.ValuesTest",
+  "org.apache.commons.cli.bug.BugCLI13Test",
+  "org.apache.commons.cli.bug.BugCLI51Test",
+  "org.apache.commons.cli.bug.BugCLI71Test"
+ ],
+ "sizes": {
+  "org.apache.commons.cli.ApplicationTest": 5306,
+  "org.apache.commons.cli.ArgumentIsOptionTest": 3277,
+  "org.apache.commons.cli.BugsTest": 19937,
+  "org.apache.commons.cli.BuildTest": 2647,
+  "org.apache.commons.cli.GnuParseTest": 8836,
+  "org.apache.commons.cli.OptionBuilderTest": 6049,
+  "org.apache.commons.cli.OptionGroupTest": 9120,
+  "org.apache.commons.cli.OptionTest": 1292,
+  "org.apache.commons.cli.OptionsTest": 3813,
+  "org.apache.commons.cli.ParseRequiredTest": 3546,
+  "org.apache.commons.cli.ParseTest": 9542,
+  "org.apache.commons.cli.PatternOptionBuilderTest": 3630,
+  "org.apache.commons.cli.TestHelpFormatter": 6436,
+  "org.apache.commons.cli.ValueTest": 12937,
+  "org.apache.commons.cli.ValuesTest": 8962,
+  "org.apache.commons.cli.bug.BugCLI13Test": 1948,
+  "org.apache.commons.cli.bug.BugCLI18Test": 1833,
+  "org.apache.commons.cli.bug.BugCLI51Test": 1866,
+  "org.apache.commons.cli.bug.BugCLI71Test": 2905
+ }
+}

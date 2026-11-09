@@ -1,0 +1,671 @@
+{
+ "bug": "JacksonCore-10",
+ "pid": "JacksonCore",
+ "bid": 10,
+ "modified_class": "com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer",
+ "src_file": "src/main/java/com/fasterxml/jackson/core/sym/ByteQuadsCanonicalizer.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-10/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-10/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.8.2/junit-4.8.2.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-10/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-10/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonCore/lib/junit/junit/4.8.2/junit-4.8.2.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-10/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/JacksonCore-10/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "_findOffsetForAdd(int)",
+   "name": "_findOffsetForAdd",
+   "nparams": 1
+  },
+  {
+   "key": "calcHash(int)",
+   "name": "calcHash",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "_findOffsetForAdd(int)": "private int _findOffsetForAdd(int hash)\n    {\n        // first, check the primary:\n        int offset = _calcOffset(hash);\n        final int[] hashArea = _hashArea;\n        if (hashArea[offset+3] == 0) {\n//System.err.printf(\" PRImary slot #%d, hash %X\\n\", (offset>>2), hash & 0x7F);\n            return offset;\n        }\n        // then secondary\n        int offset2 = _secondaryStart + ((offset >> 3) << 2);\n        if (hashArea[offset2+3] == 0) {\n//System.err.printf(\" SECondary slot #%d (start x%X), hash %X\\n\",(offset >> 3), _secondaryStart, (hash & 0x7F));\n            return offset2;\n        }\n        // if not, tertiary?\n\n        offset2 = _tertiaryStart + ((offset >> (_tertiaryShift + 2)) << _tertiaryShift);\n        final int bucketSize = (1 << _tertiaryShift);\n        for (int end = offset2 + bucketSize; offset2 < end; offset2 += 4) {\n            if (hashArea[offset2+3] == 0) {\n//System.err.printf(\" TERtiary slot x%X (from x%X, start x%X), hash %X.\\n\", offset2, ((offset >> (_tertiaryShift + 2)) << _tertiaryShift), _tertiaryStart, (hash & 0x7F));\n                return offset2;\n            }\n        }\n\n        // and if even tertiary full, append at the end of spill area\n        offset = _spilloverEnd;\n        _spilloverEnd += 4;\n\n//System.err.printf(\" SPIll-over at x%X; start x%X; end x%X, hash %X\\n\", offset, _spilloverStart(), _hashArea.length, (hash & 0x7F));\n        \n        // one caveat: in the unlikely event if spill-over filling up,\n        // check if that could be considered a DoS attack; handle appropriately\n        // (NOTE: approximate for now; we could verify details if that becomes necessary)\n        /* 31-Jul-2015, tatu: Note that spillover area does NOT end at end of array,\n         *   since \"long names\" area follows. Instead, need to calculate from hash size.\n         */\n        if (_spilloverEnd >= hashArea.length) {\n            if (_failOnDoS) {\n                _reportTooManyCollisions();\n            }\n            // and if we didn't fail, we'll simply force rehash for next add\n            // (which, in turn, may double up or nuke contents, depending on size etc)\n            _needRehash = true;\n        }\n        return offset;\n    }",
+  "calcHash(int)": "public int calcHash(int q1)\n    {\n        int hash = q1 ^ _seed;\n        /* 29-Mar-2015, tatu: Earlier used 15 + 9 right shifts, which worked ok\n         *    except for one specific problem case: numbers. So needed to make sure\n         *    that all 4 least-significant bits participate in hash. Couple of ways\n         *    to work it out, but this is the simplest, fast and seems to do ok.\n         */\n        hash += (hash >>> 16); // to xor hi- and low- 16-bits\n        hash ^= (hash >>> 12);\n        return hash;\n    }"
+ },
+ "fixed_methods": {
+  "_findOffsetForAdd(int)": "private int _findOffsetForAdd(int hash)\n    {\n        // first, check the primary:\n        int offset = _calcOffset(hash);\n        final int[] hashArea = _hashArea;\n        if (hashArea[offset+3] == 0) {\n//System.err.printf(\" PRImary slot #%d, hash %X\\n\", (offset>>2), hash & 0x7F);\n            return offset;\n        }\n        // then secondary\n        int offset2 = _secondaryStart + ((offset >> 3) << 2);\n        if (hashArea[offset2+3] == 0) {\n//System.err.printf(\" SECondary slot #%d (start x%X), hash %X\\n\",(offset >> 3), _secondaryStart, (hash & 0x7F));\n            return offset2;\n        }\n        // if not, tertiary?\n\n        offset2 = _tertiaryStart + ((offset >> (_tertiaryShift + 2)) << _tertiaryShift);\n        final int bucketSize = (1 << _tertiaryShift);\n        for (int end = offset2 + bucketSize; offset2 < end; offset2 += 4) {\n            if (hashArea[offset2+3] == 0) {\n//System.err.printf(\" TERtiary slot x%X (from x%X, start x%X), hash %X.\\n\", offset2, ((offset >> (_tertiaryShift + 2)) << _tertiaryShift), _tertiaryStart, (hash & 0x7F));\n                return offset2;\n            }\n        }\n\n        // and if even tertiary full, append at the end of spill area\n        offset = _spilloverEnd;\n        _spilloverEnd += 4;\n\n//System.err.printf(\" SPIll-over at x%X; start x%X; end x%X, hash %X\\n\", offset, _spilloverStart(), _hashArea.length, (hash & 0x7F));\n        \n        // one caveat: in the unlikely event if spill-over filling up,\n        // check if that could be considered a DoS attack; handle appropriately\n        // (NOTE: approximate for now; we could verify details if that becomes necessary)\n        /* 31-Jul-2015, tatu: Note that spillover area does NOT end at end of array,\n         *   since \"long names\" area follows. Instead, need to calculate from hash size.\n         */\n        final int end = (_hashSize << 3);\n        if (_spilloverEnd >= end) {\n            if (_failOnDoS) {\n                _reportTooManyCollisions();\n            }\n            // and if we didn't fail, we'll simply force rehash for next add\n            // (which, in turn, may double up or nuke contents, depending on size etc)\n            _needRehash = true;\n        }\n        return offset;\n    }",
+  "calcHash(int)": "public int calcHash(int q1)\n    {\n        int hash = q1 ^ _seed;\n        /* 29-Mar-2015, tatu: Earlier used 15 + 9 right shifts, which worked ok\n         *    except for one specific problem case: numbers. So needed to make sure\n         *    that all 4 least-significant bits participate in hash. Couple of ways\n         *    to work it out, but this is the simplest, fast and seems to do ok.\n         */\n        hash += (hash >>> 16); // to xor hi- and low- 16-bits\n        hash ^= (hash << 3); // shuffle back a bit\n        hash += (hash >>> 12); // and bit more\n        return hash;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "com.fasterxml.jackson.core.sym.TestByteBasedSymbols::testIssue207",
+   "error": "java.lang.ArrayIndexOutOfBoundsException: 256"
+  },
+  {
+   "test": "com.fasterxml.jackson.core.sym.TestSymbolTables::testCollisionsWithBytesNew187b",
+   "error": "junit.framework.AssertionFailedError: expected:<16384> but was:<32768>"
+  },
+  {
+   "test": "com.fasterxml.jackson.core.sym.TestSymbolTables::testSyntheticWithBytesNew",
+   "error": "junit.framework.AssertionFailedError: expected:<8534> but was:<8524>"
+  },
+  {
+   "test": "com.fasterxml.jackson.core.sym.TestSymbolTables::testShortNameCollisionsDirectNew",
+   "error": "junit.framework.AssertionFailedError: expected:<1024> but was:<2048>"
+  }
+ ],
+ "triggering_classes": [
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols",
+  "com.fasterxml.jackson.core.sym.TestSymbolTables"
+ ],
+ "loaded_classes": [
+  "com.fasterxml.jackson.core.base.GeneratorBase",
+  "com.fasterxml.jackson.core.base.ParserBase",
+  "com.fasterxml.jackson.core.base.ParserMinimalBase",
+  "com.fasterxml.jackson.core.io.CharacterEscapes",
+  "com.fasterxml.jackson.core.io.CharTypes",
+  "com.fasterxml.jackson.core.io.InputDecorator",
+  "com.fasterxml.jackson.core.io.IOContext",
+  "com.fasterxml.jackson.core.io.MergedStream",
+  "com.fasterxml.jackson.core.io.OutputDecorator",
+  "com.fasterxml.jackson.core.io.SerializedString",
+  "com.fasterxml.jackson.core.io.UTF32Reader",
+  "com.fasterxml.jackson.core.io.UTF8Writer",
+  "com.fasterxml.jackson.core.json.ByteSourceJsonBootstrapper",
+  "com.fasterxml.jackson.core.json.JsonGeneratorImpl",
+  "com.fasterxml.jackson.core.json.JsonReadContext",
+  "com.fasterxml.jackson.core.json.ReaderBasedJsonParser",
+  "com.fasterxml.jackson.core.json.UTF8JsonGenerator",
+  "com.fasterxml.jackson.core.json.UTF8StreamJsonParser",
+  "com.fasterxml.jackson.core.json.WriterBasedJsonGenerator",
+  "com.fasterxml.jackson.core.JsonEncoding",
+  "com.fasterxml.jackson.core.JsonFactory",
+  "com.fasterxml.jackson.core.JsonGenerator",
+  "com.fasterxml.jackson.core.JsonParseException",
+  "com.fasterxml.jackson.core.JsonParser",
+  "com.fasterxml.jackson.core.JsonProcessingException",
+  "com.fasterxml.jackson.core.JsonStreamContext",
+  "com.fasterxml.jackson.core.JsonToken",
+  "com.fasterxml.jackson.core.ObjectCodec",
+  "com.fasterxml.jackson.core.PrettyPrinter",
+  "com.fasterxml.jackson.core.SerializableString",
+  "com.fasterxml.jackson.core.sym.ByteQuadsCanonicalizer",
+  "com.fasterxml.jackson.core.sym.BytesToNameCanonicalizer",
+  "com.fasterxml.jackson.core.sym.CharsToNameCanonicalizer",
+  "com.fasterxml.jackson.core.sym.Name",
+  "com.fasterxml.jackson.core.sym.Name1",
+  "com.fasterxml.jackson.core.sym.Name2",
+  "com.fasterxml.jackson.core.sym.Name3",
+  "com.fasterxml.jackson.core.sym.NameN",
+  "com.fasterxml.jackson.core.TreeCodec",
+  "com.fasterxml.jackson.core.util.BufferRecycler",
+  "com.fasterxml.jackson.core.util.DefaultPrettyPrinter",
+  "com.fasterxml.jackson.core.util.Instantiatable",
+  "com.fasterxml.jackson.core.util.InternCache",
+  "com.fasterxml.jackson.core.util.TextBuffer",
+  "com.fasterxml.jackson.core.Versioned"
+ ],
+ "suite": [
+  "com.fasterxml.jackson.core.TestExceptions",
+  "com.fasterxml.jackson.core.TestJDKSerializability",
+  "com.fasterxml.jackson.core.TestJsonPointer",
+  "com.fasterxml.jackson.core.TestVersions",
+  "com.fasterxml.jackson.core.base64.TestBase64Codec",
+  "com.fasterxml.jackson.core.base64.TestBase64Generation",
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing",
+  "com.fasterxml.jackson.core.base64.TestJsonParserBinary",
+  "com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest",
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest",
+  "com.fasterxml.jackson.core.filter.JsonPointerGeneratorFilteringTest",
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest",
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection",
+  "com.fasterxml.jackson.core.io.SegmentedStringWriterTest",
+  "com.fasterxml.jackson.core.io.TestCharTypes",
+  "com.fasterxml.jackson.core.io.TestIOContext",
+  "com.fasterxml.jackson.core.io.TestJDKSerializable",
+  "com.fasterxml.jackson.core.io.TestJsonStringEncoder",
+  "com.fasterxml.jackson.core.io.TestMergedStream",
+  "com.fasterxml.jackson.core.io.UTF8WriterTest",
+  "com.fasterxml.jackson.core.json.GeneratorBasicTest",
+  "com.fasterxml.jackson.core.json.GeneratorFailTest",
+  "com.fasterxml.jackson.core.json.JsonFactoryTest",
+  "com.fasterxml.jackson.core.json.ParserSequenceTest",
+  "com.fasterxml.jackson.core.json.StringGenerationTest",
+  "com.fasterxml.jackson.core.json.TestCharEscaping",
+  "com.fasterxml.jackson.core.json.TestComments",
+  "com.fasterxml.jackson.core.json.TestCustomEscaping",
+  "com.fasterxml.jackson.core.json.TestDecorators",
+  "com.fasterxml.jackson.core.json.TestGeneratorDupHandling",
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString",
+  "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures",
+  "com.fasterxml.jackson.core.json.TestJsonParser",
+  "com.fasterxml.jackson.core.json.TestLocation",
+  "com.fasterxml.jackson.core.json.TestNextXxx",
+  "com.fasterxml.jackson.core.json.TestNumericValues",
+  "com.fasterxml.jackson.core.json.TestParserDupHandling",
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling",
+  "com.fasterxml.jackson.core.json.TestParserNonStandard",
+  "com.fasterxml.jackson.core.json.TestParserOverrides",
+  "com.fasterxml.jackson.core.json.TestParserSymbols",
+  "com.fasterxml.jackson.core.json.TestRootValues",
+  "com.fasterxml.jackson.core.json.TestUnicode",
+  "com.fasterxml.jackson.core.json.TestUtf8Generator",
+  "com.fasterxml.jackson.core.json.TestUtf8Parser",
+  "com.fasterxml.jackson.core.json.TestValueConversions",
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols",
+  "com.fasterxml.jackson.core.main.TestArrayParsing",
+  "com.fasterxml.jackson.core.main.TestGeneratorArray",
+  "com.fasterxml.jackson.core.main.TestGeneratorClosing",
+  "com.fasterxml.jackson.core.main.TestGeneratorCopy",
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc",
+  "com.fasterxml.jackson.core.main.TestGeneratorObject",
+  "com.fasterxml.jackson.core.main.TestNumberParsing",
+  "com.fasterxml.jackson.core.main.TestParserClosing",
+  "com.fasterxml.jackson.core.main.TestParserFeatures",
+  "com.fasterxml.jackson.core.main.TestParserLinefeeds",
+  "com.fasterxml.jackson.core.main.TestParserWithObjects",
+  "com.fasterxml.jackson.core.main.TestPrettyPrinter",
+  "com.fasterxml.jackson.core.main.TestRawStringWriting",
+  "com.fasterxml.jackson.core.main.TestScopeMatching",
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols",
+  "com.fasterxml.jackson.core.sym.TestHashCollisionChars",
+  "com.fasterxml.jackson.core.sym.TestJsonParserSymbols",
+  "com.fasterxml.jackson.core.sym.TestSymbolTables",
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem",
+  "com.fasterxml.jackson.core.type.TypeReferenceTest",
+  "com.fasterxml.jackson.core.util.ByteArrayBuilderTest",
+  "com.fasterxml.jackson.core.util.TestCharTypes",
+  "com.fasterxml.jackson.core.util.TestDefaultPrettyPrinter",
+  "com.fasterxml.jackson.core.util.TestDelegates",
+  "com.fasterxml.jackson.core.util.TestNumberPrinting",
+  "com.fasterxml.jackson.core.util.TestSerializedString",
+  "com.fasterxml.jackson.core.util.TestTextBuffer",
+  "com.fasterxml.jackson.core.util.TestVersionUtil"
+ ],
+ "flaky": [],
+ "ci": {
+  "com.fasterxml.jackson.core.TestExceptions": {
+   "wall": 0.045058999999999995,
+   "cpu": 0.065652,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.TestJDKSerializability": {
+   "wall": 0.084075,
+   "cpu": 0.098318,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.TestJsonPointer": {
+   "wall": 0.00415,
+   "cpu": 0.006059,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.TestVersions": {
+   "wall": 0.002888,
+   "cpu": 0.0032949999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestBase64Codec": {
+   "wall": 0.003443,
+   "cpu": 0.0057350000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestBase64Generation": {
+   "wall": 0.008813000000000001,
+   "cpu": 0.018169,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing": {
+   "wall": 0.046577,
+   "cpu": 0.065574,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.base64.TestJsonParserBinary": {
+   "wall": 0.001655,
+   "cpu": 0.0032930000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest": {
+   "wall": 0.011791000000000001,
+   "cpu": 0.011812,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest": {
+   "wall": 0.00431,
+   "cpu": 0.00401,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.JsonPointerGeneratorFilteringTest": {
+   "wall": 0.002563,
+   "cpu": 0.004268,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest": {
+   "wall": 0.0026720000000000003,
+   "cpu": 0.0028929999999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection": {
+   "wall": 0.004482,
+   "cpu": 0.002554,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.SegmentedStringWriterTest": {
+   "wall": 0.00564,
+   "cpu": 0.002422,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestCharTypes": {
+   "wall": 0.00045,
+   "cpu": 0.00046600000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestIOContext": {
+   "wall": 0.0010960000000000002,
+   "cpu": 0.0009260000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestJDKSerializable": {
+   "wall": 0.001944,
+   "cpu": 0.002816,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestJsonStringEncoder": {
+   "wall": 0.029954,
+   "cpu": 0.06438200000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.TestMergedStream": {
+   "wall": 0.000614,
+   "cpu": 0.0012629999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.io.UTF8WriterTest": {
+   "wall": 0.001285,
+   "cpu": 0.002988,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.GeneratorBasicTest": {
+   "wall": 0.003819,
+   "cpu": 0.009486000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.GeneratorFailTest": {
+   "wall": 0.006189,
+   "cpu": 0.015124,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.JsonFactoryTest": {
+   "wall": 0.008577999999999999,
+   "cpu": 0.008459,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.ParserSequenceTest": {
+   "wall": 0.0039,
+   "cpu": 0.004879,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.StringGenerationTest": {
+   "wall": 0.942836,
+   "cpu": 1.113163,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestCharEscaping": {
+   "wall": 0.002924,
+   "cpu": 0.005393,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestComments": {
+   "wall": 0.0017310000000000001,
+   "cpu": 0.004098,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestCustomEscaping": {
+   "wall": 0.0029300000000000003,
+   "cpu": 0.005143,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestDecorators": {
+   "wall": 0.004984,
+   "cpu": 0.007017000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestGeneratorDupHandling": {
+   "wall": 0.00282,
+   "cpu": 0.005822,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString": {
+   "wall": 0.000731,
+   "cpu": 0.000755,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures": {
+   "wall": 0.00146,
+   "cpu": 0.003362,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestJsonParser": {
+   "wall": 0.039308,
+   "cpu": 0.054268000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestLocation": {
+   "wall": 0.000571,
+   "cpu": 0.0005679999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestNextXxx": {
+   "wall": 0.346723,
+   "cpu": 0.661144,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestNumericValues": {
+   "wall": 0.07282599999999999,
+   "cpu": 0.182445,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserDupHandling": {
+   "wall": 0.0020139999999999997,
+   "cpu": 0.004001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling": {
+   "wall": 0.002734,
+   "cpu": 0.007545,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserNonStandard": {
+   "wall": 0.005957,
+   "cpu": 0.012667999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserOverrides": {
+   "wall": 0.0005769999999999999,
+   "cpu": 0.002148,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestParserSymbols": {
+   "wall": 0.0005909999999999999,
+   "cpu": 0.000816,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestRootValues": {
+   "wall": 0.0006,
+   "cpu": 0.0013089999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestUnicode": {
+   "wall": 0.000371,
+   "cpu": 0.000545,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestUtf8Generator": {
+   "wall": 0.001549,
+   "cpu": 0.004737,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestUtf8Parser": {
+   "wall": 0.004194,
+   "cpu": 0.00522,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestValueConversions": {
+   "wall": 0.0014550000000000001,
+   "cpu": 0.005142000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols": {
+   "wall": 0.025606,
+   "cpu": 0.061464,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestArrayParsing": {
+   "wall": 0.0006360000000000001,
+   "cpu": 0.001815,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorArray": {
+   "wall": 0.000544,
+   "cpu": 0.000558,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorClosing": {
+   "wall": 0.0041589999999999995,
+   "cpu": 0.006367,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorCopy": {
+   "wall": 0.000553,
+   "cpu": 0.000808,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc": {
+   "wall": 0.607281,
+   "cpu": 1.119259,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestGeneratorObject": {
+   "wall": 0.000875,
+   "cpu": 0.001702,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestNumberParsing": {
+   "wall": 0.23507499999999998,
+   "cpu": 0.373437,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserClosing": {
+   "wall": 0.005462,
+   "cpu": 0.007996,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserFeatures": {
+   "wall": 0.00069,
+   "cpu": 0.0007970000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserLinefeeds": {
+   "wall": 0.0010220000000000001,
+   "cpu": 0.003034,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestParserWithObjects": {
+   "wall": 0.000619,
+   "cpu": 0.000627,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestPrettyPrinter": {
+   "wall": 0.003513,
+   "cpu": 0.005363000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestRawStringWriting": {
+   "wall": 0.06994299999999999,
+   "cpu": 0.13855,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.main.TestScopeMatching": {
+   "wall": 0.000846,
+   "cpu": 0.002854,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols": {
+   "wall": 0.001676,
+   "cpu": 0.004360999999999999,
+   "status": "fail"
+  },
+  "com.fasterxml.jackson.core.sym.TestHashCollisionChars": {
+   "wall": 0.001857,
+   "cpu": 0.003988,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestJsonParserSymbols": {
+   "wall": 0.0010429999999999999,
+   "cpu": 0.001863,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.sym.TestSymbolTables": {
+   "wall": 0.200041,
+   "cpu": 0.377127,
+   "status": "fail"
+  },
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem": {
+   "wall": 0.000523,
+   "cpu": 0.0005809999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.type.TypeReferenceTest": {
+   "wall": 0.002331,
+   "cpu": 0.005638,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.ByteArrayBuilderTest": {
+   "wall": 0.00027,
+   "cpu": 0.00027400000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestCharTypes": {
+   "wall": 0.000191,
+   "cpu": 0.00026700000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestDefaultPrettyPrinter": {
+   "wall": 0.000579,
+   "cpu": 0.0005819999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestDelegates": {
+   "wall": 0.000844,
+   "cpu": 0.0022370000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestNumberPrinting": {
+   "wall": 0.107339,
+   "cpu": 0.225326,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestSerializedString": {
+   "wall": 0.000462,
+   "cpu": 0.0021030000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestTextBuffer": {
+   "wall": 0.0060019999999999995,
+   "cpu": 0.012133,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.core.util.TestVersionUtil": {
+   "wall": 0.0013540000000000002,
+   "cpu": 0.002633,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.3138903750009141,
+  "cpu": 0.3489270000000122
+ },
+ "fixed_suite_seconds": [
+  2.52,
+  2.65,
+  3.13
+ ],
+ "covering": [
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing",
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection",
+  "com.fasterxml.jackson.core.json.TestComments",
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString",
+  "com.fasterxml.jackson.core.json.TestJsonParser",
+  "com.fasterxml.jackson.core.json.TestNextXxx",
+  "com.fasterxml.jackson.core.json.TestParserDupHandling",
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling",
+  "com.fasterxml.jackson.core.json.TestParserNonStandard",
+  "com.fasterxml.jackson.core.json.TestParserOverrides",
+  "com.fasterxml.jackson.core.json.TestParserSymbols",
+  "com.fasterxml.jackson.core.json.TestUnicode",
+  "com.fasterxml.jackson.core.json.TestUtf8Parser",
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols",
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc",
+  "com.fasterxml.jackson.core.main.TestParserFeatures",
+  "com.fasterxml.jackson.core.main.TestParserWithObjects",
+  "com.fasterxml.jackson.core.main.TestScopeMatching",
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols",
+  "com.fasterxml.jackson.core.sym.TestJsonParserSymbols",
+  "com.fasterxml.jackson.core.sym.TestSymbolTables",
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem"
+ ],
+ "sizes": {
+  "com.fasterxml.jackson.core.TestExceptions": 424,
+  "com.fasterxml.jackson.core.TestJDKSerializability": 3422,
+  "com.fasterxml.jackson.core.TestJsonPointer": 5784,
+  "com.fasterxml.jackson.core.TestVersions": 1220,
+  "com.fasterxml.jackson.core.base64.TestBase64Codec": 2076,
+  "com.fasterxml.jackson.core.base64.TestBase64Generation": 4158,
+  "com.fasterxml.jackson.core.base64.TestBase64Parsing": 5030,
+  "com.fasterxml.jackson.core.base64.TestJsonParserBinary": 5180,
+  "com.fasterxml.jackson.core.filter.BasicGeneratorFilteringTest": 11294,
+  "com.fasterxml.jackson.core.filter.BasicParserFilteringTest": 5802,
+  "com.fasterxml.jackson.core.filter.JsonPointerGeneratorFilteringTest": 4026,
+  "com.fasterxml.jackson.core.filter.JsonPointerParserFilteringTest": 2995,
+  "com.fasterxml.jackson.core.format.TestJsonFormatDetection": 3966,
+  "com.fasterxml.jackson.core.io.SegmentedStringWriterTest": 1384,
+  "com.fasterxml.jackson.core.io.TestCharTypes": 802,
+  "com.fasterxml.jackson.core.io.TestIOContext": 2785,
+  "com.fasterxml.jackson.core.io.TestJDKSerializable": 1027,
+  "com.fasterxml.jackson.core.io.TestJsonStringEncoder": 3565,
+  "com.fasterxml.jackson.core.io.TestMergedStream": 1994,
+  "com.fasterxml.jackson.core.io.UTF8WriterTest": 2364,
+  "com.fasterxml.jackson.core.json.GeneratorBasicTest": 11616,
+  "com.fasterxml.jackson.core.json.GeneratorFailTest": 2985,
+  "com.fasterxml.jackson.core.json.JsonFactoryTest": 5077,
+  "com.fasterxml.jackson.core.json.ParserSequenceTest": 1801,
+  "com.fasterxml.jackson.core.json.StringGenerationTest": 10407,
+  "com.fasterxml.jackson.core.json.TestCharEscaping": 5463,
+  "com.fasterxml.jackson.core.json.TestComments": 9698,
+  "com.fasterxml.jackson.core.json.TestCustomEscaping": 5880,
+  "com.fasterxml.jackson.core.json.TestDecorators": 3482,
+  "com.fasterxml.jackson.core.json.TestGeneratorDupHandling": 3313,
+  "com.fasterxml.jackson.core.json.TestGeneratorWithSerializedString": 3351,
+  "com.fasterxml.jackson.core.json.TestJsonGeneratorFeatures": 5627,
+  "com.fasterxml.jackson.core.json.TestJsonParser": 21901,
+  "com.fasterxml.jackson.core.json.TestLocation": 2560,
+  "com.fasterxml.jackson.core.json.TestNextXxx": 17902,
+  "com.fasterxml.jackson.core.json.TestNumericValues": 21064,
+  "com.fasterxml.jackson.core.json.TestParserDupHandling": 3194,
+  "com.fasterxml.jackson.core.json.TestParserErrorHandling": 3894,
+  "com.fasterxml.jackson.core.json.TestParserNonStandard": 19294,
+  "com.fasterxml.jackson.core.json.TestParserOverrides": 3604,
+  "com.fasterxml.jackson.core.json.TestParserSymbols": 2053,
+  "com.fasterxml.jackson.core.json.TestRootValues": 2419,
+  "com.fasterxml.jackson.core.json.TestUnicode": 1189,
+  "com.fasterxml.jackson.core.json.TestUtf8Generator": 2164,
+  "com.fasterxml.jackson.core.json.TestUtf8Parser": 7028,
+  "com.fasterxml.jackson.core.json.TestValueConversions": 8218,
+  "com.fasterxml.jackson.core.json.TestWithTonsaSymbols": 2360,
+  "com.fasterxml.jackson.core.main.TestArrayParsing": 2156,
+  "com.fasterxml.jackson.core.main.TestGeneratorArray": 3744,
+  "com.fasterxml.jackson.core.main.TestGeneratorClosing": 6831,
+  "com.fasterxml.jackson.core.main.TestGeneratorCopy": 2623,
+  "com.fasterxml.jackson.core.main.TestGeneratorMisc": 10981,
+  "com.fasterxml.jackson.core.main.TestGeneratorObject": 7439,
+  "com.fasterxml.jackson.core.main.TestNumberParsing": 4914,
+  "com.fasterxml.jackson.core.main.TestParserClosing": 5612,
+  "com.fasterxml.jackson.core.main.TestParserFeatures": 3544,
+  "com.fasterxml.jackson.core.main.TestParserLinefeeds": 1949,
+  "com.fasterxml.jackson.core.main.TestParserWithObjects": 6089,
+  "com.fasterxml.jackson.core.main.TestPrettyPrinter": 7686,
+  "com.fasterxml.jackson.core.main.TestRawStringWriting": 6099,
+  "com.fasterxml.jackson.core.main.TestScopeMatching": 4826,
+  "com.fasterxml.jackson.core.sym.TestByteBasedSymbols": 5512,
+  "com.fasterxml.jackson.core.sym.TestHashCollisionChars": 4994,
+  "com.fasterxml.jackson.core.sym.TestJsonParserSymbols": 3843,
+  "com.fasterxml.jackson.core.sym.TestSymbolTables": 18522,
+  "com.fasterxml.jackson.core.sym.TestSymbolsWithMediaItem": 3447,
+  "com.fasterxml.jackson.core.type.TypeReferenceTest": 737,
+  "com.fasterxml.jackson.core.util.ByteArrayBuilderTest": 763,
+  "com.fasterxml.jackson.core.util.TestCharTypes": 474,
+  "com.fasterxml.jackson.core.util.TestDefaultPrettyPrinter": 5192,
+  "com.fasterxml.jackson.core.util.TestDelegates": 3556,
+  "com.fasterxml.jackson.core.util.TestNumberPrinting": 3012,
+  "com.fasterxml.jackson.core.util.TestSerializedString": 2247,
+  "com.fasterxml.jackson.core.util.TestTextBuffer": 2663,
+  "com.fasterxml.jackson.core.util.TestVersionUtil": 1137
+ }
+}

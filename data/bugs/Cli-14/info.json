@@ -1,0 +1,431 @@
+{
+ "bug": "Cli-14",
+ "pid": "Cli",
+ "bid": 14,
+ "modified_class": "org.apache.commons.cli2.option.GroupImpl",
+ "src_file": "src/java/org/apache/commons/cli2/option/GroupImpl.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/lib/junit/jars/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/lib/jdepend/jars/jdepend-2.5.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/lib/junit/jars/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/lib/jdepend/jars/jdepend-2.5.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/lib/junit/jars/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/b/target/lib/jdepend/jars/jdepend-2.5.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/lib/commons-lang/jars/commons-lang-2.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/lib/junit/jars/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-14/f/target/lib/jdepend/jars/jdepend-2.5.jar"
+ },
+ "faulty": [
+  {
+   "key": "validate(WriteableCommandLine)",
+   "name": "validate",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "validate(WriteableCommandLine)": "public void validate(final WriteableCommandLine commandLine)\n        throws OptionException {\n        // number of options found\n        int present = 0;\n\n        // reference to first unexpected option\n        Option unexpected = null;\n\n        for (final Iterator i = options.iterator(); i.hasNext();) {\n            final Option option = (Option) i.next();\n\n            // needs validation?\n            boolean validate = option.isRequired() || option instanceof Group;\n            if (validate) {\n                option.validate(commandLine);\n            }\n\n            // if the child option is present then validate it\n            if (commandLine.hasOption(option)) {\n                if (++present > maximum) {\n                    unexpected = option;\n\n                    break;\n                }\n\n                option.validate(commandLine);\n            }\n        }\n\n        // too many options\n        if (unexpected != null) {\n            throw new OptionException(this, ResourceConstants.UNEXPECTED_TOKEN,\n                                      unexpected.getPreferredName());\n        }\n\n        // too few option\n        if (present < minimum) {\n            throw new OptionException(this, ResourceConstants.MISSING_OPTION);\n        }\n\n        // validate each anonymous argument\n        for (final Iterator i = anonymous.iterator(); i.hasNext();) {\n            final Option option = (Option) i.next();\n            option.validate(commandLine);\n        }\n    }"
+ },
+ "fixed_methods": {
+  "validate(WriteableCommandLine)": "public void validate(final WriteableCommandLine commandLine)\n        throws OptionException {\n        // number of options found\n        int present = 0;\n\n        // reference to first unexpected option\n        Option unexpected = null;\n\n        for (final Iterator i = options.iterator(); i.hasNext();) {\n            final Option option = (Option) i.next();\n\n            // needs validation?\n            boolean validate = option.isRequired() || option instanceof Group;\n\n            // if the child option is present then validate it\n            if (commandLine.hasOption(option)) {\n                if (++present > maximum) {\n                    unexpected = option;\n\n                    break;\n                }\n                validate = true;\n            }\n\n            if (validate) {\n                option.validate(commandLine);\n            }\n        }\n\n        // too many options\n        if (unexpected != null) {\n            throw new OptionException(this, ResourceConstants.UNEXPECTED_TOKEN,\n                                      unexpected.getPreferredName());\n        }\n\n        // too few option\n        if (present < minimum) {\n            throw new OptionException(this, ResourceConstants.MISSING_OPTION);\n        }\n\n        // validate each anonymous argument\n        for (final Iterator i = anonymous.iterator(); i.hasNext();) {\n            final Option option = (Option) i.next();\n            option.validate(commandLine);\n        }\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.cli2.bug.BugCLI144Test::testFileValidator",
+   "error": "java.lang.ClassCastException: java.io.File cannot be cast to java.lang.String"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.cli2.bug.BugCLI144Test"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.cli2.Argument",
+  "org.apache.commons.cli2.builder.ArgumentBuilder",
+  "org.apache.commons.cli2.builder.DefaultOptionBuilder",
+  "org.apache.commons.cli2.builder.GroupBuilder",
+  "org.apache.commons.cli2.CommandLine",
+  "org.apache.commons.cli2.commandline.CommandLineImpl",
+  "org.apache.commons.cli2.commandline.Parser",
+  "org.apache.commons.cli2.commandline.WriteableCommandLineImpl",
+  "org.apache.commons.cli2.DisplaySetting",
+  "org.apache.commons.cli2.Group",
+  "org.apache.commons.cli2.Option",
+  "org.apache.commons.cli2.option.ArgumentImpl",
+  "org.apache.commons.cli2.option.DefaultOption",
+  "org.apache.commons.cli2.option.GroupImpl",
+  "org.apache.commons.cli2.option.OptionImpl",
+  "org.apache.commons.cli2.option.ParentImpl",
+  "org.apache.commons.cli2.OptionException",
+  "org.apache.commons.cli2.Parent",
+  "org.apache.commons.cli2.resource.ResourceHelper",
+  "org.apache.commons.cli2.util.HelpFormatter",
+  "org.apache.commons.cli2.validation.FileValidator",
+  "org.apache.commons.cli2.validation.InvalidArgumentException",
+  "org.apache.commons.cli2.validation.Validator",
+  "org.apache.commons.cli2.WriteableCommandLine"
+ ],
+ "suite": [
+  "org.apache.commons.cli2.CommandLineDefaultsTest",
+  "org.apache.commons.cli2.DocumentationTest",
+  "org.apache.commons.cli2.PrecedenceTest",
+  "org.apache.commons.cli2.application.AntTest",
+  "org.apache.commons.cli2.application.CpTest",
+  "org.apache.commons.cli2.application.CvsTest",
+  "org.apache.commons.cli2.application.LsTest",
+  "org.apache.commons.cli2.bug.Bug13886Test",
+  "org.apache.commons.cli2.bug.Bug13935Test",
+  "org.apache.commons.cli2.bug.Bug15046Test",
+  "org.apache.commons.cli2.bug.Bug15648Test",
+  "org.apache.commons.cli2.bug.Bug27575Test",
+  "org.apache.commons.cli2.bug.Bug28005Test",
+  "org.apache.commons.cli2.bug.Bug32533Test",
+  "org.apache.commons.cli2.bug.BugCLI122Test",
+  "org.apache.commons.cli2.bug.BugCLI126Test",
+  "org.apache.commons.cli2.bug.BugCLI12Test",
+  "org.apache.commons.cli2.bug.BugCLI144Test",
+  "org.apache.commons.cli2.bug.BugCLI145Test",
+  "org.apache.commons.cli2.bug.BugCLI18Test",
+  "org.apache.commons.cli2.bug.BugCLI80Test",
+  "org.apache.commons.cli2.bug.BugLoopingOptionLookAlikeTest",
+  "org.apache.commons.cli2.builder.ArgumentBuilderTest",
+  "org.apache.commons.cli2.builder.DefaultOptionBuilderTest",
+  "org.apache.commons.cli2.commandline.DefaultingCommandLineTest",
+  "org.apache.commons.cli2.commandline.ParserTest",
+  "org.apache.commons.cli2.commandline.PreferencesCommandLineTest",
+  "org.apache.commons.cli2.commandline.PropertiesCommandLineTest",
+  "org.apache.commons.cli2.commandline.WriteableCommandLineImplTest",
+  "org.apache.commons.cli2.jdepend.JDependTest",
+  "org.apache.commons.cli2.option.ArgumentTest",
+  "org.apache.commons.cli2.option.CommandTest",
+  "org.apache.commons.cli2.option.DefaultOptionTest",
+  "org.apache.commons.cli2.option.GroupTest",
+  "org.apache.commons.cli2.option.NestedGroupTest",
+  "org.apache.commons.cli2.option.ParentTest",
+  "org.apache.commons.cli2.option.PropertyOptionTest",
+  "org.apache.commons.cli2.option.SwitchTest",
+  "org.apache.commons.cli2.resource.ResourceHelperTest",
+  "org.apache.commons.cli2.util.ComparatorsTest",
+  "org.apache.commons.cli2.util.HelpFormatterTest",
+  "org.apache.commons.cli2.validation.ClassValidatorTest",
+  "org.apache.commons.cli2.validation.DateValidatorTest",
+  "org.apache.commons.cli2.validation.EnumValidatorTest",
+  "org.apache.commons.cli2.validation.FileValidatorTest",
+  "org.apache.commons.cli2.validation.UrlValidatorTest"
+ ],
+ "flaky": [
+  "org.apache.commons.cli2.validation.NumberValidatorTest"
+ ],
+ "ci": {
+  "org.apache.commons.cli2.CommandLineDefaultsTest": {
+   "wall": 0.22755099999999998,
+   "cpu": 0.097526,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.DocumentationTest": {
+   "wall": 0.051377,
+   "cpu": 0.041793,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.PrecedenceTest": {
+   "wall": 0.005044,
+   "cpu": 0.010353999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.application.AntTest": {
+   "wall": 0.0019270000000000001,
+   "cpu": 0.004008,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.application.CpTest": {
+   "wall": 0.005428,
+   "cpu": 0.006791999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.application.CvsTest": {
+   "wall": 0.021432,
+   "cpu": 0.018983,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.application.LsTest": {
+   "wall": 0.005889,
+   "cpu": 0.004998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug13886Test": {
+   "wall": 0.001647,
+   "cpu": 0.0027919999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug13935Test": {
+   "wall": 0.000888,
+   "cpu": 0.001782,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug15046Test": {
+   "wall": 0.001246,
+   "cpu": 0.001954,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug15648Test": {
+   "wall": 0.000767,
+   "cpu": 0.001016,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug27575Test": {
+   "wall": 0.0054329999999999995,
+   "cpu": 0.0030099999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug28005Test": {
+   "wall": 0.001462,
+   "cpu": 0.0011619999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.Bug32533Test": {
+   "wall": 0.000979,
+   "cpu": 0.001598,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugCLI122Test": {
+   "wall": 0.0006580000000000001,
+   "cpu": 0.000687,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugCLI126Test": {
+   "wall": 0.0007970000000000001,
+   "cpu": 0.001045,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugCLI12Test": {
+   "wall": 0.00277,
+   "cpu": 0.0016220000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugCLI144Test": {
+   "wall": 0.006013,
+   "cpu": 0.003454,
+   "status": "fail"
+  },
+  "org.apache.commons.cli2.bug.BugCLI145Test": {
+   "wall": 0.002469,
+   "cpu": 0.002433,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugCLI18Test": {
+   "wall": 0.00061,
+   "cpu": 0.0009080000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugCLI80Test": {
+   "wall": 0.001276,
+   "cpu": 0.0036320000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.bug.BugLoopingOptionLookAlikeTest": {
+   "wall": 0.002852,
+   "cpu": 0.003746,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.builder.ArgumentBuilderTest": {
+   "wall": 0.030504999999999997,
+   "cpu": 0.056993,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.builder.DefaultOptionBuilderTest": {
+   "wall": 0.003311,
+   "cpu": 0.006423,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.commandline.DefaultingCommandLineTest": {
+   "wall": 0.020406,
+   "cpu": 0.032348999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.commandline.ParserTest": {
+   "wall": 0.003523,
+   "cpu": 0.007585,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.commandline.PreferencesCommandLineTest": {
+   "wall": 0.047917,
+   "cpu": 0.095881,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.commandline.PropertiesCommandLineTest": {
+   "wall": 0.022029,
+   "cpu": 0.03939,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.commandline.WriteableCommandLineImplTest": {
+   "wall": 0.0056619999999999995,
+   "cpu": 0.012665,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.jdepend.JDependTest": {
+   "wall": 0.386214,
+   "cpu": 0.485495,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.ArgumentTest": {
+   "wall": 0.007574,
+   "cpu": 0.014545,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.CommandTest": {
+   "wall": 0.003398,
+   "cpu": 0.008653000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.DefaultOptionTest": {
+   "wall": 0.000756,
+   "cpu": 0.001356,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.GroupTest": {
+   "wall": 0.0036520000000000003,
+   "cpu": 0.005865,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.NestedGroupTest": {
+   "wall": 0.002499,
+   "cpu": 0.004386999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.ParentTest": {
+   "wall": 0.004426,
+   "cpu": 0.009228,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.PropertyOptionTest": {
+   "wall": 0.002211,
+   "cpu": 0.004116,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.option.SwitchTest": {
+   "wall": 0.0036810000000000002,
+   "cpu": 0.006613000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.resource.ResourceHelperTest": {
+   "wall": 0.006235999999999999,
+   "cpu": 0.0044599999999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.util.ComparatorsTest": {
+   "wall": 0.003437,
+   "cpu": 0.007129,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.util.HelpFormatterTest": {
+   "wall": 0.004384000000000001,
+   "cpu": 0.007212,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.validation.ClassValidatorTest": {
+   "wall": 0.005938,
+   "cpu": 0.010177,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.validation.DateValidatorTest": {
+   "wall": 0.0038399999999999997,
+   "cpu": 0.005774,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.validation.EnumValidatorTest": {
+   "wall": 0.001253,
+   "cpu": 0.001667,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.validation.FileValidatorTest": {
+   "wall": 0.0009379999999999999,
+   "cpu": 0.000962,
+   "status": "pass"
+  },
+  "org.apache.commons.cli2.validation.UrlValidatorTest": {
+   "wall": 0.017504000000000002,
+   "cpu": 0.01287,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.3619650000023016,
+  "cpu": 0.2884059999999977
+ },
+ "fixed_suite_seconds": [
+  0.81,
+  0.83,
+  1.27
+ ],
+ "covering": [
+  "org.apache.commons.cli2.DocumentationTest",
+  "org.apache.commons.cli2.PrecedenceTest",
+  "org.apache.commons.cli2.application.AntTest",
+  "org.apache.commons.cli2.application.CpTest",
+  "org.apache.commons.cli2.application.LsTest",
+  "org.apache.commons.cli2.bug.Bug13886Test",
+  "org.apache.commons.cli2.bug.Bug13935Test",
+  "org.apache.commons.cli2.bug.Bug15046Test",
+  "org.apache.commons.cli2.bug.Bug15648Test",
+  "org.apache.commons.cli2.bug.Bug32533Test",
+  "org.apache.commons.cli2.bug.BugCLI122Test",
+  "org.apache.commons.cli2.bug.BugCLI126Test",
+  "org.apache.commons.cli2.bug.BugCLI12Test",
+  "org.apache.commons.cli2.bug.BugCLI144Test",
+  "org.apache.commons.cli2.bug.BugCLI145Test",
+  "org.apache.commons.cli2.bug.BugCLI80Test",
+  "org.apache.commons.cli2.commandline.DefaultingCommandLineTest",
+  "org.apache.commons.cli2.commandline.ParserTest",
+  "org.apache.commons.cli2.commandline.PreferencesCommandLineTest",
+  "org.apache.commons.cli2.commandline.PropertiesCommandLineTest",
+  "org.apache.commons.cli2.commandline.WriteableCommandLineImplTest",
+  "org.apache.commons.cli2.option.GroupTest",
+  "org.apache.commons.cli2.option.NestedGroupTest",
+  "org.apache.commons.cli2.option.ParentTest"
+ ],
+ "sizes": {
+  "org.apache.commons.cli2.CommandLineDefaultsTest": 8057,
+  "org.apache.commons.cli2.DocumentationTest": 15558,
+  "org.apache.commons.cli2.PrecedenceTest": 16222,
+  "org.apache.commons.cli2.application.AntTest": 8398,
+  "org.apache.commons.cli2.application.CpTest": 17186,
+  "org.apache.commons.cli2.application.CvsTest": 13426,
+  "org.apache.commons.cli2.application.LsTest": 8717,
+  "org.apache.commons.cli2.bug.Bug13886Test": 2888,
+  "org.apache.commons.cli2.bug.Bug13935Test": 2182,
+  "org.apache.commons.cli2.bug.Bug15046Test": 2778,
+  "org.apache.commons.cli2.bug.Bug15648Test": 2188,
+  "org.apache.commons.cli2.bug.Bug27575Test": 1498,
+  "org.apache.commons.cli2.bug.Bug28005Test": 2932,
+  "org.apache.commons.cli2.bug.Bug32533Test": 1864,
+  "org.apache.commons.cli2.bug.BugCLI122Test": 2441,
+  "org.apache.commons.cli2.bug.BugCLI126Test": 1991,
+  "org.apache.commons.cli2.bug.BugCLI12Test": 2056,
+  "org.apache.commons.cli2.bug.BugCLI144Test": 2820,
+  "org.apache.commons.cli2.bug.BugCLI145Test": 4672,
+  "org.apache.commons.cli2.bug.BugCLI18Test": 2399,
+  "org.apache.commons.cli2.bug.BugCLI80Test": 2581,
+  "org.apache.commons.cli2.bug.BugLoopingOptionLookAlikeTest": 3470,
+  "org.apache.commons.cli2.builder.ArgumentBuilderTest": 9311,
+  "org.apache.commons.cli2.builder.DefaultOptionBuilderTest": 7021,
+  "org.apache.commons.cli2.commandline.DefaultingCommandLineTest": 5939,
+  "org.apache.commons.cli2.commandline.ParserTest": 4987,
+  "org.apache.commons.cli2.commandline.PreferencesCommandLineTest": 4317,
+  "org.apache.commons.cli2.commandline.PropertiesCommandLineTest": 4229,
+  "org.apache.commons.cli2.commandline.WriteableCommandLineImplTest": 1425,
+  "org.apache.commons.cli2.jdepend.JDependTest": 3791,
+  "org.apache.commons.cli2.option.ArgumentTest": 24449,
+  "org.apache.commons.cli2.option.CommandTest": 8663,
+  "org.apache.commons.cli2.option.DefaultOptionTest": 7133,
+  "org.apache.commons.cli2.option.GroupTest": 15786,
+  "org.apache.commons.cli2.option.NestedGroupTest": 8776,
+  "org.apache.commons.cli2.option.ParentTest": 16108,
+  "org.apache.commons.cli2.option.PropertyOptionTest": 7922,
+  "org.apache.commons.cli2.option.SwitchTest": 11359,
+  "org.apache.commons.cli2.resource.ResourceHelperTest": 3127,
+  "org.apache.commons.cli2.util.ComparatorsTest": 7297,
+  "org.apache.commons.cli2.util.HelpFormatterTest": 26901,
+  "org.apache.commons.cli2.validation.ClassValidatorTest": 8357,
+  "org.apache.commons.cli2.validation.DateValidatorTest": 8726,
+  "org.apache.commons.cli2.validation.EnumValidatorTest": 2566,
+  "org.apache.commons.cli2.validation.FileValidatorTest": 7752,
+  "org.apache.commons.cli2.validation.UrlValidatorTest": 3512
+ }
+}

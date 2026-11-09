@@ -1,0 +1,241 @@
+{
+ "bug": "Codec-4",
+ "pid": "Codec",
+ "bid": 4,
+ "modified_class": "org.apache.commons.codec.binary.Base64",
+ "src_file": "src/java/org/apache/commons/codec/binary/Base64.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-4/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-4/b/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-4/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-4/f/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-4/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-4/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "Base64()",
+   "name": "Base64",
+   "nparams": 0
+  }
+ ],
+ "buggy_methods": {
+  "Base64()": "public Base64() {\n        this(false);\n    }"
+ },
+ "fixed_methods": {
+  "Base64()": "public Base64() {\n        this(0);\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.codec.binary.Base64Codec13Test::testEncoder",
+   "error": "junit.framework.AssertionFailedError: Encoder test-1"
+  },
+  {
+   "test": "org.apache.commons.codec.binary.Base64Codec13Test::testBinaryEncoder",
+   "error": "junit.framework.AssertionFailedError: BinaryEncoder test-1"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.codec.binary.Base64Codec13Test"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.codec.binary.Base64",
+  "org.apache.commons.codec.BinaryDecoder",
+  "org.apache.commons.codec.BinaryEncoder",
+  "org.apache.commons.codec.Decoder",
+  "org.apache.commons.codec.DecoderException",
+  "org.apache.commons.codec.Encoder",
+  "org.apache.commons.codec.EncoderException"
+ ],
+ "suite": [
+  "org.apache.commons.codec.CharEncodingTest",
+  "org.apache.commons.codec.DecoderExceptionTest",
+  "org.apache.commons.codec.EncoderExceptionTest",
+  "org.apache.commons.codec.StringEncoderComparatorTest",
+  "org.apache.commons.codec.binary.Base64Codec13Test",
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.binary.BinaryCodecTest",
+  "org.apache.commons.codec.binary.HexTest",
+  "org.apache.commons.codec.binary.StringUtilsTest",
+  "org.apache.commons.codec.digest.DigestUtilsTest",
+  "org.apache.commons.codec.language.CaverphoneTest",
+  "org.apache.commons.codec.language.DoubleMetaphone2Test",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest",
+  "org.apache.commons.codec.language.MetaphoneTest",
+  "org.apache.commons.codec.language.RefinedSoundexTest",
+  "org.apache.commons.codec.language.SoundexTest",
+  "org.apache.commons.codec.net.BCodecTest",
+  "org.apache.commons.codec.net.QCodecTest",
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest",
+  "org.apache.commons.codec.net.RFC1522CodecTest",
+  "org.apache.commons.codec.net.URLCodecTest",
+  "org.apache.commons.codec.net.UtilsTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.codec.CharEncodingTest": {
+   "wall": 0.045679000000000004,
+   "cpu": 0.06436199999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.DecoderExceptionTest": {
+   "wall": 0.005772,
+   "cpu": 0.0061059999999999994,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.EncoderExceptionTest": {
+   "wall": 0.002969,
+   "cpu": 0.005777999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.StringEncoderComparatorTest": {
+   "wall": 0.009928000000000001,
+   "cpu": 0.011189,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Codec13Test": {
+   "wall": 0.012173999999999999,
+   "cpu": 0.022204,
+   "status": "fail"
+  },
+  "org.apache.commons.codec.binary.Base64InputStreamTest": {
+   "wall": 0.105987,
+   "cpu": 0.148558,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": {
+   "wall": 0.11490500000000001,
+   "cpu": 0.13047999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Test": {
+   "wall": 0.010712999999999999,
+   "cpu": 0.023655000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BinaryCodecTest": {
+   "wall": 0.006908,
+   "cpu": 0.019236999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.HexTest": {
+   "wall": 0.259287,
+   "cpu": 0.327679,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.StringUtilsTest": {
+   "wall": 0.018681999999999997,
+   "cpu": 0.025288,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.DigestUtilsTest": {
+   "wall": 0.449262,
+   "cpu": 0.303858,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.CaverphoneTest": {
+   "wall": 0.033593000000000005,
+   "cpu": 0.013554,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": {
+   "wall": 0.023962,
+   "cpu": 0.029023,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": {
+   "wall": 0.023597999999999997,
+   "cpu": 0.044921,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.MetaphoneTest": {
+   "wall": 0.050455,
+   "cpu": 0.070154,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.RefinedSoundexTest": {
+   "wall": 0.021733,
+   "cpu": 0.037792,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.SoundexTest": {
+   "wall": 0.006125,
+   "cpu": 0.011557,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.BCodecTest": {
+   "wall": 0.012128,
+   "cpu": 0.031189,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QCodecTest": {
+   "wall": 0.01529,
+   "cpu": 0.028158000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": {
+   "wall": 0.004136999999999999,
+   "cpu": 0.007925,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.RFC1522CodecTest": {
+   "wall": 0.0030310000000000003,
+   "cpu": 0.009981,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.URLCodecTest": {
+   "wall": 0.012457000000000001,
+   "cpu": 0.025361,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.UtilsTest": {
+   "wall": 0.00038500000000000003,
+   "cpu": 0.0021520000000000003,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.39378720799807687,
+  "cpu": 0.42719400000000074
+ },
+ "fixed_suite_seconds": [
+  0.79,
+  0.64,
+  0.76
+ ],
+ "covering": [
+  "org.apache.commons.codec.binary.Base64Codec13Test",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.net.BCodecTest"
+ ],
+ "sizes": {
+  "org.apache.commons.codec.CharEncodingTest": 1877,
+  "org.apache.commons.codec.DecoderExceptionTest": 1980,
+  "org.apache.commons.codec.EncoderExceptionTest": 1980,
+  "org.apache.commons.codec.StringEncoderComparatorTest": 3039,
+  "org.apache.commons.codec.binary.Base64Codec13Test": 95062,
+  "org.apache.commons.codec.binary.Base64InputStreamTest": 12417,
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": 11594,
+  "org.apache.commons.codec.binary.Base64Test": 64279,
+  "org.apache.commons.codec.binary.BinaryCodecTest": 58088,
+  "org.apache.commons.codec.binary.HexTest": 13216,
+  "org.apache.commons.codec.binary.StringUtilsTest": 6906,
+  "org.apache.commons.codec.digest.DigestUtilsTest": 6935,
+  "org.apache.commons.codec.language.CaverphoneTest": 2164,
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": 67684,
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": 50081,
+  "org.apache.commons.codec.language.MetaphoneTest": 15155,
+  "org.apache.commons.codec.language.RefinedSoundexTest": 4643,
+  "org.apache.commons.codec.language.SoundexTest": 14649,
+  "org.apache.commons.codec.net.BCodecTest": 5748,
+  "org.apache.commons.codec.net.QCodecTest": 7528,
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": 9860,
+  "org.apache.commons.codec.net.RFC1522CodecTest": 2818,
+  "org.apache.commons.codec.net.URLCodecTest": 10778,
+  "org.apache.commons.codec.net.UtilsTest": 1438
+ }
+}

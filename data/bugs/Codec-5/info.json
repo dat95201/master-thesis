@@ -1,0 +1,247 @@
+{
+ "bug": "Codec-5",
+ "pid": "Codec",
+ "bid": 5,
+ "modified_class": "org.apache.commons.codec.binary.Base64",
+ "src_file": "src/java/org/apache/commons/codec/binary/Base64.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-5/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-5/b/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-5/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-5/f/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-5/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-5/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "decode(byte[],int,int)",
+   "name": "decode",
+   "nparams": 3
+  }
+ ],
+ "buggy_methods": {
+  "decode(byte[],int,int)": "void decode(byte[] in, int inPos, int inAvail) {\n        if (eof) {\n            return;\n        }\n        if (inAvail < 0) {\n            eof = true;\n        }\n        for (int i = 0; i < inAvail; i++) {\n            if (buffer == null || buffer.length - pos < decodeSize) {\n                resizeBuffer();\n            }\n            byte b = in[inPos++];\n            if (b == PAD) {\n                // We're done.\n                eof = true;\n                break;\n            } else {\n                if (b >= 0 && b < DECODE_TABLE.length) {\n                    int result = DECODE_TABLE[b];\n                    if (result >= 0) {\n                        modulus = (++modulus) % 4;\n                        x = (x << 6) + result;\n                        if (modulus == 0) {\n                            buffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n                            buffer[pos++] = (byte) ((x >> 8) & MASK_8BITS);\n                            buffer[pos++] = (byte) (x & MASK_8BITS);\n                        }\n                    }\n                }\n            }\n        }\n\n        // Two forms of EOF as far as base64 decoder is concerned: actual\n        // EOF (-1) and first time '=' character is encountered in stream.\n        // This approach makes the '=' padding characters completely optional.\n        if (eof && modulus != 0) {\n            \n            x = x << 6;\n            switch (modulus) {\n                case 2 :\n                    x = x << 6;\n                    buffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n                    break;\n                case 3 :\n                    buffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n                    buffer[pos++] = (byte) ((x >> 8) & MASK_8BITS);\n                    break;\n            }\n        }\n    }"
+ },
+ "fixed_methods": {
+  "decode(byte[],int,int)": "void decode(byte[] in, int inPos, int inAvail) {\n        if (eof) {\n            return;\n        }\n        if (inAvail < 0) {\n            eof = true;\n        }\n        for (int i = 0; i < inAvail; i++) {\n            if (buffer == null || buffer.length - pos < decodeSize) {\n                resizeBuffer();\n            }\n            byte b = in[inPos++];\n            if (b == PAD) {\n                // We're done.\n                eof = true;\n                break;\n            } else {\n                if (b >= 0 && b < DECODE_TABLE.length) {\n                    int result = DECODE_TABLE[b];\n                    if (result >= 0) {\n                        modulus = (++modulus) % 4;\n                        x = (x << 6) + result;\n                        if (modulus == 0) {\n                            buffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n                            buffer[pos++] = (byte) ((x >> 8) & MASK_8BITS);\n                            buffer[pos++] = (byte) (x & MASK_8BITS);\n                        }\n                    }\n                }\n            }\n        }\n\n        // Two forms of EOF as far as base64 decoder is concerned: actual\n        // EOF (-1) and first time '=' character is encountered in stream.\n        // This approach makes the '=' padding characters completely optional.\n        if (eof && modulus != 0) {\n            if (buffer == null || buffer.length - pos < decodeSize) {\n                resizeBuffer();\n            }\n            \n            x = x << 6;\n            switch (modulus) {\n                case 2 :\n                    x = x << 6;\n                    buffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n                    break;\n                case 3 :\n                    buffer[pos++] = (byte) ((x >> 16) & MASK_8BITS);\n                    buffer[pos++] = (byte) ((x >> 8) & MASK_8BITS);\n                    break;\n            }\n        }\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.codec.binary.Base64InputStreamTest::testCodec98NPE",
+   "error": "java.lang.NullPointerException"
+  },
+  {
+   "test": "org.apache.commons.codec.binary.Base64OutputStreamTest::testCodec98NPE",
+   "error": "java.lang.NullPointerException"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.codec.binary.Base64",
+  "org.apache.commons.codec.binary.Base64InputStream",
+  "org.apache.commons.codec.binary.Base64OutputStream",
+  "org.apache.commons.codec.binary.StringUtils",
+  "org.apache.commons.codec.BinaryDecoder",
+  "org.apache.commons.codec.BinaryEncoder",
+  "org.apache.commons.codec.Decoder",
+  "org.apache.commons.codec.DecoderException",
+  "org.apache.commons.codec.Encoder",
+  "org.apache.commons.codec.EncoderException"
+ ],
+ "suite": [
+  "org.apache.commons.codec.CharEncodingTest",
+  "org.apache.commons.codec.DecoderExceptionTest",
+  "org.apache.commons.codec.EncoderExceptionTest",
+  "org.apache.commons.codec.StringEncoderComparatorTest",
+  "org.apache.commons.codec.binary.Base64Codec13Test",
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.binary.BinaryCodecTest",
+  "org.apache.commons.codec.binary.HexTest",
+  "org.apache.commons.codec.binary.StringUtilsTest",
+  "org.apache.commons.codec.digest.DigestUtilsTest",
+  "org.apache.commons.codec.language.CaverphoneTest",
+  "org.apache.commons.codec.language.DoubleMetaphone2Test",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest",
+  "org.apache.commons.codec.language.MetaphoneTest",
+  "org.apache.commons.codec.language.RefinedSoundexTest",
+  "org.apache.commons.codec.language.SoundexTest",
+  "org.apache.commons.codec.net.BCodecTest",
+  "org.apache.commons.codec.net.QCodecTest",
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest",
+  "org.apache.commons.codec.net.RFC1522CodecTest",
+  "org.apache.commons.codec.net.URLCodecTest",
+  "org.apache.commons.codec.net.UtilsTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.codec.CharEncodingTest": {
+   "wall": 0.047979,
+   "cpu": 0.062712,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.DecoderExceptionTest": {
+   "wall": 0.002569,
+   "cpu": 0.00381,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.EncoderExceptionTest": {
+   "wall": 0.0023490000000000004,
+   "cpu": 0.005286,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.StringEncoderComparatorTest": {
+   "wall": 0.004859,
+   "cpu": 0.008612999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Codec13Test": {
+   "wall": 0.011275,
+   "cpu": 0.022269999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64InputStreamTest": {
+   "wall": 0.090654,
+   "cpu": 0.124219,
+   "status": "fail"
+  },
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": {
+   "wall": 0.065196,
+   "cpu": 0.1107,
+   "status": "fail"
+  },
+  "org.apache.commons.codec.binary.Base64Test": {
+   "wall": 0.008577999999999999,
+   "cpu": 0.023940000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BinaryCodecTest": {
+   "wall": 0.003738,
+   "cpu": 0.010271,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.HexTest": {
+   "wall": 0.104717,
+   "cpu": 0.26425299999999996,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.StringUtilsTest": {
+   "wall": 0.0041470000000000005,
+   "cpu": 0.015215,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.DigestUtilsTest": {
+   "wall": 0.13961500000000002,
+   "cpu": 0.246796,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.CaverphoneTest": {
+   "wall": 0.00725,
+   "cpu": 0.013427,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": {
+   "wall": 0.064868,
+   "cpu": 0.033794,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": {
+   "wall": 0.010117000000000001,
+   "cpu": 0.025699000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.MetaphoneTest": {
+   "wall": 0.019118,
+   "cpu": 0.063964,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.RefinedSoundexTest": {
+   "wall": 0.002027,
+   "cpu": 0.003707,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.SoundexTest": {
+   "wall": 0.001703,
+   "cpu": 0.006719,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.BCodecTest": {
+   "wall": 0.006522,
+   "cpu": 0.016730000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QCodecTest": {
+   "wall": 0.006651,
+   "cpu": 0.021443999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": {
+   "wall": 0.003357,
+   "cpu": 0.009722,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.RFC1522CodecTest": {
+   "wall": 0.001242,
+   "cpu": 0.003742,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.URLCodecTest": {
+   "wall": 0.002907,
+   "cpu": 0.010173,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.UtilsTest": {
+   "wall": 0.000684,
+   "cpu": 0.0024519999999999998,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.20275854200235632,
+  "cpu": 0.29388699999999757
+ },
+ "fixed_suite_seconds": [
+  0.98,
+  0.8,
+  0.75
+ ],
+ "covering": [
+  "org.apache.commons.codec.binary.Base64Codec13Test",
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.net.BCodecTest"
+ ],
+ "sizes": {
+  "org.apache.commons.codec.CharEncodingTest": 1877,
+  "org.apache.commons.codec.DecoderExceptionTest": 1980,
+  "org.apache.commons.codec.EncoderExceptionTest": 1980,
+  "org.apache.commons.codec.StringEncoderComparatorTest": 3039,
+  "org.apache.commons.codec.binary.Base64Codec13Test": 95062,
+  "org.apache.commons.codec.binary.Base64InputStreamTest": 13830,
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": 13057,
+  "org.apache.commons.codec.binary.Base64Test": 71158,
+  "org.apache.commons.codec.binary.BinaryCodecTest": 58495,
+  "org.apache.commons.codec.binary.HexTest": 13302,
+  "org.apache.commons.codec.binary.StringUtilsTest": 6906,
+  "org.apache.commons.codec.digest.DigestUtilsTest": 6935,
+  "org.apache.commons.codec.language.CaverphoneTest": 2164,
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": 67684,
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": 50281,
+  "org.apache.commons.codec.language.MetaphoneTest": 15155,
+  "org.apache.commons.codec.language.RefinedSoundexTest": 4643,
+  "org.apache.commons.codec.language.SoundexTest": 14649,
+  "org.apache.commons.codec.net.BCodecTest": 5748,
+  "org.apache.commons.codec.net.QCodecTest": 7528,
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": 9881,
+  "org.apache.commons.codec.net.RFC1522CodecTest": 2818,
+  "org.apache.commons.codec.net.URLCodecTest": 10799,
+  "org.apache.commons.codec.net.UtilsTest": 1438
+ }
+}

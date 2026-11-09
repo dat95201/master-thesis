@@ -1,0 +1,424 @@
+{
+ "bug": "Codec-18",
+ "pid": "Codec",
+ "bid": 18,
+ "modified_class": "org.apache.commons.codec.binary.StringUtils",
+ "src_file": "src/main/java/org/apache/commons/codec/binary/StringUtils.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/work/Codec-18/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-18/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/work/Codec-18/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-18/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-18/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-18/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "equals(CharSequence,CharSequence)",
+   "name": "equals",
+   "nparams": 2
+  }
+ ],
+ "buggy_methods": {
+  "equals(CharSequence,CharSequence)": "public static boolean equals(final CharSequence cs1, final CharSequence cs2) {\n        if (cs1 == cs2) {\n            return true;\n        }\n        if (cs1 == null || cs2 == null) {\n            return false;\n        }\n        if (cs1 instanceof String && cs2 instanceof String) {\n            return cs1.equals(cs2);\n        }\n        return CharSequenceUtils.regionMatches(cs1, false, 0, cs2, 0, Math.max(cs1.length(), cs2.length()));\n    }"
+ },
+ "fixed_methods": {
+  "equals(CharSequence,CharSequence)": "public static boolean equals(final CharSequence cs1, final CharSequence cs2) {\n        if (cs1 == cs2) {\n            return true;\n        }\n        if (cs1 == null || cs2 == null) {\n            return false;\n        }\n        if (cs1 instanceof String && cs2 instanceof String) {\n            return cs1.equals(cs2);\n        }\n        return cs1.length() == cs2.length() && CharSequenceUtils.regionMatches(cs1, false, 0, cs2, 0, cs1.length());\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.codec.binary.StringUtilsTest::testEqualsCS1",
+   "error": "java.lang.StringIndexOutOfBoundsException: String index out of range: 3"
+  },
+  {
+   "test": "org.apache.commons.codec.binary.StringUtilsTest::testEqualsCS2",
+   "error": "java.lang.StringIndexOutOfBoundsException: String index out of range: 3"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.codec.binary.StringUtilsTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.codec.binary.CharSequenceUtils",
+  "org.apache.commons.codec.binary.StringUtils"
+ ],
+ "suite": [
+  "org.apache.commons.codec.CharEncodingTest",
+  "org.apache.commons.codec.CharsetsTest",
+  "org.apache.commons.codec.DecoderExceptionTest",
+  "org.apache.commons.codec.EncoderExceptionTest",
+  "org.apache.commons.codec.StringEncoderComparatorTest",
+  "org.apache.commons.codec.binary.Base32InputStreamTest",
+  "org.apache.commons.codec.binary.Base32OutputStreamTest",
+  "org.apache.commons.codec.binary.Base32Test",
+  "org.apache.commons.codec.binary.Base64Codec13Test",
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.binary.BaseNCodecTest",
+  "org.apache.commons.codec.binary.BinaryCodecTest",
+  "org.apache.commons.codec.binary.HexTest",
+  "org.apache.commons.codec.binary.StringUtilsTest",
+  "org.apache.commons.codec.digest.Apr1CryptTest",
+  "org.apache.commons.codec.digest.B64Test",
+  "org.apache.commons.codec.digest.CryptTest",
+  "org.apache.commons.codec.digest.DigestUtilsTest",
+  "org.apache.commons.codec.digest.HmacAlgorithmsTest",
+  "org.apache.commons.codec.digest.HmacUtilsTest",
+  "org.apache.commons.codec.digest.Md5CryptTest",
+  "org.apache.commons.codec.digest.MessageDigestAlgorithmsTest",
+  "org.apache.commons.codec.digest.PureJavaCrc32CTest",
+  "org.apache.commons.codec.digest.PureJavaCrc32Test",
+  "org.apache.commons.codec.digest.Sha256CryptTest",
+  "org.apache.commons.codec.digest.Sha2CryptTest",
+  "org.apache.commons.codec.digest.Sha512CryptTest",
+  "org.apache.commons.codec.digest.UnixCryptTest",
+  "org.apache.commons.codec.language.Caverphone1Test",
+  "org.apache.commons.codec.language.Caverphone2Test",
+  "org.apache.commons.codec.language.ColognePhoneticTest",
+  "org.apache.commons.codec.language.DaitchMokotoffSoundexTest",
+  "org.apache.commons.codec.language.DoubleMetaphone2Test",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest",
+  "org.apache.commons.codec.language.MatchRatingApproachEncoderTest",
+  "org.apache.commons.codec.language.MetaphoneTest",
+  "org.apache.commons.codec.language.NysiisTest",
+  "org.apache.commons.codec.language.RefinedSoundexTest",
+  "org.apache.commons.codec.language.SoundexTest",
+  "org.apache.commons.codec.language.bm.BeiderMorseEncoderTest",
+  "org.apache.commons.codec.language.bm.LanguageGuessingTest",
+  "org.apache.commons.codec.language.bm.PhoneticEngineRegressionTest",
+  "org.apache.commons.codec.language.bm.RuleTest",
+  "org.apache.commons.codec.net.BCodecTest",
+  "org.apache.commons.codec.net.QCodecTest",
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest",
+  "org.apache.commons.codec.net.RFC1522CodecTest",
+  "org.apache.commons.codec.net.URLCodecTest",
+  "org.apache.commons.codec.net.UtilsTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.codec.CharEncodingTest": {
+   "wall": 0.063184,
+   "cpu": 0.090879,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.CharsetsTest": {
+   "wall": 0.0025859999999999998,
+   "cpu": 0.003781,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.DecoderExceptionTest": {
+   "wall": 0.003694,
+   "cpu": 0.003447,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.EncoderExceptionTest": {
+   "wall": 0.003471,
+   "cpu": 0.005324,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.StringEncoderComparatorTest": {
+   "wall": 0.011227000000000001,
+   "cpu": 0.010291999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base32InputStreamTest": {
+   "wall": 0.109723,
+   "cpu": 0.145696,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base32OutputStreamTest": {
+   "wall": 0.08371200000000001,
+   "cpu": 0.086125,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base32Test": {
+   "wall": 0.004495,
+   "cpu": 0.007175,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Codec13Test": {
+   "wall": 0.018661999999999998,
+   "cpu": 0.038916,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64InputStreamTest": {
+   "wall": 0.06570999999999999,
+   "cpu": 0.11208,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": {
+   "wall": 0.057456,
+   "cpu": 0.090714,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Test": {
+   "wall": 0.010489,
+   "cpu": 0.025715,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BaseNCodecTest": {
+   "wall": 0.002352,
+   "cpu": 0.005325,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BinaryCodecTest": {
+   "wall": 0.002763,
+   "cpu": 0.006042,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.HexTest": {
+   "wall": 0.10011400000000001,
+   "cpu": 0.211477,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.StringUtilsTest": {
+   "wall": 0.0045190000000000004,
+   "cpu": 0.011411,
+   "status": "fail"
+  },
+  "org.apache.commons.codec.digest.Apr1CryptTest": {
+   "wall": 0.036857999999999995,
+   "cpu": 0.085679,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.B64Test": {
+   "wall": 0.000499,
+   "cpu": 0.0010409999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.CryptTest": {
+   "wall": 0.039897,
+   "cpu": 0.07991200000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.DigestUtilsTest": {
+   "wall": 0.566665,
+   "cpu": 1.065904,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.HmacAlgorithmsTest": {
+   "wall": 0.469488,
+   "cpu": 0.844445,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.HmacUtilsTest": {
+   "wall": 0.003812,
+   "cpu": 0.009006,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.Md5CryptTest": {
+   "wall": 0.006658000000000001,
+   "cpu": 0.015123,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.MessageDigestAlgorithmsTest": {
+   "wall": 3.5409810000000004,
+   "cpu": 3.352884,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.PureJavaCrc32CTest": {
+   "wall": 0.001767,
+   "cpu": 0.001717,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.PureJavaCrc32Test": {
+   "wall": 0.082841,
+   "cpu": 0.117677,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.Sha256CryptTest": {
+   "wall": 0.04922,
+   "cpu": 0.09425199999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.Sha2CryptTest": {
+   "wall": 0.000414,
+   "cpu": 0.0016510000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.Sha512CryptTest": {
+   "wall": 0.061473999999999994,
+   "cpu": 0.105102,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.UnixCryptTest": {
+   "wall": 0.003075,
+   "cpu": 0.0045309999999999994,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.Caverphone1Test": {
+   "wall": 0.01021,
+   "cpu": 0.023863,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.Caverphone2Test": {
+   "wall": 0.018794,
+   "cpu": 0.039741,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.ColognePhoneticTest": {
+   "wall": 0.022982,
+   "cpu": 0.014577999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DaitchMokotoffSoundexTest": {
+   "wall": 0.026198,
+   "cpu": 0.047543,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": {
+   "wall": 0.013278,
+   "cpu": 0.029331,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": {
+   "wall": 0.010876,
+   "cpu": 0.023161,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.MatchRatingApproachEncoderTest": {
+   "wall": 0.006182,
+   "cpu": 0.013614000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.MetaphoneTest": {
+   "wall": 0.008906,
+   "cpu": 0.021094,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.NysiisTest": {
+   "wall": 0.008844,
+   "cpu": 0.018702000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.RefinedSoundexTest": {
+   "wall": 0.0022040000000000002,
+   "cpu": 0.002903,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.SoundexTest": {
+   "wall": 0.001701,
+   "cpu": 0.003229,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.bm.BeiderMorseEncoderTest": {
+   "wall": 2.254462,
+   "cpu": 2.898615,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.bm.LanguageGuessingTest": {
+   "wall": 0.007652,
+   "cpu": 0.013942,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.bm.PhoneticEngineRegressionTest": {
+   "wall": 0.007915,
+   "cpu": 0.014387,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.bm.RuleTest": {
+   "wall": 0.0019450000000000001,
+   "cpu": 0.0030310000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.BCodecTest": {
+   "wall": 0.008622999999999999,
+   "cpu": 0.011788999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QCodecTest": {
+   "wall": 0.00613,
+   "cpu": 0.008029999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": {
+   "wall": 0.002669,
+   "cpu": 0.006622,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.RFC1522CodecTest": {
+   "wall": 0.001583,
+   "cpu": 0.002722,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.URLCodecTest": {
+   "wall": 0.011993,
+   "cpu": 0.01314,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.UtilsTest": {
+   "wall": 0.00034,
+   "cpu": 0.000545,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2831985419993046,
+  "cpu": 0.3301799999999986
+ },
+ "fixed_suite_seconds": [
+  9.82,
+  12.71,
+  9.81
+ ],
+ "covering": [
+  "org.apache.commons.codec.binary.StringUtilsTest",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest"
+ ],
+ "sizes": {
+  "org.apache.commons.codec.CharEncodingTest": 1843,
+  "org.apache.commons.codec.CharsetsTest": 2203,
+  "org.apache.commons.codec.DecoderExceptionTest": 1977,
+  "org.apache.commons.codec.EncoderExceptionTest": 1977,
+  "org.apache.commons.codec.StringEncoderComparatorTest": 2918,
+  "org.apache.commons.codec.binary.Base32InputStreamTest": 21497,
+  "org.apache.commons.codec.binary.Base32OutputStreamTest": 12753,
+  "org.apache.commons.codec.binary.Base32Test": 6522,
+  "org.apache.commons.codec.binary.Base64Codec13Test": 93819,
+  "org.apache.commons.codec.binary.Base64InputStreamTest": 21867,
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": 13201,
+  "org.apache.commons.codec.binary.Base64Test": 76935,
+  "org.apache.commons.codec.binary.BaseNCodecTest": 5627,
+  "org.apache.commons.codec.binary.BinaryCodecTest": 58625,
+  "org.apache.commons.codec.binary.HexTest": 18308,
+  "org.apache.commons.codec.binary.StringUtilsTest": 9656,
+  "org.apache.commons.codec.digest.Apr1CryptTest": 4352,
+  "org.apache.commons.codec.digest.B64Test": 1448,
+  "org.apache.commons.codec.digest.CryptTest": 2067,
+  "org.apache.commons.codec.digest.DigestUtilsTest": 15098,
+  "org.apache.commons.codec.digest.HmacAlgorithmsTest": 9296,
+  "org.apache.commons.codec.digest.HmacUtilsTest": 14712,
+  "org.apache.commons.codec.digest.Md5CryptTest": 3216,
+  "org.apache.commons.codec.digest.MessageDigestAlgorithmsTest": 6453,
+  "org.apache.commons.codec.digest.PureJavaCrc32CTest": 2171,
+  "org.apache.commons.codec.digest.PureJavaCrc32Test": 12787,
+  "org.apache.commons.codec.digest.Sha256CryptTest": 4046,
+  "org.apache.commons.codec.digest.Sha2CryptTest": 1035,
+  "org.apache.commons.codec.digest.Sha512CryptTest": 4867,
+  "org.apache.commons.codec.digest.UnixCryptTest": 3859,
+  "org.apache.commons.codec.language.Caverphone1Test": 3400,
+  "org.apache.commons.codec.language.Caverphone2Test": 9344,
+  "org.apache.commons.codec.language.ColognePhoneticTest": 5104,
+  "org.apache.commons.codec.language.DaitchMokotoffSoundexTest": 6501,
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": 46252,
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": 50780,
+  "org.apache.commons.codec.language.MatchRatingApproachEncoderTest": 17951,
+  "org.apache.commons.codec.language.MetaphoneTest": 15066,
+  "org.apache.commons.codec.language.NysiisTest": 11154,
+  "org.apache.commons.codec.language.RefinedSoundexTest": 4209,
+  "org.apache.commons.codec.language.SoundexTest": 15825,
+  "org.apache.commons.codec.language.bm.BeiderMorseEncoderTest": 8328,
+  "org.apache.commons.codec.language.bm.LanguageGuessingTest": 2966,
+  "org.apache.commons.codec.language.bm.PhoneticEngineRegressionTest": 13234,
+  "org.apache.commons.codec.language.bm.RuleTest": 7044,
+  "org.apache.commons.codec.net.BCodecTest": 5517,
+  "org.apache.commons.codec.net.QCodecTest": 7343,
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": 13733,
+  "org.apache.commons.codec.net.RFC1522CodecTest": 2844,
+  "org.apache.commons.codec.net.URLCodecTest": 11187,
+  "org.apache.commons.codec.net.UtilsTest": 1308
+ }
+}

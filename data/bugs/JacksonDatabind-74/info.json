@@ -1,0 +1,2667 @@
+{
+ "bug": "JacksonDatabind-74",
+ "pid": "JacksonDatabind",
+ "bid": 74,
+ "modified_class": "com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer",
+ "src_file": "src/main/java/com/fasterxml/jackson/databind/jsontype/impl/AsPropertyTypeDeserializer.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.7/jackson-core-2.8.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.6.5/powermock-module-junit4-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.6.5/powermock-module-junit4-common-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.6.5/powermock-core-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.20.0-GA/javassist-3.20.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.6.5/powermock-reflect-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.6.5/powermock-api-mockito-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-core/1.10.19/mockito-core-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/objenesis/objenesis/2.1/objenesis-2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito-common/1.6.5/powermock-api-mockito-common-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.6.5/powermock-api-support-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/javax/measure/jsr-275/0.9.1/jsr-275-0.9.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/google/jimfs/jimfs/1.1/jimfs-1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/google/guava/guava/18.0/guava-18.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonDatabind-74/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonDatabind-74/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/antlr/antlr/2.7.7/antlr-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-analysis/3.2/asm-analysis-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-commons/3.2/asm-commons-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-tree/3.2/asm-tree-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-util/3.2/asm-util-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm/3.3.1/asm-3.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/cglib/cglib/2.2.2/cglib-2.2.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/cglib/cglib/3.1/cglib-3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.10.0-SNAPSHOT/jackson-annotations-2.10.0-20190519.085045-3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.2.0/jackson-annotations-2.2.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.2.1/jackson-annotations-2.2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.3.0/jackson-annotations-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.4.0-rc3/jackson-annotations-2.4.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.4.0/jackson-annotations-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.5.0/jackson-annotations-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc1/jackson-annotations-2.6.0-rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc2/jackson-annotations-2.6.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc3/jackson-annotations-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc2/jackson-annotations-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0.rc1/jackson-annotations-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.9.0.pr3/jackson-annotations-2.9.0.pr3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/3.0-SNAPSHOT/jackson-annotations-3.0-20190323.173155-41.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/3.0-SNAPSHOT/jackson-annotations-3.0-20190519.085339-43.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.10.0-SNAPSHOT/jackson-core-2.10.0-20190518.180547-60.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.2.0/jackson-core-2.2.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.2.1/jackson-core-2.2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.3.0/jackson-core-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.0-rc3/jackson-core-2.4.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.0/jackson-core-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.1.1/jackson-core-2.4.1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.2/jackson-core-2.4.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.3/jackson-core-2.4.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.5/jackson-core-2.4.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.6/jackson-core-2.4.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.0/jackson-core-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.1/jackson-core-2.5.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.3/jackson-core-2.5.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.4/jackson-core-2.5.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.5/jackson-core-2.5.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc1/jackson-core-2.6.0-rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc2/jackson-core-2.6.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc3/jackson-core-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0/jackson-core-2.6.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.1/jackson-core-2.6.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.2/jackson-core-2.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.4/jackson-core-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.5/jackson-core-2.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.6/jackson-core-2.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.7/jackson-core-2.6.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc2/jackson-core-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.0/jackson-core-2.7.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.1/jackson-core-2.7.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.2/jackson-core-2.7.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.5/jackson-core-2.7.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.6/jackson-core-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.7/jackson-core-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.8/jackson-core-2.7.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.9/jackson-core-2.7.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.0.rc1/jackson-core-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.0.rc2/jackson-core-2.8.0.rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.0/jackson-core-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.10/jackson-core-2.8.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.3/jackson-core-2.8.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.4/jackson-core-2.8.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.5/jackson-core-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.6/jackson-core-2.8.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.8-SNAPSHOT/jackson-core-2.8.8-20170301.000803-1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.8/jackson-core-2.8.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.9/jackson-core-2.8.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.0.pr3/jackson-core-2.9.0.pr3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.7/jackson-core-2.9.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.9/jackson-core-2.9.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/3.0.0-SNAPSHOT/jackson-core-3.0.0-20190516.032312-448.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/javax/measure/jsr-275/0.9.2/jsr-275-0.9.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.10/junit-4.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.8.2/junit-4.8.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy-agent/1.7.5/byte-buddy-agent-1.7.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy-agent/1.9.3/byte-buddy-agent-1.9.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy/1.7.5/byte-buddy-1.7.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy/1.9.3/byte-buddy-1.9.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/assertj/assertj-core/3.8.0/assertj-core-3.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/assertj/assertj-core/3.9.1/assertj-core-3.9.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/codehaus/groovy/groovy/1.7.9/groovy-1.7.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/codehaus/groovy/groovy/2.4.0/groovy-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/hibernate/hibernate-cglib-repack/2.1_3/hibernate-cglib-repack-2.1_3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.22.0-CR2/javassist-3.22.0-CR2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-core/2.10.0/mockito-core-2.10.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-core/2.23.0/mockito-core-2.23.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/objenesis/objenesis/3.0.1/objenesis-3.0.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/ow2/asm/asm/4.2/asm-4.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito-common/1.7.3/powermock-api-mockito-common-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito-common/1.7.4/powermock-api-mockito-common-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.6.2/powermock-api-mockito-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.6.3/powermock-api-mockito-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.7.3/powermock-api-mockito-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.7.4/powermock-api-mockito-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito2/2.0.0-beta.5/powermock-api-mockito2-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito2/2.0.0/powermock-api-mockito2-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.6.2/powermock-api-support-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.6.3/powermock-api-support-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.7.3/powermock-api-support-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.7.4/powermock-api-support-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/2.0.0-beta.5/powermock-api-support-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/2.0.0/powermock-api-support-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.6.2/powermock-core-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.6.3/powermock-core-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.7.3/powermock-core-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.7.4/powermock-core-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/2.0.0-beta.5/powermock-core-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/2.0.0/powermock-core-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.6.2/powermock-module-junit4-common-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.6.3/powermock-module-junit4-common-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.7.3/powermock-module-junit4-common-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.7.4/powermock-module-junit4-common-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/2.0.0-beta.5/powermock-module-junit4-common-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/2.0.0/powermock-module-junit4-common-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.6.2/powermock-module-junit4-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.6.3/powermock-module-junit4-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.7.3/powermock-module-junit4-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.7.4/powermock-module-junit4-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/2.0.0-beta.5/powermock-module-junit4-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/2.0.0/powermock-module-junit4-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.6.2/powermock-reflect-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.6.3/powermock-reflect-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.7.3/powermock-reflect-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.7.4/powermock-reflect-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/2.0.0-beta.5/powermock-reflect-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/2.0.0/powermock-reflect-2.0.0.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.7/jackson-core-2.8.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.6.5/powermock-module-junit4-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.6.5/powermock-module-junit4-common-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.6.5/powermock-core-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.20.0-GA/javassist-3.20.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.6.5/powermock-reflect-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.6.5/powermock-api-mockito-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-core/1.10.19/mockito-core-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/objenesis/objenesis/2.1/objenesis-2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito-common/1.6.5/powermock-api-mockito-common-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.6.5/powermock-api-support-1.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/javax/measure/jsr-275/0.9.1/jsr-275-0.9.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/google/jimfs/jimfs/1.1/jimfs-1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/google/guava/guava/18.0/guava-18.0.jar:/Users/datnguyen/Study/research/master-thesis/work/JacksonDatabind-74/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/JacksonDatabind-74/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/antlr/antlr/2.7.7/antlr-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-analysis/3.2/asm-analysis-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-commons/3.2/asm-commons-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-tree/3.2/asm-tree-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm-util/3.2/asm-util-3.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/asm/asm/3.3.1/asm-3.3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/cglib/cglib/2.2.2/cglib-2.2.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/cglib/cglib/3.1/cglib-3.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.10.0-SNAPSHOT/jackson-annotations-2.10.0-20190519.085045-3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.2.0/jackson-annotations-2.2.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.2.1/jackson-annotations-2.2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.3.0/jackson-annotations-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.4.0-rc3/jackson-annotations-2.4.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.4.0/jackson-annotations-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.5.0/jackson-annotations-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc1/jackson-annotations-2.6.0-rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc2/jackson-annotations-2.6.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0-rc3/jackson-annotations-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.6.0/jackson-annotations-2.6.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0-rc2/jackson-annotations-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.7.0/jackson-annotations-2.7.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0.rc1/jackson-annotations-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.9.0.pr3/jackson-annotations-2.9.0.pr3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.9.0/jackson-annotations-2.9.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/3.0-SNAPSHOT/jackson-annotations-3.0-20190323.173155-41.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/3.0-SNAPSHOT/jackson-annotations-3.0-20190519.085339-43.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.10.0-SNAPSHOT/jackson-core-2.10.0-20190518.180547-60.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.2.0/jackson-core-2.2.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.2.1/jackson-core-2.2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.3.0/jackson-core-2.3.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.0-rc3/jackson-core-2.4.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.0/jackson-core-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.1.1/jackson-core-2.4.1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.2/jackson-core-2.4.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.3/jackson-core-2.4.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.5/jackson-core-2.4.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.4.6/jackson-core-2.4.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.0/jackson-core-2.5.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.1/jackson-core-2.5.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.3/jackson-core-2.5.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.4/jackson-core-2.5.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.5.5/jackson-core-2.5.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc1/jackson-core-2.6.0-rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc2/jackson-core-2.6.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0-rc3/jackson-core-2.6.0-rc3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.0/jackson-core-2.6.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.1/jackson-core-2.6.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.2/jackson-core-2.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.3/jackson-core-2.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.4/jackson-core-2.6.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.5/jackson-core-2.6.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.6/jackson-core-2.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.6.7/jackson-core-2.6.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.0-rc2/jackson-core-2.7.0-rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.0/jackson-core-2.7.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.1/jackson-core-2.7.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.2/jackson-core-2.7.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.4/jackson-core-2.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.5/jackson-core-2.7.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.6/jackson-core-2.7.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.7/jackson-core-2.7.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.8/jackson-core-2.7.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.7.9/jackson-core-2.7.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.0.rc1/jackson-core-2.8.0.rc1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.0.rc2/jackson-core-2.8.0.rc2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.0/jackson-core-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.10/jackson-core-2.8.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.3/jackson-core-2.8.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.4/jackson-core-2.8.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.5/jackson-core-2.8.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.6/jackson-core-2.8.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.8-SNAPSHOT/jackson-core-2.8.8-20170301.000803-1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.8/jackson-core-2.8.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.9/jackson-core-2.8.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.0.pr3/jackson-core-2.9.0.pr3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.6/jackson-core-2.9.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.7/jackson-core-2.9.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.8/jackson-core-2.9.8.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.9.9/jackson-core-2.9.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/3.0.0-SNAPSHOT/jackson-core-3.0.0-20190516.032312-448.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/javax/measure/jsr-275/0.9.2/jsr-275-0.9.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.10/junit-4.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/junit/junit/4.8.2/junit-4.8.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy-agent/1.7.5/byte-buddy-agent-1.7.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy-agent/1.9.3/byte-buddy-agent-1.9.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy/1.7.5/byte-buddy-1.7.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/net/bytebuddy/byte-buddy/1.9.3/byte-buddy-1.9.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/assertj/assertj-core/3.8.0/assertj-core-3.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/assertj/assertj-core/3.9.1/assertj-core-3.9.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/codehaus/groovy/groovy/1.7.9/groovy-1.7.9.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/codehaus/groovy/groovy/2.4.0/groovy-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/hibernate/hibernate-cglib-repack/2.1_3/hibernate-cglib-repack-2.1_3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.19.0-GA/javassist-3.19.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.22.0-CR2/javassist-3.22.0-CR2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/javassist/javassist/3.24.0-GA/javassist-3.24.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-core/2.10.0/mockito-core-2.10.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/mockito/mockito-core/2.23.0/mockito-core-2.23.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/objenesis/objenesis/2.6/objenesis-2.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/objenesis/objenesis/3.0.1/objenesis-3.0.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/ow2/asm/asm/4.2/asm-4.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito-common/1.7.3/powermock-api-mockito-common-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito-common/1.7.4/powermock-api-mockito-common-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.6.2/powermock-api-mockito-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.6.3/powermock-api-mockito-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.7.3/powermock-api-mockito-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito/1.7.4/powermock-api-mockito-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito2/2.0.0-beta.5/powermock-api-mockito2-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-mockito2/2.0.0/powermock-api-mockito2-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.6.2/powermock-api-support-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.6.3/powermock-api-support-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.7.3/powermock-api-support-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/1.7.4/powermock-api-support-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/2.0.0-beta.5/powermock-api-support-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-api-support/2.0.0/powermock-api-support-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.6.2/powermock-core-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.6.3/powermock-core-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.7.3/powermock-core-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/1.7.4/powermock-core-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/2.0.0-beta.5/powermock-core-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-core/2.0.0/powermock-core-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.6.2/powermock-module-junit4-common-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.6.3/powermock-module-junit4-common-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.7.3/powermock-module-junit4-common-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/1.7.4/powermock-module-junit4-common-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/2.0.0-beta.5/powermock-module-junit4-common-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4-common/2.0.0/powermock-module-junit4-common-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.6.2/powermock-module-junit4-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.6.3/powermock-module-junit4-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.7.3/powermock-module-junit4-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/1.7.4/powermock-module-junit4-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/2.0.0-beta.5/powermock-module-junit4-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-module-junit4/2.0.0/powermock-module-junit4-2.0.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.6.2/powermock-reflect-1.6.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.6.3/powermock-reflect-1.6.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.7.3/powermock-reflect-1.7.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/1.7.4/powermock-reflect-1.7.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/2.0.0-beta.5/powermock-reflect-2.0.0-beta.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/org/powermock/powermock-reflect/2.0.0/powermock-reflect-2.0.0.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/JacksonDatabind-74/b/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.7/jackson-core-2.8.7.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/JacksonDatabind-74/f/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-annotations/2.8.0/jackson-annotations-2.8.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/JacksonDatabind/lib/com/fasterxml/jackson/core/jackson-core/2.8.7/jackson-core-2.8.7.jar"
+ },
+ "faulty": [
+  {
+   "key": "_deserializeTypedUsingDefaultImpl(JsonParser,DeserializationContext,TokenBuffer)",
+   "name": "_deserializeTypedUsingDefaultImpl",
+   "nparams": 3
+  }
+ ],
+ "buggy_methods": {
+  "_deserializeTypedUsingDefaultImpl(JsonParser,DeserializationContext,TokenBuffer)": "@SuppressWarnings(\"resource\")\n    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p, DeserializationContext ctxt,\n            TokenBuffer tb) throws IOException\n    {\n        // As per [JACKSON-614], may have default implementation to use\n        JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);\n        if (deser != null) {\n            if (tb != null) {\n                tb.writeEndObject();\n                p = tb.asParser(p);\n                // must move to point to the first token:\n                p.nextToken();\n            }\n            return deser.deserialize(p, ctxt);\n        }\n        // or, perhaps we just bumped into a \"natural\" value (boolean/int/double/String)?\n        Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);\n        if (result != null) {\n            return result;\n        }\n        // or, something for which \"as-property\" won't work, changed into \"wrapper-array\" type:\n        if (p.getCurrentToken() == JsonToken.START_ARRAY) {\n            return super.deserializeTypedFromAny(p, ctxt);\n        }\n        ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,\n                \"missing property '\"+_typePropertyName+\"' that is to contain type id  (for class \"+baseTypeName()+\")\");\n        return null;\n    }"
+ },
+ "fixed_methods": {
+  "_deserializeTypedUsingDefaultImpl(JsonParser,DeserializationContext,TokenBuffer)": "@SuppressWarnings(\"resource\")\n    protected Object _deserializeTypedUsingDefaultImpl(JsonParser p, DeserializationContext ctxt,\n            TokenBuffer tb) throws IOException\n    {\n        // As per [JACKSON-614], may have default implementation to use\n        JsonDeserializer<Object> deser = _findDefaultImplDeserializer(ctxt);\n        if (deser != null) {\n            if (tb != null) {\n                tb.writeEndObject();\n                p = tb.asParser(p);\n                // must move to point to the first token:\n                p.nextToken();\n            }\n            return deser.deserialize(p, ctxt);\n        }\n        // or, perhaps we just bumped into a \"natural\" value (boolean/int/double/String)?\n        Object result = TypeDeserializer.deserializeIfNatural(p, ctxt, _baseType);\n        if (result != null) {\n            return result;\n        }\n        // or, something for which \"as-property\" won't work, changed into \"wrapper-array\" type:\n        if (p.getCurrentToken() == JsonToken.START_ARRAY) {\n            return super.deserializeTypedFromAny(p, ctxt);\n        } else if (p.getCurrentToken() == JsonToken.VALUE_STRING) {\n            if (ctxt.isEnabled(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT)) {\n                String str = p.getText().trim();\n                if (str.isEmpty()) {\n                    return null;\n                }\n            }\n        }\n        ctxt.reportWrongTokenException(p, JsonToken.FIELD_NAME,\n                \"missing property '\"+_typePropertyName+\"' that is to contain type id  (for class \"+baseTypeName()+\")\");\n        return null;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl::testWithEmptyStringAsNullObject1533",
+   "error": "com.fasterxml.jackson.databind.JsonMappingException: Unexpected token (VALUE_STRING), expected FIELD_NAME: missing property 'type' that is to contain type id  (for class com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl$AsProperty)"
+  }
+ ],
+ "triggering_classes": [
+  "com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl"
+ ],
+ "loaded_classes": [
+  "com.fasterxml.jackson.databind.AbstractTypeResolver",
+  "com.fasterxml.jackson.databind.annotation.JsonDeserialize",
+  "com.fasterxml.jackson.databind.annotation.JsonNaming",
+  "com.fasterxml.jackson.databind.annotation.JsonSerialize",
+  "com.fasterxml.jackson.databind.annotation.JsonTypeIdResolver",
+  "com.fasterxml.jackson.databind.annotation.JsonTypeResolver",
+  "com.fasterxml.jackson.databind.annotation.JsonValueInstantiator",
+  "com.fasterxml.jackson.databind.AnnotationIntrospector",
+  "com.fasterxml.jackson.databind.BeanDescription",
+  "com.fasterxml.jackson.databind.BeanProperty",
+  "com.fasterxml.jackson.databind.cfg.BaseSettings",
+  "com.fasterxml.jackson.databind.cfg.ConfigFeature",
+  "com.fasterxml.jackson.databind.cfg.ConfigOverrides",
+  "com.fasterxml.jackson.databind.cfg.ContextAttributes",
+  "com.fasterxml.jackson.databind.cfg.DeserializerFactoryConfig",
+  "com.fasterxml.jackson.databind.cfg.MapperConfig",
+  "com.fasterxml.jackson.databind.cfg.MapperConfigBase",
+  "com.fasterxml.jackson.databind.cfg.SerializerFactoryConfig",
+  "com.fasterxml.jackson.databind.DatabindContext",
+  "com.fasterxml.jackson.databind.deser.AbstractDeserializer",
+  "com.fasterxml.jackson.databind.deser.BasicDeserializerFactory",
+  "com.fasterxml.jackson.databind.deser.BeanDeserializer",
+  "com.fasterxml.jackson.databind.deser.BeanDeserializerBase",
+  "com.fasterxml.jackson.databind.deser.BeanDeserializerBuilder",
+  "com.fasterxml.jackson.databind.deser.BeanDeserializerFactory",
+  "com.fasterxml.jackson.databind.deser.BeanDeserializerModifier",
+  "com.fasterxml.jackson.databind.deser.BuilderBasedDeserializer",
+  "com.fasterxml.jackson.databind.deser.ContextualDeserializer",
+  "com.fasterxml.jackson.databind.deser.CreatorProperty",
+  "com.fasterxml.jackson.databind.deser.DefaultDeserializationContext",
+  "com.fasterxml.jackson.databind.deser.DeserializerCache",
+  "com.fasterxml.jackson.databind.deser.DeserializerFactory",
+  "com.fasterxml.jackson.databind.deser.Deserializers",
+  "com.fasterxml.jackson.databind.deser.impl.BeanAsArrayDeserializer",
+  "com.fasterxml.jackson.databind.deser.impl.BeanPropertyMap",
+  "com.fasterxml.jackson.databind.deser.impl.CreatorCollector",
+  "com.fasterxml.jackson.databind.deser.impl.ErrorThrowingDeserializer",
+  "com.fasterxml.jackson.databind.deser.impl.FailingDeserializer",
+  "com.fasterxml.jackson.databind.deser.impl.FieldProperty",
+  "com.fasterxml.jackson.databind.deser.impl.InnerClassProperty",
+  "com.fasterxml.jackson.databind.deser.impl.ManagedReferenceProperty",
+  "com.fasterxml.jackson.databind.deser.impl.MethodProperty",
+  "com.fasterxml.jackson.databind.deser.impl.ObjectIdReferenceProperty",
+  "com.fasterxml.jackson.databind.deser.impl.ObjectIdValueProperty",
+  "com.fasterxml.jackson.databind.deser.impl.PropertyBasedObjectIdGenerator",
+  "com.fasterxml.jackson.databind.deser.impl.ReadableObjectId",
+  "com.fasterxml.jackson.databind.deser.impl.SetterlessProperty",
+  "com.fasterxml.jackson.databind.deser.impl.TypeWrappedDeserializer",
+  "com.fasterxml.jackson.databind.deser.KeyDeserializers",
+  "com.fasterxml.jackson.databind.deser.ResolvableDeserializer",
+  "com.fasterxml.jackson.databind.deser.SettableBeanProperty",
+  "com.fasterxml.jackson.databind.deser.std.ArrayBlockingQueueDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.AtomicBooleanDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.AtomicReferenceDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.ByteBufferDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.CollectionDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase",
+  "com.fasterxml.jackson.databind.deser.std.EnumDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.EnumMapDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.EnumSetDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.FromStringDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.JdkDeserializers",
+  "com.fasterxml.jackson.databind.deser.std.JsonLocationInstantiator",
+  "com.fasterxml.jackson.databind.deser.std.MapDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.MapEntryDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.NullifyingDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.ObjectArrayDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.ReferenceTypeDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StackTraceElementDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StdDelegatingDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StdDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StdKeyDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StdKeyDeserializers",
+  "com.fasterxml.jackson.databind.deser.std.StdScalarDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StdValueInstantiator",
+  "com.fasterxml.jackson.databind.deser.std.StringArrayDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StringCollectionDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.StringDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.ThrowableDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.TokenBufferDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.UntypedObjectDeserializer",
+  "com.fasterxml.jackson.databind.deser.std.UUIDDeserializer",
+  "com.fasterxml.jackson.databind.deser.UnresolvedForwardReference",
+  "com.fasterxml.jackson.databind.deser.ValueInstantiator",
+  "com.fasterxml.jackson.databind.deser.ValueInstantiators",
+  "com.fasterxml.jackson.databind.DeserializationConfig",
+  "com.fasterxml.jackson.databind.DeserializationContext",
+  "com.fasterxml.jackson.databind.DeserializationFeature",
+  "com.fasterxml.jackson.databind.exc.IgnoredPropertyException",
+  "com.fasterxml.jackson.databind.exc.InvalidFormatException",
+  "com.fasterxml.jackson.databind.exc.InvalidTypeIdException",
+  "com.fasterxml.jackson.databind.exc.PropertyBindingException",
+  "com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException",
+  "com.fasterxml.jackson.databind.ext.Java7Support",
+  "com.fasterxml.jackson.databind.ext.Java7SupportImpl",
+  "com.fasterxml.jackson.databind.ext.NioPathDeserializer",
+  "com.fasterxml.jackson.databind.ext.NioPathSerializer",
+  "com.fasterxml.jackson.databind.ext.OptionalHandlerFactory",
+  "com.fasterxml.jackson.databind.introspect.Annotated",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedClass",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedConstructor",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedField",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedMember",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedMethod",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedMethodMap",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedParameter",
+  "com.fasterxml.jackson.databind.introspect.AnnotatedWithParams",
+  "com.fasterxml.jackson.databind.introspect.AnnotationIntrospectorPair",
+  "com.fasterxml.jackson.databind.introspect.AnnotationMap",
+  "com.fasterxml.jackson.databind.introspect.BasicBeanDescription",
+  "com.fasterxml.jackson.databind.introspect.BasicClassIntrospector",
+  "com.fasterxml.jackson.databind.introspect.BeanPropertyDefinition",
+  "com.fasterxml.jackson.databind.introspect.ClassIntrospector",
+  "com.fasterxml.jackson.databind.introspect.ConcreteBeanPropertyBase",
+  "com.fasterxml.jackson.databind.introspect.JacksonAnnotationIntrospector",
+  "com.fasterxml.jackson.databind.introspect.NopAnnotationIntrospector",
+  "com.fasterxml.jackson.databind.introspect.POJOPropertiesCollector",
+  "com.fasterxml.jackson.databind.introspect.POJOPropertyBuilder",
+  "com.fasterxml.jackson.databind.introspect.SimpleMixInResolver",
+  "com.fasterxml.jackson.databind.introspect.TypeResolutionContext",
+  "com.fasterxml.jackson.databind.introspect.VirtualAnnotatedMember",
+  "com.fasterxml.jackson.databind.introspect.VisibilityChecker",
+  "com.fasterxml.jackson.databind.JavaType",
+  "com.fasterxml.jackson.databind.JsonDeserializer",
+  "com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitable",
+  "com.fasterxml.jackson.databind.JsonMappingException",
+  "com.fasterxml.jackson.databind.JsonNode",
+  "com.fasterxml.jackson.databind.jsonschema.SchemaAware",
+  "com.fasterxml.jackson.databind.JsonSerializable",
+  "com.fasterxml.jackson.databind.JsonSerializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsArrayTypeDeserializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsArrayTypeSerializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsExistingPropertyTypeSerializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsExternalTypeDeserializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsExternalTypeSerializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeDeserializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsPropertyTypeSerializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsWrapperTypeDeserializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.AsWrapperTypeSerializer",
+  "com.fasterxml.jackson.databind.jsontype.impl.StdSubtypeResolver",
+  "com.fasterxml.jackson.databind.jsontype.impl.StdTypeResolverBuilder",
+  "com.fasterxml.jackson.databind.jsontype.impl.TypeDeserializerBase",
+  "com.fasterxml.jackson.databind.jsontype.impl.TypeIdResolverBase",
+  "com.fasterxml.jackson.databind.jsontype.impl.TypeNameIdResolver",
+  "com.fasterxml.jackson.databind.jsontype.impl.TypeSerializerBase",
+  "com.fasterxml.jackson.databind.jsontype.NamedType",
+  "com.fasterxml.jackson.databind.jsontype.SubtypeResolver",
+  "com.fasterxml.jackson.databind.jsontype.TypeDeserializer",
+  "com.fasterxml.jackson.databind.jsontype.TypeIdResolver",
+  "com.fasterxml.jackson.databind.jsontype.TypeResolverBuilder",
+  "com.fasterxml.jackson.databind.jsontype.TypeSerializer",
+  "com.fasterxml.jackson.databind.KeyDeserializer",
+  "com.fasterxml.jackson.databind.MapperFeature",
+  "com.fasterxml.jackson.databind.MappingJsonFactory",
+  "com.fasterxml.jackson.databind.Module",
+  "com.fasterxml.jackson.databind.node.BaseJsonNode",
+  "com.fasterxml.jackson.databind.node.BigIntegerNode",
+  "com.fasterxml.jackson.databind.node.BinaryNode",
+  "com.fasterxml.jackson.databind.node.BooleanNode",
+  "com.fasterxml.jackson.databind.node.ContainerNode",
+  "com.fasterxml.jackson.databind.node.DecimalNode",
+  "com.fasterxml.jackson.databind.node.DoubleNode",
+  "com.fasterxml.jackson.databind.node.FloatNode",
+  "com.fasterxml.jackson.databind.node.IntNode",
+  "com.fasterxml.jackson.databind.node.JsonNodeCreator",
+  "com.fasterxml.jackson.databind.node.JsonNodeFactory",
+  "com.fasterxml.jackson.databind.node.LongNode",
+  "com.fasterxml.jackson.databind.node.NullNode",
+  "com.fasterxml.jackson.databind.node.NumericNode",
+  "com.fasterxml.jackson.databind.node.ObjectNode",
+  "com.fasterxml.jackson.databind.node.POJONode",
+  "com.fasterxml.jackson.databind.node.ShortNode",
+  "com.fasterxml.jackson.databind.node.TextNode",
+  "com.fasterxml.jackson.databind.node.TreeTraversingParser",
+  "com.fasterxml.jackson.databind.node.ValueNode",
+  "com.fasterxml.jackson.databind.ObjectMapper",
+  "com.fasterxml.jackson.databind.ObjectReader",
+  "com.fasterxml.jackson.databind.ObjectWriter",
+  "com.fasterxml.jackson.databind.PropertyMetadata",
+  "com.fasterxml.jackson.databind.PropertyName",
+  "com.fasterxml.jackson.databind.ser.BasicSerializerFactory",
+  "com.fasterxml.jackson.databind.ser.BeanPropertyWriter",
+  "com.fasterxml.jackson.databind.ser.BeanSerializer",
+  "com.fasterxml.jackson.databind.ser.BeanSerializerFactory",
+  "com.fasterxml.jackson.databind.ser.BeanSerializerModifier",
+  "com.fasterxml.jackson.databind.ser.ContainerSerializer",
+  "com.fasterxml.jackson.databind.ser.ContextualSerializer",
+  "com.fasterxml.jackson.databind.ser.DefaultSerializerProvider",
+  "com.fasterxml.jackson.databind.ser.impl.AttributePropertyWriter",
+  "com.fasterxml.jackson.databind.ser.impl.FailingSerializer",
+  "com.fasterxml.jackson.databind.ser.impl.IndexedListSerializer",
+  "com.fasterxml.jackson.databind.ser.impl.IndexedStringListSerializer",
+  "com.fasterxml.jackson.databind.ser.impl.IteratorSerializer",
+  "com.fasterxml.jackson.databind.ser.impl.MapEntrySerializer",
+  "com.fasterxml.jackson.databind.ser.impl.PropertyBasedObjectIdGenerator",
+  "com.fasterxml.jackson.databind.ser.impl.StringArraySerializer",
+  "com.fasterxml.jackson.databind.ser.impl.StringCollectionSerializer",
+  "com.fasterxml.jackson.databind.ser.impl.TypeWrappedSerializer",
+  "com.fasterxml.jackson.databind.ser.impl.UnknownSerializer",
+  "com.fasterxml.jackson.databind.ser.PropertyWriter",
+  "com.fasterxml.jackson.databind.ser.ResolvableSerializer",
+  "com.fasterxml.jackson.databind.ser.SerializerCache",
+  "com.fasterxml.jackson.databind.ser.SerializerFactory",
+  "com.fasterxml.jackson.databind.ser.Serializers",
+  "com.fasterxml.jackson.databind.ser.std.ArraySerializerBase",
+  "com.fasterxml.jackson.databind.ser.std.AsArraySerializerBase",
+  "com.fasterxml.jackson.databind.ser.std.AtomicReferenceSerializer",
+  "com.fasterxml.jackson.databind.ser.std.BeanSerializerBase",
+  "com.fasterxml.jackson.databind.ser.std.BooleanSerializer",
+  "com.fasterxml.jackson.databind.ser.std.ByteBufferSerializer",
+  "com.fasterxml.jackson.databind.ser.std.CalendarSerializer",
+  "com.fasterxml.jackson.databind.ser.std.ClassSerializer",
+  "com.fasterxml.jackson.databind.ser.std.CollectionSerializer",
+  "com.fasterxml.jackson.databind.ser.std.DateSerializer",
+  "com.fasterxml.jackson.databind.ser.std.DateTimeSerializerBase",
+  "com.fasterxml.jackson.databind.ser.std.EnumSerializer",
+  "com.fasterxml.jackson.databind.ser.std.EnumSetSerializer",
+  "com.fasterxml.jackson.databind.ser.std.FileSerializer",
+  "com.fasterxml.jackson.databind.ser.std.InetAddressSerializer",
+  "com.fasterxml.jackson.databind.ser.std.InetSocketAddressSerializer",
+  "com.fasterxml.jackson.databind.ser.std.IterableSerializer",
+  "com.fasterxml.jackson.databind.ser.std.JsonValueSerializer",
+  "com.fasterxml.jackson.databind.ser.std.MapSerializer",
+  "com.fasterxml.jackson.databind.ser.std.NonTypedScalarSerializerBase",
+  "com.fasterxml.jackson.databind.ser.std.NullSerializer",
+  "com.fasterxml.jackson.databind.ser.std.NumberSerializer",
+  "com.fasterxml.jackson.databind.ser.std.NumberSerializers",
+  "com.fasterxml.jackson.databind.ser.std.ObjectArraySerializer",
+  "com.fasterxml.jackson.databind.ser.std.ReferenceTypeSerializer",
+  "com.fasterxml.jackson.databind.ser.std.SerializableSerializer",
+  "com.fasterxml.jackson.databind.ser.std.SqlDateSerializer",
+  "com.fasterxml.jackson.databind.ser.std.SqlTimeSerializer",
+  "com.fasterxml.jackson.databind.ser.std.StaticListSerializerBase",
+  "com.fasterxml.jackson.databind.ser.std.StdDelegatingSerializer",
+  "com.fasterxml.jackson.databind.ser.std.StdJdkSerializers",
+  "com.fasterxml.jackson.databind.ser.std.StdScalarSerializer",
+  "com.fasterxml.jackson.databind.ser.std.StdSerializer",
+  "com.fasterxml.jackson.databind.ser.std.StringSerializer",
+  "com.fasterxml.jackson.databind.ser.std.TimeZoneSerializer",
+  "com.fasterxml.jackson.databind.ser.std.TokenBufferSerializer",
+  "com.fasterxml.jackson.databind.ser.std.ToStringSerializer",
+  "com.fasterxml.jackson.databind.ser.std.UUIDSerializer",
+  "com.fasterxml.jackson.databind.ser.VirtualBeanPropertyWriter",
+  "com.fasterxml.jackson.databind.SerializationConfig",
+  "com.fasterxml.jackson.databind.SerializationFeature",
+  "com.fasterxml.jackson.databind.SerializerProvider",
+  "com.fasterxml.jackson.databind.type.ArrayType",
+  "com.fasterxml.jackson.databind.type.ClassStack",
+  "com.fasterxml.jackson.databind.type.CollectionLikeType",
+  "com.fasterxml.jackson.databind.type.CollectionType",
+  "com.fasterxml.jackson.databind.type.MapLikeType",
+  "com.fasterxml.jackson.databind.type.MapType",
+  "com.fasterxml.jackson.databind.type.ReferenceType",
+  "com.fasterxml.jackson.databind.type.ResolvedRecursiveType",
+  "com.fasterxml.jackson.databind.type.SimpleType",
+  "com.fasterxml.jackson.databind.type.TypeBase",
+  "com.fasterxml.jackson.databind.type.TypeBindings",
+  "com.fasterxml.jackson.databind.type.TypeFactory",
+  "com.fasterxml.jackson.databind.type.TypeParser",
+  "com.fasterxml.jackson.databind.util.Annotations",
+  "com.fasterxml.jackson.databind.util.ArrayIterator",
+  "com.fasterxml.jackson.databind.util.ClassUtil",
+  "com.fasterxml.jackson.databind.util.LinkedNode",
+  "com.fasterxml.jackson.databind.util.LRUMap",
+  "com.fasterxml.jackson.databind.util.Named",
+  "com.fasterxml.jackson.databind.util.RootNameLookup",
+  "com.fasterxml.jackson.databind.util.SimpleBeanPropertyDefinition",
+  "com.fasterxml.jackson.databind.util.StdDateFormat",
+  "com.fasterxml.jackson.databind.util.TokenBuffer"
+ ],
+ "suite": [
+  "com.fasterxml.jackson.databind.ObjectMapperTest",
+  "com.fasterxml.jackson.databind.RoundtripTest",
+  "com.fasterxml.jackson.databind.TestFormatSchema",
+  "com.fasterxml.jackson.databind.TestGeneratorUsingMapper",
+  "com.fasterxml.jackson.databind.TestHandlerInstantiation",
+  "com.fasterxml.jackson.databind.TestJDKSerialization",
+  "com.fasterxml.jackson.databind.TestObjectMapperBeanDeserializer",
+  "com.fasterxml.jackson.databind.TestObjectMapperBeanSerializer",
+  "com.fasterxml.jackson.databind.TestParserUsingMapper",
+  "com.fasterxml.jackson.databind.TestRootName",
+  "com.fasterxml.jackson.databind.TestStdDateFormat",
+  "com.fasterxml.jackson.databind.TestVersions",
+  "com.fasterxml.jackson.databind.access.TestSerAnyGetter",
+  "com.fasterxml.jackson.databind.big.TestBiggerData",
+  "com.fasterxml.jackson.databind.contextual.TestContextAttributeWithDeser",
+  "com.fasterxml.jackson.databind.contextual.TestContextAttributeWithSer",
+  "com.fasterxml.jackson.databind.contextual.TestContextualDeserialization",
+  "com.fasterxml.jackson.databind.contextual.TestContextualKeyTypes",
+  "com.fasterxml.jackson.databind.contextual.TestContextualSerialization",
+  "com.fasterxml.jackson.databind.contextual.TestContextualWithAnnDeserializer",
+  "com.fasterxml.jackson.databind.convert.ConvertingAbstractSerializer795Test",
+  "com.fasterxml.jackson.databind.convert.NumericConversionTest",
+  "com.fasterxml.jackson.databind.convert.TestArrayConversions",
+  "com.fasterxml.jackson.databind.convert.TestBeanConversions",
+  "com.fasterxml.jackson.databind.convert.TestConvertingDeserializer",
+  "com.fasterxml.jackson.databind.convert.TestConvertingSerializer",
+  "com.fasterxml.jackson.databind.convert.TestMapConversions",
+  "com.fasterxml.jackson.databind.convert.TestPolymorphicUpdateValue",
+  "com.fasterxml.jackson.databind.convert.TestStringConversions",
+  "com.fasterxml.jackson.databind.convert.TestUpdateValue",
+  "com.fasterxml.jackson.databind.creators.ArrayDelegatorCreatorForCollectionTest",
+  "com.fasterxml.jackson.databind.creators.BigCreatorTest",
+  "com.fasterxml.jackson.databind.creators.BuilderSimpleTest",
+  "com.fasterxml.jackson.databind.creators.Creator1476Test",
+  "com.fasterxml.jackson.databind.creators.CreatorPropertiesTest",
+  "com.fasterxml.jackson.databind.creators.CreatorWithObjectIdTest",
+  "com.fasterxml.jackson.databind.creators.DelegatingCreatorImplicitNames1001Test",
+  "com.fasterxml.jackson.databind.creators.DelegatingExternalProperty1003Test",
+  "com.fasterxml.jackson.databind.creators.DisablingCreatorsTest",
+  "com.fasterxml.jackson.databind.creators.EnumCreatorTest",
+  "com.fasterxml.jackson.databind.creators.FailOnNullCreatorTest",
+  "com.fasterxml.jackson.databind.creators.ImplicitNameMatch792Test",
+  "com.fasterxml.jackson.databind.creators.ImplicitParamsForCreatorTest",
+  "com.fasterxml.jackson.databind.creators.InnerClassCreatorTest",
+  "com.fasterxml.jackson.databind.creators.MultiArgConstructorTest",
+  "com.fasterxml.jackson.databind.creators.RequiredCreatorTest",
+  "com.fasterxml.jackson.databind.creators.SingleArgCreatorTest",
+  "com.fasterxml.jackson.databind.creators.TestConstructFromMap",
+  "com.fasterxml.jackson.databind.creators.TestCreatorNullValue",
+  "com.fasterxml.jackson.databind.creators.TestCreatorWithNamingStrategy556",
+  "com.fasterxml.jackson.databind.creators.TestCreatorWithPolymorphic113",
+  "com.fasterxml.jackson.databind.creators.TestCreators",
+  "com.fasterxml.jackson.databind.creators.TestCreators2",
+  "com.fasterxml.jackson.databind.creators.TestCreators421",
+  "com.fasterxml.jackson.databind.creators.TestCreators541",
+  "com.fasterxml.jackson.databind.creators.TestCreatorsDelegating",
+  "com.fasterxml.jackson.databind.creators.TestCreatorsWithIdentity",
+  "com.fasterxml.jackson.databind.creators.TestCustomValueInstDefaults",
+  "com.fasterxml.jackson.databind.creators.TestPolymorphicCreators",
+  "com.fasterxml.jackson.databind.creators.TestPolymorphicDelegating",
+  "com.fasterxml.jackson.databind.creators.TestValueInstantiator",
+  "com.fasterxml.jackson.databind.creators.TestValueUpdate",
+  "com.fasterxml.jackson.databind.deser.AnySetter349Test",
+  "com.fasterxml.jackson.databind.deser.EnumDefaultReadTest",
+  "com.fasterxml.jackson.databind.deser.EnumDeserializationTest",
+  "com.fasterxml.jackson.databind.deser.JDKAtomicTypesTest",
+  "com.fasterxml.jackson.databind.deser.JDKNumberDeserTest",
+  "com.fasterxml.jackson.databind.deser.JDKScalarsTest",
+  "com.fasterxml.jackson.databind.deser.JDKStringLikeTypesTest",
+  "com.fasterxml.jackson.databind.deser.KeyDeser1429Test",
+  "com.fasterxml.jackson.databind.deser.NullHandlingTest",
+  "com.fasterxml.jackson.databind.deser.ReadOrWriteOnlyTest",
+  "com.fasterxml.jackson.databind.deser.TestAbstract",
+  "com.fasterxml.jackson.databind.deser.TestAnnotationIgnore",
+  "com.fasterxml.jackson.databind.deser.TestAnnotationUsing",
+  "com.fasterxml.jackson.databind.deser.TestAnyProperties",
+  "com.fasterxml.jackson.databind.deser.TestArrayDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestBasicAnnotations",
+  "com.fasterxml.jackson.databind.deser.TestBeanDeserializer",
+  "com.fasterxml.jackson.databind.deser.TestCachingOfDeser",
+  "com.fasterxml.jackson.databind.deser.TestCollectionDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestConcurrency",
+  "com.fasterxml.jackson.databind.deser.TestConfig",
+  "com.fasterxml.jackson.databind.deser.TestCustomDeserializers",
+  "com.fasterxml.jackson.databind.deser.TestCustomFactory",
+  "com.fasterxml.jackson.databind.deser.TestCyclicTypes",
+  "com.fasterxml.jackson.databind.deser.TestDateDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestFieldDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestGenericCollectionDeser",
+  "com.fasterxml.jackson.databind.deser.TestGenericMapDeser",
+  "com.fasterxml.jackson.databind.deser.TestGenerics",
+  "com.fasterxml.jackson.databind.deser.TestIgnoredTypes",
+  "com.fasterxml.jackson.databind.deser.TestInjectables",
+  "com.fasterxml.jackson.databind.deser.TestInnerClass",
+  "com.fasterxml.jackson.databind.deser.TestJacksonTypes",
+  "com.fasterxml.jackson.databind.deser.TestMapDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestObjectOrArrayDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestOverloaded",
+  "com.fasterxml.jackson.databind.deser.TestPolymorphicDeserialization676",
+  "com.fasterxml.jackson.databind.deser.TestSetterlessProperties",
+  "com.fasterxml.jackson.databind.deser.TestStatics",
+  "com.fasterxml.jackson.databind.deser.TestTimestampDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestUntypedDeserialization",
+  "com.fasterxml.jackson.databind.deser.TestValueAnnotations",
+  "com.fasterxml.jackson.databind.deser.exc.ExceptionPathTest",
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionDeserialization",
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandling",
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandlingWithDefaultDeserialization",
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandlingWithJsonCreatorDeserialization",
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionSerialization",
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionsDuringWriting",
+  "com.fasterxml.jackson.databind.ext.TestCoreXMLTypes",
+  "com.fasterxml.jackson.databind.ext.TestDOM",
+  "com.fasterxml.jackson.databind.ext.TestJava6Types",
+  "com.fasterxml.jackson.databind.ext.TestJava7Types",
+  "com.fasterxml.jackson.databind.filter.IgnoreCreatorProp1317Test",
+  "com.fasterxml.jackson.databind.filter.IgnorePropertyOnDeser1217Test",
+  "com.fasterxml.jackson.databind.filter.IgnorePropsForSerTest",
+  "com.fasterxml.jackson.databind.filter.JsonInclude1327Test",
+  "com.fasterxml.jackson.databind.filter.JsonIncludeTest",
+  "com.fasterxml.jackson.databind.filter.MapInclusionTest",
+  "com.fasterxml.jackson.databind.filter.NullSerializationTest",
+  "com.fasterxml.jackson.databind.filter.ProblemHandlerTest",
+  "com.fasterxml.jackson.databind.filter.ReadOnlyProperties95Test",
+  "com.fasterxml.jackson.databind.filter.TestAnyGetterFiltering",
+  "com.fasterxml.jackson.databind.filter.TestJsonFilter",
+  "com.fasterxml.jackson.databind.filter.TestMapFiltering",
+  "com.fasterxml.jackson.databind.filter.TestSimpleSerializationIgnore",
+  "com.fasterxml.jackson.databind.filter.TestUnknownPropertyDeserialization",
+  "com.fasterxml.jackson.databind.format.DateFormatTest",
+  "com.fasterxml.jackson.databind.interop.DeprecatedTypeHandling1102Test",
+  "com.fasterxml.jackson.databind.interop.TestExternalizable",
+  "com.fasterxml.jackson.databind.interop.TestFormatDetection",
+  "com.fasterxml.jackson.databind.interop.TestJDKProxy",
+  "com.fasterxml.jackson.databind.introspect.BeanDescriptionTest",
+  "com.fasterxml.jackson.databind.introspect.BeanNamingTest",
+  "com.fasterxml.jackson.databind.introspect.IntrospectorPairTest",
+  "com.fasterxml.jackson.databind.introspect.NoClassDefFoundWorkaroundTest",
+  "com.fasterxml.jackson.databind.introspect.SetterConflictTest",
+  "com.fasterxml.jackson.databind.introspect.TestAnnotationMerging",
+  "com.fasterxml.jackson.databind.introspect.TestAnnotionBundles",
+  "com.fasterxml.jackson.databind.introspect.TestAutoDetect",
+  "com.fasterxml.jackson.databind.introspect.TestBuilderMethods",
+  "com.fasterxml.jackson.databind.introspect.TestInferredMutators",
+  "com.fasterxml.jackson.databind.introspect.TestJacksonAnnotationIntrospector",
+  "com.fasterxml.jackson.databind.introspect.TestMixinMerging",
+  "com.fasterxml.jackson.databind.introspect.TestNameConflicts",
+  "com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom",
+  "com.fasterxml.jackson.databind.introspect.TestNamingStrategyStd",
+  "com.fasterxml.jackson.databind.introspect.TestPOJOPropertiesCollector",
+  "com.fasterxml.jackson.databind.introspect.TestPropertyConflicts",
+  "com.fasterxml.jackson.databind.introspect.TestPropertyRename",
+  "com.fasterxml.jackson.databind.introspect.TestScalaLikeImplicitProperties",
+  "com.fasterxml.jackson.databind.introspect.TransientTest",
+  "com.fasterxml.jackson.databind.jsonschema.NewSchemaTest",
+  "com.fasterxml.jackson.databind.jsonschema.TestGenerateJsonSchema",
+  "com.fasterxml.jackson.databind.jsonschema.TestReadJsonSchema",
+  "com.fasterxml.jackson.databind.jsontype.AbstracTypeMapping1186Test",
+  "com.fasterxml.jackson.databind.jsontype.DefaultTypingWithPrimitivesTest",
+  "com.fasterxml.jackson.databind.jsontype.Generic1128Test",
+  "com.fasterxml.jackson.databind.jsontype.PolymorphicList1451SerTest",
+  "com.fasterxml.jackson.databind.jsontype.PolymorphicViaRefTypeTest",
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractContainers",
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractTypeNames",
+  "com.fasterxml.jackson.databind.jsontype.TestCustomTypeIdResolver",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForArrays",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForLists",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForMaps",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForObject",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForScalars",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForTreeNodes",
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultWithCreators",
+  "com.fasterxml.jackson.databind.jsontype.TestEnumTyping",
+  "com.fasterxml.jackson.databind.jsontype.TestGenericListSerialization",
+  "com.fasterxml.jackson.databind.jsontype.TestNoTypeInfo",
+  "com.fasterxml.jackson.databind.jsontype.TestOverlappingTypeIdNames",
+  "com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl",
+  "com.fasterxml.jackson.databind.jsontype.TestPropertyTypeInfo",
+  "com.fasterxml.jackson.databind.jsontype.TestScalars",
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypes",
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypesExistingProperty",
+  "com.fasterxml.jackson.databind.jsontype.TestTypeNames",
+  "com.fasterxml.jackson.databind.jsontype.TestTypedArrayDeserialization",
+  "com.fasterxml.jackson.databind.jsontype.TestTypedArraySerialization",
+  "com.fasterxml.jackson.databind.jsontype.TestTypedContainerSerialization",
+  "com.fasterxml.jackson.databind.jsontype.TestTypedDeserialization",
+  "com.fasterxml.jackson.databind.jsontype.TestTypedSerialization",
+  "com.fasterxml.jackson.databind.jsontype.TestVisibleTypeId",
+  "com.fasterxml.jackson.databind.jsontype.TestWithGenerics",
+  "com.fasterxml.jackson.databind.jsontype.TypeRefinementForMapTest",
+  "com.fasterxml.jackson.databind.jsontype.TypeResolverTest",
+  "com.fasterxml.jackson.databind.jsontype.UnknownSubClassTest",
+  "com.fasterxml.jackson.databind.jsontype.WrapperObjectWithObjectIdTest",
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeId198Test",
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeId999Test",
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeIdTest",
+  "com.fasterxml.jackson.databind.jsontype.ext.JsonValueExtTypeIdTest",
+  "com.fasterxml.jackson.databind.jsontype.ext.TestSubtypesExternalPropertyMissingProperty",
+  "com.fasterxml.jackson.databind.misc.AccessFixTest",
+  "com.fasterxml.jackson.databind.misc.BeanPropertyMapTest",
+  "com.fasterxml.jackson.databind.misc.CaseInsensitiveDeserTest",
+  "com.fasterxml.jackson.databind.misc.RaceCondition738Test",
+  "com.fasterxml.jackson.databind.misc.TestBlocking",
+  "com.fasterxml.jackson.databind.misc.TestJSONP",
+  "com.fasterxml.jackson.databind.mixins.MixinsWithBundlesTest",
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForClass",
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForCreators",
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForMethods",
+  "com.fasterxml.jackson.databind.mixins.TestMixinInheritance",
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForClass",
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForFields",
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForMethods",
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerWithViews",
+  "com.fasterxml.jackson.databind.module.TestAbstractTypes",
+  "com.fasterxml.jackson.databind.module.TestCustomEnumKeyDeserializer",
+  "com.fasterxml.jackson.databind.module.TestDuplicateRegistration",
+  "com.fasterxml.jackson.databind.module.TestKeyDeserializers",
+  "com.fasterxml.jackson.databind.module.TestSimpleModule",
+  "com.fasterxml.jackson.databind.module.TestTypeModifierNameResolution",
+  "com.fasterxml.jackson.databind.module.TestTypeModifiers",
+  "com.fasterxml.jackson.databind.node.NotANumberConversionTest",
+  "com.fasterxml.jackson.databind.node.TestArrayNode",
+  "com.fasterxml.jackson.databind.node.TestConversions",
+  "com.fasterxml.jackson.databind.node.TestDeepCopy",
+  "com.fasterxml.jackson.databind.node.TestEndOfInputHandling",
+  "com.fasterxml.jackson.databind.node.TestFindMethods",
+  "com.fasterxml.jackson.databind.node.TestJsonNode",
+  "com.fasterxml.jackson.databind.node.TestJsonPointer",
+  "com.fasterxml.jackson.databind.node.TestMissingNode",
+  "com.fasterxml.jackson.databind.node.TestNullNode",
+  "com.fasterxml.jackson.databind.node.TestNumberNodes",
+  "com.fasterxml.jackson.databind.node.TestObjectNode",
+  "com.fasterxml.jackson.databind.node.TestTreeDeserialization",
+  "com.fasterxml.jackson.databind.node.TestTreeMapperDeserializer",
+  "com.fasterxml.jackson.databind.node.TestTreeMapperSerializer",
+  "com.fasterxml.jackson.databind.node.TestTreeTraversingParser",
+  "com.fasterxml.jackson.databind.node.TestTreeWithType",
+  "com.fasterxml.jackson.databind.objectid.AlwaysAsReferenceFirstTest",
+  "com.fasterxml.jackson.databind.objectid.JSOGDeserialize622Test",
+  "com.fasterxml.jackson.databind.objectid.ObjectId825BTest",
+  "com.fasterxml.jackson.databind.objectid.ObjectId825Test",
+  "com.fasterxml.jackson.databind.objectid.ObjectIdReordering1388Test",
+  "com.fasterxml.jackson.databind.objectid.ObjectWithCreator1261Test",
+  "com.fasterxml.jackson.databind.objectid.ReferentialWithObjectIdTest",
+  "com.fasterxml.jackson.databind.objectid.TestAbstractWithObjectId",
+  "com.fasterxml.jackson.databind.objectid.TestObjectId",
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdDeserialization",
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdSerialization",
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithEquals",
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithInjectables538",
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithPolymorphic",
+  "com.fasterxml.jackson.databind.seq.ObjectReaderTest",
+  "com.fasterxml.jackson.databind.seq.ObjectWriterTest",
+  "com.fasterxml.jackson.databind.seq.PolyMapWriter827Test",
+  "com.fasterxml.jackson.databind.seq.ReadRecoveryTest",
+  "com.fasterxml.jackson.databind.seq.ReadValuesTest",
+  "com.fasterxml.jackson.databind.seq.SequenceWriterTest",
+  "com.fasterxml.jackson.databind.ser.AnyGetterTest",
+  "com.fasterxml.jackson.databind.ser.DateSerializationTest",
+  "com.fasterxml.jackson.databind.ser.FieldSerializationTest",
+  "com.fasterxml.jackson.databind.ser.NumberSerTest",
+  "com.fasterxml.jackson.databind.ser.RawValueTest",
+  "com.fasterxml.jackson.databind.ser.SerializationFeaturesTest",
+  "com.fasterxml.jackson.databind.ser.TestAnnotationInheritance",
+  "com.fasterxml.jackson.databind.ser.TestAnnotations",
+  "com.fasterxml.jackson.databind.ser.TestArraySerialization",
+  "com.fasterxml.jackson.databind.ser.TestAutoDetect",
+  "com.fasterxml.jackson.databind.ser.TestBeanSerializer",
+  "com.fasterxml.jackson.databind.ser.TestCollectionSerialization",
+  "com.fasterxml.jackson.databind.ser.TestConfig",
+  "com.fasterxml.jackson.databind.ser.TestCustomSerializers",
+  "com.fasterxml.jackson.databind.ser.TestCyclicTypes",
+  "com.fasterxml.jackson.databind.ser.TestEmptyClass",
+  "com.fasterxml.jackson.databind.ser.TestEnumSerialization",
+  "com.fasterxml.jackson.databind.ser.TestGenericTypes",
+  "com.fasterxml.jackson.databind.ser.TestIterable",
+  "com.fasterxml.jackson.databind.ser.TestJacksonTypes",
+  "com.fasterxml.jackson.databind.ser.TestJdkTypes",
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize",
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize2",
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize3",
+  "com.fasterxml.jackson.databind.ser.TestJsonSerializeAs",
+  "com.fasterxml.jackson.databind.ser.TestJsonValue",
+  "com.fasterxml.jackson.databind.ser.TestKeySerializers",
+  "com.fasterxml.jackson.databind.ser.TestMapSerialization",
+  "com.fasterxml.jackson.databind.ser.TestRootType",
+  "com.fasterxml.jackson.databind.ser.TestSerializationOrder",
+  "com.fasterxml.jackson.databind.ser.TestSerializerProvider",
+  "com.fasterxml.jackson.databind.ser.TestSimpleAtomicTypes",
+  "com.fasterxml.jackson.databind.ser.TestSimpleTypes",
+  "com.fasterxml.jackson.databind.ser.TestStatics",
+  "com.fasterxml.jackson.databind.ser.TestTreeSerialization",
+  "com.fasterxml.jackson.databind.ser.TestTypedRootValueSerialization",
+  "com.fasterxml.jackson.databind.ser.TestUntypedSerialization",
+  "com.fasterxml.jackson.databind.ser.TestUnwrappedWithTypeInfo",
+  "com.fasterxml.jackson.databind.ser.TestVirtualProperties",
+  "com.fasterxml.jackson.databind.struct.FormatFeaturesTest",
+  "com.fasterxml.jackson.databind.struct.PojoAsArray646Test",
+  "com.fasterxml.jackson.databind.struct.SingleValueAsArrayTest",
+  "com.fasterxml.jackson.databind.struct.TestBackRefsWithPolymorphic",
+  "com.fasterxml.jackson.databind.struct.TestFormatForCollections",
+  "com.fasterxml.jackson.databind.struct.TestForwardReference",
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArray",
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArrayAdvanced",
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArrayWithBuilder",
+  "com.fasterxml.jackson.databind.struct.TestParentChildReferences",
+  "com.fasterxml.jackson.databind.struct.TestUnwrapped",
+  "com.fasterxml.jackson.databind.struct.TestUnwrappedWithPrefix",
+  "com.fasterxml.jackson.databind.struct.TestUnwrappedWithSameName647",
+  "com.fasterxml.jackson.databind.type.DeprecatedConstructType1456Test",
+  "com.fasterxml.jackson.databind.type.LocalTypeTest",
+  "com.fasterxml.jackson.databind.type.PolymorphicList036Test",
+  "com.fasterxml.jackson.databind.type.RecursiveTypeTest",
+  "com.fasterxml.jackson.databind.type.TestAnnotatedClass",
+  "com.fasterxml.jackson.databind.type.TestGenericFieldInSubtype",
+  "com.fasterxml.jackson.databind.type.TestGenericsBounded",
+  "com.fasterxml.jackson.databind.type.TestJavaType",
+  "com.fasterxml.jackson.databind.type.TestTypeBindings",
+  "com.fasterxml.jackson.databind.type.TestTypeFactory",
+  "com.fasterxml.jackson.databind.type.TestTypeFactoryWithClassLoader",
+  "com.fasterxml.jackson.databind.type.TestTypeResolution",
+  "com.fasterxml.jackson.databind.type.TypeAliasesTest",
+  "com.fasterxml.jackson.databind.util.ArrayBuildersTest",
+  "com.fasterxml.jackson.databind.util.ISO8601DateFormatTest",
+  "com.fasterxml.jackson.databind.util.ISO8601UtilsTest",
+  "com.fasterxml.jackson.databind.util.TestClassUtil",
+  "com.fasterxml.jackson.databind.util.TestObjectBuffer",
+  "com.fasterxml.jackson.databind.util.TestTokenBuffer",
+  "com.fasterxml.jackson.databind.views.TestViewDeserialization",
+  "com.fasterxml.jackson.databind.views.TestViewSerialization",
+  "com.fasterxml.jackson.databind.views.TestViewsSerialization2",
+  "com.fasterxml.jackson.databind.views.ViewsWithSchemaTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "com.fasterxml.jackson.databind.ObjectMapperTest": {
+   "wall": 1.143432,
+   "cpu": 0.463225,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.RoundtripTest": {
+   "wall": 0.077644,
+   "cpu": 0.042609,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestFormatSchema": {
+   "wall": 0.016282,
+   "cpu": 0.011346,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestGeneratorUsingMapper": {
+   "wall": 0.005386999999999999,
+   "cpu": 0.004372,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestHandlerInstantiation": {
+   "wall": 0.153031,
+   "cpu": 0.072921,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestJDKSerialization": {
+   "wall": 0.294241,
+   "cpu": 0.254153,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestObjectMapperBeanDeserializer": {
+   "wall": 0.06622700000000001,
+   "cpu": 0.015819,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestObjectMapperBeanSerializer": {
+   "wall": 0.019368,
+   "cpu": 0.023146,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestParserUsingMapper": {
+   "wall": 0.006458,
+   "cpu": 0.007222,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestRootName": {
+   "wall": 0.007916000000000001,
+   "cpu": 0.005889,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestStdDateFormat": {
+   "wall": 0.000869,
+   "cpu": 0.00111,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.TestVersions": {
+   "wall": 0.0011149999999999999,
+   "cpu": 0.001052,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.access.TestSerAnyGetter": {
+   "wall": 0.012215,
+   "cpu": 0.015559,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.big.TestBiggerData": {
+   "wall": 0.127291,
+   "cpu": 0.308408,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.contextual.TestContextAttributeWithDeser": {
+   "wall": 0.016655,
+   "cpu": 0.035993000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.contextual.TestContextAttributeWithSer": {
+   "wall": 0.017954,
+   "cpu": 0.037229,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.contextual.TestContextualDeserialization": {
+   "wall": 0.06804900000000001,
+   "cpu": 0.107726,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.contextual.TestContextualKeyTypes": {
+   "wall": 0.009448,
+   "cpu": 0.003108,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.contextual.TestContextualSerialization": {
+   "wall": 0.031893,
+   "cpu": 0.010851000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.contextual.TestContextualWithAnnDeserializer": {
+   "wall": 0.014682,
+   "cpu": 0.028155,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.ConvertingAbstractSerializer795Test": {
+   "wall": 0.022164000000000003,
+   "cpu": 0.045444000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.NumericConversionTest": {
+   "wall": 0.00497,
+   "cpu": 0.011854,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestArrayConversions": {
+   "wall": 0.027788,
+   "cpu": 0.062588,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestBeanConversions": {
+   "wall": 0.03332,
+   "cpu": 0.047411999999999996,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestConvertingDeserializer": {
+   "wall": 0.051204,
+   "cpu": 0.011951,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestConvertingSerializer": {
+   "wall": 0.033426000000000004,
+   "cpu": 0.00983,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestMapConversions": {
+   "wall": 0.018666000000000002,
+   "cpu": 0.00993,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestPolymorphicUpdateValue": {
+   "wall": 0.011463,
+   "cpu": 0.006986,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestStringConversions": {
+   "wall": 0.004946,
+   "cpu": 0.007917,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.convert.TestUpdateValue": {
+   "wall": 0.049417,
+   "cpu": 0.035317999999999995,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.ArrayDelegatorCreatorForCollectionTest": {
+   "wall": 0.016599,
+   "cpu": 0.025958,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.BigCreatorTest": {
+   "wall": 0.004141,
+   "cpu": 0.004752,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.BuilderSimpleTest": {
+   "wall": 0.049841,
+   "cpu": 0.050581,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.Creator1476Test": {
+   "wall": 0.004723,
+   "cpu": 0.0009220000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.CreatorPropertiesTest": {
+   "wall": 0.008908,
+   "cpu": 0.001254,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.CreatorWithObjectIdTest": {
+   "wall": 0.006083,
+   "cpu": 0.0022,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.DelegatingCreatorImplicitNames1001Test": {
+   "wall": 0.008085,
+   "cpu": 0.002987,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.DelegatingExternalProperty1003Test": {
+   "wall": 0.009498,
+   "cpu": 0.00795,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.DisablingCreatorsTest": {
+   "wall": 0.007903,
+   "cpu": 0.002456,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.EnumCreatorTest": {
+   "wall": 0.055857,
+   "cpu": 0.036719999999999996,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.FailOnNullCreatorTest": {
+   "wall": 0.0073490000000000005,
+   "cpu": 0.001011,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.ImplicitNameMatch792Test": {
+   "wall": 0.02976,
+   "cpu": 0.004991,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.ImplicitParamsForCreatorTest": {
+   "wall": 0.004444,
+   "cpu": 0.00121,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.InnerClassCreatorTest": {
+   "wall": 0.014534,
+   "cpu": 0.003249,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.MultiArgConstructorTest": {
+   "wall": 0.008439,
+   "cpu": 0.001732,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.RequiredCreatorTest": {
+   "wall": 0.004095,
+   "cpu": 0.0009509999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.SingleArgCreatorTest": {
+   "wall": 0.027121,
+   "cpu": 0.00344,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestConstructFromMap": {
+   "wall": 0.012727,
+   "cpu": 0.003063,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreatorNullValue": {
+   "wall": 0.020260999999999998,
+   "cpu": 0.0027370000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreatorWithNamingStrategy556": {
+   "wall": 0.018902000000000002,
+   "cpu": 0.004940000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreatorWithPolymorphic113": {
+   "wall": 0.01016,
+   "cpu": 0.006958,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreators": {
+   "wall": 0.056341999999999996,
+   "cpu": 0.058158,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreators2": {
+   "wall": 0.045667,
+   "cpu": 0.036976,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreators421": {
+   "wall": 0.009387000000000001,
+   "cpu": 0.015108,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreators541": {
+   "wall": 0.005785,
+   "cpu": 0.0029649999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreatorsDelegating": {
+   "wall": 0.014507999999999998,
+   "cpu": 0.002232,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCreatorsWithIdentity": {
+   "wall": 0.013733,
+   "cpu": 0.001428,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestCustomValueInstDefaults": {
+   "wall": 0.025653,
+   "cpu": 0.006213,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestPolymorphicCreators": {
+   "wall": 0.015025,
+   "cpu": 0.013779,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestPolymorphicDelegating": {
+   "wall": 0.005730000000000001,
+   "cpu": 0.0012929999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestValueInstantiator": {
+   "wall": 0.058077,
+   "cpu": 0.040947000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.creators.TestValueUpdate": {
+   "wall": 0.0025150000000000003,
+   "cpu": 0.003882,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.AnySetter349Test": {
+   "wall": 0.022552,
+   "cpu": 0.024181,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.EnumDefaultReadTest": {
+   "wall": 0.008798,
+   "cpu": 0.006069,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.EnumDeserializationTest": {
+   "wall": 0.060709000000000006,
+   "cpu": 0.013779999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.JDKAtomicTypesTest": {
+   "wall": 0.025226,
+   "cpu": 0.024925,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.JDKNumberDeserTest": {
+   "wall": 0.009567,
+   "cpu": 0.010471999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.JDKScalarsTest": {
+   "wall": 0.034969,
+   "cpu": 0.030643,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.JDKStringLikeTypesTest": {
+   "wall": 0.023411,
+   "cpu": 0.037433,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.KeyDeser1429Test": {
+   "wall": 0.006911,
+   "cpu": 0.00171,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.NullHandlingTest": {
+   "wall": 0.00967,
+   "cpu": 0.0033959999999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.ReadOrWriteOnlyTest": {
+   "wall": 0.0056760000000000005,
+   "cpu": 0.009604,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestAbstract": {
+   "wall": 0.002096,
+   "cpu": 0.003678,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestAnnotationIgnore": {
+   "wall": 0.008376,
+   "cpu": 0.013534000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestAnnotationUsing": {
+   "wall": 0.019908000000000002,
+   "cpu": 0.029498,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestAnyProperties": {
+   "wall": 0.02178,
+   "cpu": 0.0099,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestArrayDeserialization": {
+   "wall": 0.086117,
+   "cpu": 0.24303899999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestBasicAnnotations": {
+   "wall": 0.026979,
+   "cpu": 0.016377,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestBeanDeserializer": {
+   "wall": 0.062821,
+   "cpu": 0.005352,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestCachingOfDeser": {
+   "wall": 0.016714,
+   "cpu": 0.005225,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestCollectionDeserialization": {
+   "wall": 0.029602,
+   "cpu": 0.010055,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestConcurrency": {
+   "wall": 2.072663,
+   "cpu": 0.011203,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestConfig": {
+   "wall": 0.03605,
+   "cpu": 0.021303000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestCustomDeserializers": {
+   "wall": 0.07692700000000001,
+   "cpu": 0.022491,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestCustomFactory": {
+   "wall": 0.008367000000000001,
+   "cpu": 0.003558,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestCyclicTypes": {
+   "wall": 0.018813,
+   "cpu": 0.018226,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestDateDeserialization": {
+   "wall": 0.028546,
+   "cpu": 0.057689,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestFieldDeserialization": {
+   "wall": 0.031695,
+   "cpu": 0.016321000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestGenericCollectionDeser": {
+   "wall": 0.009455999999999999,
+   "cpu": 0.002439,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestGenericMapDeser": {
+   "wall": 0.021846,
+   "cpu": 0.003851,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestGenerics": {
+   "wall": 0.028706,
+   "cpu": 0.004673,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestIgnoredTypes": {
+   "wall": 0.012652,
+   "cpu": 0.00261,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestInjectables": {
+   "wall": 0.012706,
+   "cpu": 0.002562,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestInnerClass": {
+   "wall": 0.00366,
+   "cpu": 0.000903,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestJacksonTypes": {
+   "wall": 0.001092,
+   "cpu": 0.001813,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestMapDeserialization": {
+   "wall": 0.160795,
+   "cpu": 0.232299,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestObjectOrArrayDeserialization": {
+   "wall": 0.006213,
+   "cpu": 0.007163,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestOverloaded": {
+   "wall": 0.020867,
+   "cpu": 0.024609000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestPolymorphicDeserialization676": {
+   "wall": 0.013487,
+   "cpu": 0.01993,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestSetterlessProperties": {
+   "wall": 0.012426999999999999,
+   "cpu": 0.014964,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestStatics": {
+   "wall": 0.0050810000000000004,
+   "cpu": 0.0066500000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestTimestampDeserialization": {
+   "wall": 0.000888,
+   "cpu": 0.001026,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestUntypedDeserialization": {
+   "wall": 0.023797000000000002,
+   "cpu": 0.027832,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.TestValueAnnotations": {
+   "wall": 0.044087,
+   "cpu": 0.024776,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.ExceptionPathTest": {
+   "wall": 0.004725,
+   "cpu": 0.0076040000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionDeserialization": {
+   "wall": 0.008879,
+   "cpu": 0.018140999999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandling": {
+   "wall": 0.004148,
+   "cpu": 0.005798,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandlingWithDefaultDeserialization": {
+   "wall": 0.009694000000000001,
+   "cpu": 0.010897,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandlingWithJsonCreatorDeserialization": {
+   "wall": 0.005804,
+   "cpu": 0.00865,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionSerialization": {
+   "wall": 0.004914,
+   "cpu": 0.011291,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionsDuringWriting": {
+   "wall": 0.0057480000000000005,
+   "cpu": 0.009422,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ext.TestCoreXMLTypes": {
+   "wall": 0.030966999999999998,
+   "cpu": 0.06275800000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ext.TestDOM": {
+   "wall": 0.055237,
+   "cpu": 0.115956,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ext.TestJava6Types": {
+   "wall": 0.000777,
+   "cpu": 0.0012909999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ext.TestJava7Types": {
+   "wall": 0.000251,
+   "cpu": 0.001367,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.IgnoreCreatorProp1317Test": {
+   "wall": 0.006306,
+   "cpu": 0.0074340000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.IgnorePropertyOnDeser1217Test": {
+   "wall": 0.010426999999999999,
+   "cpu": 0.011778,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.IgnorePropsForSerTest": {
+   "wall": 0.027341999999999998,
+   "cpu": 0.028975,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.JsonInclude1327Test": {
+   "wall": 0.007522,
+   "cpu": 0.00087,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.JsonIncludeTest": {
+   "wall": 0.047445999999999995,
+   "cpu": 0.010124000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.MapInclusionTest": {
+   "wall": 0.002493,
+   "cpu": 0.0005819999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.NullSerializationTest": {
+   "wall": 0.014132,
+   "cpu": 0.010917999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.ProblemHandlerTest": {
+   "wall": 0.030626,
+   "cpu": 0.006252,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.ReadOnlyProperties95Test": {
+   "wall": 0.001913,
+   "cpu": 0.000514,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.TestAnyGetterFiltering": {
+   "wall": 0.013481,
+   "cpu": 0.002124,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.TestJsonFilter": {
+   "wall": 0.013335000000000001,
+   "cpu": 0.014164999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.TestMapFiltering": {
+   "wall": 0.029332,
+   "cpu": 0.017144,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.TestSimpleSerializationIgnore": {
+   "wall": 0.014799,
+   "cpu": 0.002872,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.filter.TestUnknownPropertyDeserialization": {
+   "wall": 0.023381,
+   "cpu": 0.00779,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.format.DateFormatTest": {
+   "wall": 0.0026160000000000003,
+   "cpu": 0.001028,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.interop.DeprecatedTypeHandling1102Test": {
+   "wall": 0.002863,
+   "cpu": 0.003143,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.interop.TestExternalizable": {
+   "wall": 0.007443,
+   "cpu": 0.0023650000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.interop.TestFormatDetection": {
+   "wall": 0.007745,
+   "cpu": 0.009878,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.interop.TestJDKProxy": {
+   "wall": 0.009352000000000001,
+   "cpu": 0.009721,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.BeanDescriptionTest": {
+   "wall": 0.003622,
+   "cpu": 0.00368,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.BeanNamingTest": {
+   "wall": 0.003658,
+   "cpu": 0.0069770000000000006,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.IntrospectorPairTest": {
+   "wall": 0.005063,
+   "cpu": 0.0061790000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.NoClassDefFoundWorkaroundTest": {
+   "wall": 0.006111,
+   "cpu": 0.0023769999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.SetterConflictTest": {
+   "wall": 0.003464,
+   "cpu": 0.000414,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestAnnotationMerging": {
+   "wall": 0.0157,
+   "cpu": 0.0046630000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestAnnotionBundles": {
+   "wall": 0.029285,
+   "cpu": 0.007193,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestAutoDetect": {
+   "wall": 0.003311,
+   "cpu": 0.003491,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestBuilderMethods": {
+   "wall": 0.000585,
+   "cpu": 0.001065,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestInferredMutators": {
+   "wall": 0.003716,
+   "cpu": 0.000617,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestJacksonAnnotationIntrospector": {
+   "wall": 0.016077,
+   "cpu": 0.024288,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestMixinMerging": {
+   "wall": 0.013002000000000001,
+   "cpu": 0.017937,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestNameConflicts": {
+   "wall": 0.0065439999999999995,
+   "cpu": 0.010183,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom": {
+   "wall": 0.021283999999999997,
+   "cpu": 0.024467,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestNamingStrategyStd": {
+   "wall": 0.023184999999999997,
+   "cpu": 0.028992,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestPOJOPropertiesCollector": {
+   "wall": 0.037314,
+   "cpu": 0.047997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestPropertyConflicts": {
+   "wall": 0.013782,
+   "cpu": 0.015674,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestPropertyRename": {
+   "wall": 0.004338,
+   "cpu": 0.006464,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TestScalaLikeImplicitProperties": {
+   "wall": 0.011112,
+   "cpu": 0.011023999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.introspect.TransientTest": {
+   "wall": 0.010622,
+   "cpu": 0.016336,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsonschema.NewSchemaTest": {
+   "wall": 0.056223,
+   "cpu": 0.061686,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsonschema.TestGenerateJsonSchema": {
+   "wall": 0.013619999999999998,
+   "cpu": 0.016985,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsonschema.TestReadJsonSchema": {
+   "wall": 0.005969,
+   "cpu": 0.006004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.AbstracTypeMapping1186Test": {
+   "wall": 0.010199999999999999,
+   "cpu": 0.011253,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.DefaultTypingWithPrimitivesTest": {
+   "wall": 0.002513,
+   "cpu": 0.003161,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.Generic1128Test": {
+   "wall": 0.01025,
+   "cpu": 0.011677,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.PolymorphicList1451SerTest": {
+   "wall": 0.005955,
+   "cpu": 0.009309,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.PolymorphicViaRefTypeTest": {
+   "wall": 0.03147,
+   "cpu": 0.035802,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractContainers": {
+   "wall": 0.023888000000000003,
+   "cpu": 0.029029,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractTypeNames": {
+   "wall": 0.025495,
+   "cpu": 0.028581,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestCustomTypeIdResolver": {
+   "wall": 0.031087,
+   "cpu": 0.034404000000000004,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForArrays": {
+   "wall": 0.004169,
+   "cpu": 0.011397000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums": {
+   "wall": 0.007283,
+   "cpu": 0.008662000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForLists": {
+   "wall": 0.008657999999999999,
+   "cpu": 0.011907,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForMaps": {
+   "wall": 0.017896000000000002,
+   "cpu": 0.019559999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForObject": {
+   "wall": 0.019863,
+   "cpu": 0.025793,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForScalars": {
+   "wall": 0.004055,
+   "cpu": 0.006311,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForTreeNodes": {
+   "wall": 0.0006919999999999999,
+   "cpu": 0.000484,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultWithCreators": {
+   "wall": 0.009089999999999999,
+   "cpu": 0.016401,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestEnumTyping": {
+   "wall": 0.01064,
+   "cpu": 0.014872999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestGenericListSerialization": {
+   "wall": 0.009779999999999999,
+   "cpu": 0.01073,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestNoTypeInfo": {
+   "wall": 0.003677,
+   "cpu": 0.004365,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestOverlappingTypeIdNames": {
+   "wall": 0.01192,
+   "cpu": 0.010613,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl": {
+   "wall": 0.041469,
+   "cpu": 0.047235,
+   "status": "fail"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestPropertyTypeInfo": {
+   "wall": 0.034118,
+   "cpu": 0.039597,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestScalars": {
+   "wall": 0.017960999999999998,
+   "cpu": 0.017438,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypes": {
+   "wall": 0.043165999999999996,
+   "cpu": 0.045932,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypesExistingProperty": {
+   "wall": 0.030013,
+   "cpu": 0.036528,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestTypeNames": {
+   "wall": 0.014416,
+   "cpu": 0.016394,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestTypedArrayDeserialization": {
+   "wall": 0.007197,
+   "cpu": 0.011615,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestTypedArraySerialization": {
+   "wall": 0.021757000000000002,
+   "cpu": 0.025640999999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestTypedContainerSerialization": {
+   "wall": 0.014747999999999999,
+   "cpu": 0.017606,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestTypedDeserialization": {
+   "wall": 0.026843,
+   "cpu": 0.029943,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestTypedSerialization": {
+   "wall": 0.027899999999999998,
+   "cpu": 0.03172,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestVisibleTypeId": {
+   "wall": 0.026962,
+   "cpu": 0.032832,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TestWithGenerics": {
+   "wall": 0.028602,
+   "cpu": 0.033294,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TypeRefinementForMapTest": {
+   "wall": 0.016825,
+   "cpu": 0.0167,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.TypeResolverTest": {
+   "wall": 0.004412,
+   "cpu": 0.004947,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.UnknownSubClassTest": {
+   "wall": 0.0036509999999999997,
+   "cpu": 0.007085,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.WrapperObjectWithObjectIdTest": {
+   "wall": 0.011549,
+   "cpu": 0.011326000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeId198Test": {
+   "wall": 0.009544,
+   "cpu": 0.006154,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeId999Test": {
+   "wall": 0.008959,
+   "cpu": 0.011167999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeIdTest": {
+   "wall": 0.056318,
+   "cpu": 0.065116,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.ext.JsonValueExtTypeIdTest": {
+   "wall": 0.015375,
+   "cpu": 0.019497,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.jsontype.ext.TestSubtypesExternalPropertyMissingProperty": {
+   "wall": 0.023561,
+   "cpu": 0.036121,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.misc.AccessFixTest": {
+   "wall": 0.010222,
+   "cpu": 0.021686,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.misc.BeanPropertyMapTest": {
+   "wall": 0.005235,
+   "cpu": 0.006208999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.misc.CaseInsensitiveDeserTest": {
+   "wall": 0.010141,
+   "cpu": 0.012502000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.misc.RaceCondition738Test": {
+   "wall": 0.370229,
+   "cpu": 1.266901,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.misc.TestBlocking": {
+   "wall": 0.000624,
+   "cpu": 0.003089,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.misc.TestJSONP": {
+   "wall": 0.021375,
+   "cpu": 0.023847999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.MixinsWithBundlesTest": {
+   "wall": 0.006458,
+   "cpu": 0.007936,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForClass": {
+   "wall": 0.006919,
+   "cpu": 0.007487,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForCreators": {
+   "wall": 0.014639,
+   "cpu": 0.015658,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForMethods": {
+   "wall": 0.004346,
+   "cpu": 0.004083,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinInheritance": {
+   "wall": 0.010652,
+   "cpu": 0.013137000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForClass": {
+   "wall": 0.009406000000000001,
+   "cpu": 0.012214000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForFields": {
+   "wall": 0.007146,
+   "cpu": 0.009455999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForMethods": {
+   "wall": 0.01328,
+   "cpu": 0.017304,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerWithViews": {
+   "wall": 0.015138,
+   "cpu": 0.018625,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestAbstractTypes": {
+   "wall": 0.003009,
+   "cpu": 0.003914,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestCustomEnumKeyDeserializer": {
+   "wall": 0.038602,
+   "cpu": 0.042912,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestDuplicateRegistration": {
+   "wall": 0.002101,
+   "cpu": 0.001859,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestKeyDeserializers": {
+   "wall": 0.006528,
+   "cpu": 0.009217000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestSimpleModule": {
+   "wall": 0.029022,
+   "cpu": 0.031777,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestTypeModifierNameResolution": {
+   "wall": 0.017043,
+   "cpu": 0.005795,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.module.TestTypeModifiers": {
+   "wall": 0.028835999999999997,
+   "cpu": 0.002862,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.NotANumberConversionTest": {
+   "wall": 0.0033439999999999998,
+   "cpu": 0.002402,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestArrayNode": {
+   "wall": 0.0005520000000000001,
+   "cpu": 0.000713,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestConversions": {
+   "wall": 0.025363,
+   "cpu": 0.010267,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestDeepCopy": {
+   "wall": 0.000345,
+   "cpu": 0.000357,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestEndOfInputHandling": {
+   "wall": 0.000324,
+   "cpu": 0.000623,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestFindMethods": {
+   "wall": 0.000339,
+   "cpu": 0.000705,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestJsonNode": {
+   "wall": 0.0028450000000000003,
+   "cpu": 0.003385,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestJsonPointer": {
+   "wall": 0.000554,
+   "cpu": 0.001606,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestMissingNode": {
+   "wall": 0.000208,
+   "cpu": 0.000212,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestNullNode": {
+   "wall": 0.000236,
+   "cpu": 0.000498,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestNumberNodes": {
+   "wall": 0.001077,
+   "cpu": 0.001231,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestObjectNode": {
+   "wall": 0.009253,
+   "cpu": 0.010989,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestTreeDeserialization": {
+   "wall": 0.002776,
+   "cpu": 0.004283,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestTreeMapperDeserializer": {
+   "wall": 0.00065,
+   "cpu": 0.000852,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestTreeMapperSerializer": {
+   "wall": 0.001667,
+   "cpu": 0.00259,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestTreeTraversingParser": {
+   "wall": 0.008444,
+   "cpu": 0.010568,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.node.TestTreeWithType": {
+   "wall": 0.008789,
+   "cpu": 0.010246,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.AlwaysAsReferenceFirstTest": {
+   "wall": 0.005351,
+   "cpu": 0.008032,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.JSOGDeserialize622Test": {
+   "wall": 0.017587,
+   "cpu": 0.021481999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.ObjectId825BTest": {
+   "wall": 0.024432,
+   "cpu": 0.027175,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.ObjectId825Test": {
+   "wall": 0.009134999999999999,
+   "cpu": 0.009691,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.ObjectIdReordering1388Test": {
+   "wall": 0.005631000000000001,
+   "cpu": 0.007665,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.ObjectWithCreator1261Test": {
+   "wall": 0.009102,
+   "cpu": 0.012592,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.ReferentialWithObjectIdTest": {
+   "wall": 0.0045179999999999994,
+   "cpu": 0.006611,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestAbstractWithObjectId": {
+   "wall": 0.013087999999999999,
+   "cpu": 0.019041,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestObjectId": {
+   "wall": 0.022526,
+   "cpu": 0.025568999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdDeserialization": {
+   "wall": 0.032334,
+   "cpu": 0.036582,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdSerialization": {
+   "wall": 0.029248,
+   "cpu": 0.03265,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithEquals": {
+   "wall": 0.009596,
+   "cpu": 0.011082000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithInjectables538": {
+   "wall": 0.002781,
+   "cpu": 0.003124,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithPolymorphic": {
+   "wall": 0.014153,
+   "cpu": 0.015482,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.seq.ObjectReaderTest": {
+   "wall": 0.005031,
+   "cpu": 0.0051470000000000005,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.seq.ObjectWriterTest": {
+   "wall": 0.006607,
+   "cpu": 0.008403,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.seq.PolyMapWriter827Test": {
+   "wall": 0.004732999999999999,
+   "cpu": 0.006607999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.seq.ReadRecoveryTest": {
+   "wall": 0.002883,
+   "cpu": 0.006993,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.seq.ReadValuesTest": {
+   "wall": 0.008895,
+   "cpu": 0.009146000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.seq.SequenceWriterTest": {
+   "wall": 0.008928,
+   "cpu": 0.008038,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.AnyGetterTest": {
+   "wall": 0.014788,
+   "cpu": 0.019769,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.DateSerializationTest": {
+   "wall": 0.032823,
+   "cpu": 0.044,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.FieldSerializationTest": {
+   "wall": 0.027983,
+   "cpu": 0.030242,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.NumberSerTest": {
+   "wall": 0.0073490000000000005,
+   "cpu": 0.008712999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.RawValueTest": {
+   "wall": 0.007741,
+   "cpu": 0.010975,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.SerializationFeaturesTest": {
+   "wall": 0.023014,
+   "cpu": 0.025564,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestAnnotationInheritance": {
+   "wall": 0.007476,
+   "cpu": 0.010435,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestAnnotations": {
+   "wall": 0.021518000000000002,
+   "cpu": 0.023955999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestArraySerialization": {
+   "wall": 0.035174,
+   "cpu": 0.075304,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestAutoDetect": {
+   "wall": 0.010441,
+   "cpu": 0.013788,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestBeanSerializer": {
+   "wall": 0.062006,
+   "cpu": 0.06716,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestCollectionSerialization": {
+   "wall": 0.020184999999999998,
+   "cpu": 0.027442,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestConfig": {
+   "wall": 0.009244,
+   "cpu": 0.011554,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestCustomSerializers": {
+   "wall": 0.019541,
+   "cpu": 0.023537,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestCyclicTypes": {
+   "wall": 0.0026070000000000004,
+   "cpu": 0.002198,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestEmptyClass": {
+   "wall": 0.014904,
+   "cpu": 0.018079,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestEnumSerialization": {
+   "wall": 0.10106799999999999,
+   "cpu": 0.105333,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestGenericTypes": {
+   "wall": 0.017587,
+   "cpu": 0.024456,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestIterable": {
+   "wall": 0.012634000000000001,
+   "cpu": 0.013356,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJacksonTypes": {
+   "wall": 0.000714,
+   "cpu": 0.002477,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJdkTypes": {
+   "wall": 0.004987,
+   "cpu": 0.010626,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize": {
+   "wall": 0.023297000000000002,
+   "cpu": 0.021056000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize2": {
+   "wall": 0.033119,
+   "cpu": 0.035356,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize3": {
+   "wall": 0.003002,
+   "cpu": 0.002699,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJsonSerializeAs": {
+   "wall": 0.02075,
+   "cpu": 0.022555,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestJsonValue": {
+   "wall": 0.029771000000000002,
+   "cpu": 0.036146,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestKeySerializers": {
+   "wall": 0.028587,
+   "cpu": 0.033028,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestMapSerialization": {
+   "wall": 0.023635000000000003,
+   "cpu": 0.029143000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestRootType": {
+   "wall": 0.016,
+   "cpu": 0.017235,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestSerializationOrder": {
+   "wall": 0.011377,
+   "cpu": 0.014782,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestSerializerProvider": {
+   "wall": 0.003186,
+   "cpu": 0.005412,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestSimpleAtomicTypes": {
+   "wall": 0.0029100000000000003,
+   "cpu": 0.005568,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestSimpleTypes": {
+   "wall": 0.0010860000000000002,
+   "cpu": 0.001095,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestStatics": {
+   "wall": 0.003958000000000001,
+   "cpu": 0.005211,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestTreeSerialization": {
+   "wall": 0.002447,
+   "cpu": 0.004247,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestTypedRootValueSerialization": {
+   "wall": 0.008323,
+   "cpu": 0.009278999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestUntypedSerialization": {
+   "wall": 0.000719,
+   "cpu": 0.0034249999999999997,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestUnwrappedWithTypeInfo": {
+   "wall": 0.006951,
+   "cpu": 0.008244999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.ser.TestVirtualProperties": {
+   "wall": 0.0146,
+   "cpu": 0.023109,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.FormatFeaturesTest": {
+   "wall": 0.023969999999999998,
+   "cpu": 0.02961,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.PojoAsArray646Test": {
+   "wall": 0.006789,
+   "cpu": 0.010999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.SingleValueAsArrayTest": {
+   "wall": 0.013963,
+   "cpu": 0.015102,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestBackRefsWithPolymorphic": {
+   "wall": 0.029526,
+   "cpu": 0.037427,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestFormatForCollections": {
+   "wall": 0.0032440000000000004,
+   "cpu": 0.001957,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestForwardReference": {
+   "wall": 0.009191000000000001,
+   "cpu": 0.010342,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArray": {
+   "wall": 0.022596,
+   "cpu": 0.025541,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArrayAdvanced": {
+   "wall": 0.01597,
+   "cpu": 0.018716999999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArrayWithBuilder": {
+   "wall": 0.006617,
+   "cpu": 0.006131,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestParentChildReferences": {
+   "wall": 0.031239,
+   "cpu": 0.03661,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestUnwrapped": {
+   "wall": 0.019286,
+   "cpu": 0.025557,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestUnwrappedWithPrefix": {
+   "wall": 0.023851,
+   "cpu": 0.02653,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.struct.TestUnwrappedWithSameName647": {
+   "wall": 0.006415,
+   "cpu": 0.008003999999999999,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.DeprecatedConstructType1456Test": {
+   "wall": 0.009085000000000001,
+   "cpu": 0.011503,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.LocalTypeTest": {
+   "wall": 0.00392,
+   "cpu": 0.00422,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.PolymorphicList036Test": {
+   "wall": 0.004902,
+   "cpu": 0.004954,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.RecursiveTypeTest": {
+   "wall": 0.010825,
+   "cpu": 0.00894,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestAnnotatedClass": {
+   "wall": 0.008003,
+   "cpu": 0.008634000000000001,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestGenericFieldInSubtype": {
+   "wall": 0.006952,
+   "cpu": 0.009303,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestGenericsBounded": {
+   "wall": 0.03537,
+   "cpu": 0.038305,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestJavaType": {
+   "wall": 0.010566,
+   "cpu": 0.012571,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestTypeBindings": {
+   "wall": 0.007659,
+   "cpu": 0.009439,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestTypeFactory": {
+   "wall": 0.052916,
+   "cpu": 0.058122,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestTypeFactoryWithClassLoader": {
+   "wall": 0.592938,
+   "cpu": 1.233122,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TestTypeResolution": {
+   "wall": 0.043921999999999996,
+   "cpu": 0.045511,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.type.TypeAliasesTest": {
+   "wall": 0.017064,
+   "cpu": 0.018498,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.util.ArrayBuildersTest": {
+   "wall": 0.000247,
+   "cpu": 0.00087,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.util.ISO8601DateFormatTest": {
+   "wall": 0.00047299999999999995,
+   "cpu": 0.000481,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.util.ISO8601UtilsTest": {
+   "wall": 0.000944,
+   "cpu": 0.002221,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.util.TestClassUtil": {
+   "wall": 0.027413,
+   "cpu": 0.029785,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.util.TestObjectBuffer": {
+   "wall": 0.07085,
+   "cpu": 0.14854499999999998,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.util.TestTokenBuffer": {
+   "wall": 0.0013939999999999998,
+   "cpu": 0.0025150000000000003,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.views.TestViewDeserialization": {
+   "wall": 0.021922999999999998,
+   "cpu": 0.027280000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.views.TestViewSerialization": {
+   "wall": 0.028234000000000002,
+   "cpu": 0.029233000000000002,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.views.TestViewsSerialization2": {
+   "wall": 0.009209,
+   "cpu": 0.012909,
+   "status": "pass"
+  },
+  "com.fasterxml.jackson.databind.views.ViewsWithSchemaTest": {
+   "wall": 0.01474,
+   "cpu": 0.019354,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 1.3909642090012753,
+  "cpu": 1.2864419999999903
+ },
+ "fixed_suite_seconds": [
+  6.41,
+  5.24,
+  5.35
+ ],
+ "covering": [
+  "com.fasterxml.jackson.databind.deser.TestMapDeserialization",
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractContainers",
+  "com.fasterxml.jackson.databind.jsontype.TestEnumTyping",
+  "com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl",
+  "com.fasterxml.jackson.databind.jsontype.TestScalars",
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypes",
+  "com.fasterxml.jackson.databind.module.TestCustomEnumKeyDeserializer",
+  "com.fasterxml.jackson.databind.objectid.TestObjectId"
+ ],
+ "sizes": {
+  "com.fasterxml.jackson.databind.ObjectMapperTest": 13694,
+  "com.fasterxml.jackson.databind.RoundtripTest": 1625,
+  "com.fasterxml.jackson.databind.TestFormatSchema": 7705,
+  "com.fasterxml.jackson.databind.TestGeneratorUsingMapper": 2802,
+  "com.fasterxml.jackson.databind.TestHandlerInstantiation": 8669,
+  "com.fasterxml.jackson.databind.TestJDKSerialization": 6747,
+  "com.fasterxml.jackson.databind.TestObjectMapperBeanDeserializer": 11099,
+  "com.fasterxml.jackson.databind.TestObjectMapperBeanSerializer": 9304,
+  "com.fasterxml.jackson.databind.TestParserUsingMapper": 5791,
+  "com.fasterxml.jackson.databind.TestRootName": 4816,
+  "com.fasterxml.jackson.databind.TestStdDateFormat": 1825,
+  "com.fasterxml.jackson.databind.TestVersions": 1235,
+  "com.fasterxml.jackson.databind.access.TestSerAnyGetter": 1959,
+  "com.fasterxml.jackson.databind.big.TestBiggerData": 2934,
+  "com.fasterxml.jackson.databind.contextual.TestContextAttributeWithDeser": 3227,
+  "com.fasterxml.jackson.databind.contextual.TestContextAttributeWithSer": 2922,
+  "com.fasterxml.jackson.databind.contextual.TestContextualDeserialization": 10852,
+  "com.fasterxml.jackson.databind.contextual.TestContextualKeyTypes": 4255,
+  "com.fasterxml.jackson.databind.contextual.TestContextualSerialization": 10136,
+  "com.fasterxml.jackson.databind.contextual.TestContextualWithAnnDeserializer": 2618,
+  "com.fasterxml.jackson.databind.convert.ConvertingAbstractSerializer795Test": 2741,
+  "com.fasterxml.jackson.databind.convert.NumericConversionTest": 2328,
+  "com.fasterxml.jackson.databind.convert.TestArrayConversions": 8103,
+  "com.fasterxml.jackson.databind.convert.TestBeanConversions": 8158,
+  "com.fasterxml.jackson.databind.convert.TestConvertingDeserializer": 6335,
+  "com.fasterxml.jackson.databind.convert.TestConvertingSerializer": 6737,
+  "com.fasterxml.jackson.databind.convert.TestMapConversions": 3771,
+  "com.fasterxml.jackson.databind.convert.TestPolymorphicUpdateValue": 1225,
+  "com.fasterxml.jackson.databind.convert.TestStringConversions": 3160,
+  "com.fasterxml.jackson.databind.convert.TestUpdateValue": 6975,
+  "com.fasterxml.jackson.databind.creators.ArrayDelegatorCreatorForCollectionTest": 1127,
+  "com.fasterxml.jackson.databind.creators.BigCreatorTest": 2975,
+  "com.fasterxml.jackson.databind.creators.BuilderSimpleTest": 11837,
+  "com.fasterxml.jackson.databind.creators.Creator1476Test": 1251,
+  "com.fasterxml.jackson.databind.creators.CreatorPropertiesTest": 2145,
+  "com.fasterxml.jackson.databind.creators.CreatorWithObjectIdTest": 1327,
+  "com.fasterxml.jackson.databind.creators.DelegatingCreatorImplicitNames1001Test": 3047,
+  "com.fasterxml.jackson.databind.creators.DelegatingExternalProperty1003Test": 1476,
+  "com.fasterxml.jackson.databind.creators.DisablingCreatorsTest": 1985,
+  "com.fasterxml.jackson.databind.creators.EnumCreatorTest": 10333,
+  "com.fasterxml.jackson.databind.creators.FailOnNullCreatorTest": 2082,
+  "com.fasterxml.jackson.databind.creators.ImplicitNameMatch792Test": 3900,
+  "com.fasterxml.jackson.databind.creators.ImplicitParamsForCreatorTest": 1686,
+  "com.fasterxml.jackson.databind.creators.InnerClassCreatorTest": 3039,
+  "com.fasterxml.jackson.databind.creators.MultiArgConstructorTest": 3644,
+  "com.fasterxml.jackson.databind.creators.RequiredCreatorTest": 2081,
+  "com.fasterxml.jackson.databind.creators.SingleArgCreatorTest": 6294,
+  "com.fasterxml.jackson.databind.creators.TestConstructFromMap": 2560,
+  "com.fasterxml.jackson.databind.creators.TestCreatorNullValue": 3674,
+  "com.fasterxml.jackson.databind.creators.TestCreatorWithNamingStrategy556": 2627,
+  "com.fasterxml.jackson.databind.creators.TestCreatorWithPolymorphic113": 1751,
+  "com.fasterxml.jackson.databind.creators.TestCreators": 15141,
+  "com.fasterxml.jackson.databind.creators.TestCreators2": 9095,
+  "com.fasterxml.jackson.databind.creators.TestCreators421": 2212,
+  "com.fasterxml.jackson.databind.creators.TestCreators541": 3216,
+  "com.fasterxml.jackson.databind.creators.TestCreatorsDelegating": 4673,
+  "com.fasterxml.jackson.databind.creators.TestCreatorsWithIdentity": 1648,
+  "com.fasterxml.jackson.databind.creators.TestCustomValueInstDefaults": 22793,
+  "com.fasterxml.jackson.databind.creators.TestPolymorphicCreators": 4510,
+  "com.fasterxml.jackson.databind.creators.TestPolymorphicDelegating": 1389,
+  "com.fasterxml.jackson.databind.creators.TestValueInstantiator": 20207,
+  "com.fasterxml.jackson.databind.creators.TestValueUpdate": 1438,
+  "com.fasterxml.jackson.databind.deser.AnySetter349Test": 1240,
+  "com.fasterxml.jackson.databind.deser.EnumDefaultReadTest": 11143,
+  "com.fasterxml.jackson.databind.deser.EnumDeserializationTest": 19072,
+  "com.fasterxml.jackson.databind.deser.JDKAtomicTypesTest": 9691,
+  "com.fasterxml.jackson.databind.deser.JDKNumberDeserTest": 9172,
+  "com.fasterxml.jackson.databind.deser.JDKScalarsTest": 41917,
+  "com.fasterxml.jackson.databind.deser.JDKStringLikeTypesTest": 19614,
+  "com.fasterxml.jackson.databind.deser.KeyDeser1429Test": 1532,
+  "com.fasterxml.jackson.databind.deser.NullHandlingTest": 8262,
+  "com.fasterxml.jackson.databind.deser.ReadOrWriteOnlyTest": 2103,
+  "com.fasterxml.jackson.databind.deser.TestAbstract": 1047,
+  "com.fasterxml.jackson.databind.deser.TestAnnotationIgnore": 2308,
+  "com.fasterxml.jackson.databind.deser.TestAnnotationUsing": 8002,
+  "com.fasterxml.jackson.databind.deser.TestAnyProperties": 8151,
+  "com.fasterxml.jackson.databind.deser.TestArrayDeserialization": 18490,
+  "com.fasterxml.jackson.databind.deser.TestBasicAnnotations": 4943,
+  "com.fasterxml.jackson.databind.deser.TestBeanDeserializer": 14690,
+  "com.fasterxml.jackson.databind.deser.TestCachingOfDeser": 3896,
+  "com.fasterxml.jackson.databind.deser.TestCollectionDeserialization": 11025,
+  "com.fasterxml.jackson.databind.deser.TestConcurrency": 2913,
+  "com.fasterxml.jackson.databind.deser.TestConfig": 4138,
+  "com.fasterxml.jackson.databind.deser.TestCustomDeserializers": 13163,
+  "com.fasterxml.jackson.databind.deser.TestCustomFactory": 4099,
+  "com.fasterxml.jackson.databind.deser.TestCyclicTypes": 3291,
+  "com.fasterxml.jackson.databind.deser.TestDateDeserialization": 22361,
+  "com.fasterxml.jackson.databind.deser.TestFieldDeserialization": 4422,
+  "com.fasterxml.jackson.databind.deser.TestGenericCollectionDeser": 2760,
+  "com.fasterxml.jackson.databind.deser.TestGenericMapDeser": 5923,
+  "com.fasterxml.jackson.databind.deser.TestGenerics": 6061,
+  "com.fasterxml.jackson.databind.deser.TestIgnoredTypes": 3700,
+  "com.fasterxml.jackson.databind.deser.TestInjectables": 6171,
+  "com.fasterxml.jackson.databind.deser.TestInnerClass": 1401,
+  "com.fasterxml.jackson.databind.deser.TestJacksonTypes": 4221,
+  "com.fasterxml.jackson.databind.deser.TestMapDeserialization": 22850,
+  "com.fasterxml.jackson.databind.deser.TestObjectOrArrayDeserialization": 1986,
+  "com.fasterxml.jackson.databind.deser.TestOverloaded": 4245,
+  "com.fasterxml.jackson.databind.deser.TestPolymorphicDeserialization676": 4380,
+  "com.fasterxml.jackson.databind.deser.TestSetterlessProperties": 3923,
+  "com.fasterxml.jackson.databind.deser.TestStatics": 930,
+  "com.fasterxml.jackson.databind.deser.TestTimestampDeserialization": 2243,
+  "com.fasterxml.jackson.databind.deser.TestUntypedDeserialization": 10746,
+  "com.fasterxml.jackson.databind.deser.TestValueAnnotations": 12925,
+  "com.fasterxml.jackson.databind.deser.exc.ExceptionPathTest": 1295,
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionDeserialization": 5902,
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandling": 3972,
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandlingWithDefaultDeserialization": 1379,
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionHandlingWithJsonCreatorDeserialization": 1748,
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionSerialization": 4324,
+  "com.fasterxml.jackson.databind.deser.exc.TestExceptionsDuringWriting": 4841,
+  "com.fasterxml.jackson.databind.ext.TestCoreXMLTypes": 5093,
+  "com.fasterxml.jackson.databind.ext.TestDOM": 3913,
+  "com.fasterxml.jackson.databind.ext.TestJava6Types": 828,
+  "com.fasterxml.jackson.databind.ext.TestJava7Types": 942,
+  "com.fasterxml.jackson.databind.filter.IgnoreCreatorProp1317Test": 1310,
+  "com.fasterxml.jackson.databind.filter.IgnorePropertyOnDeser1217Test": 2010,
+  "com.fasterxml.jackson.databind.filter.IgnorePropsForSerTest": 3997,
+  "com.fasterxml.jackson.databind.filter.JsonInclude1327Test": 1721,
+  "com.fasterxml.jackson.databind.filter.JsonIncludeTest": 10278,
+  "com.fasterxml.jackson.databind.filter.MapInclusionTest": 1158,
+  "com.fasterxml.jackson.databind.filter.NullSerializationTest": 4222,
+  "com.fasterxml.jackson.databind.filter.ProblemHandlerTest": 8995,
+  "com.fasterxml.jackson.databind.filter.ReadOnlyProperties95Test": 855,
+  "com.fasterxml.jackson.databind.filter.TestAnyGetterFiltering": 2230,
+  "com.fasterxml.jackson.databind.filter.TestJsonFilter": 7013,
+  "com.fasterxml.jackson.databind.filter.TestMapFiltering": 8320,
+  "com.fasterxml.jackson.databind.filter.TestSimpleSerializationIgnore": 3373,
+  "com.fasterxml.jackson.databind.filter.TestUnknownPropertyDeserialization": 9503,
+  "com.fasterxml.jackson.databind.format.DateFormatTest": 1297,
+  "com.fasterxml.jackson.databind.interop.DeprecatedTypeHandling1102Test": 3430,
+  "com.fasterxml.jackson.databind.interop.TestExternalizable": 7095,
+  "com.fasterxml.jackson.databind.interop.TestFormatDetection": 1368,
+  "com.fasterxml.jackson.databind.interop.TestJDKProxy": 2171,
+  "com.fasterxml.jackson.databind.introspect.BeanDescriptionTest": 699,
+  "com.fasterxml.jackson.databind.introspect.BeanNamingTest": 1100,
+  "com.fasterxml.jackson.databind.introspect.IntrospectorPairTest": 2329,
+  "com.fasterxml.jackson.databind.introspect.NoClassDefFoundWorkaroundTest": 1635,
+  "com.fasterxml.jackson.databind.introspect.SetterConflictTest": 932,
+  "com.fasterxml.jackson.databind.introspect.TestAnnotationMerging": 2798,
+  "com.fasterxml.jackson.databind.introspect.TestAnnotionBundles": 4069,
+  "com.fasterxml.jackson.databind.introspect.TestAutoDetect": 1413,
+  "com.fasterxml.jackson.databind.introspect.TestBuilderMethods": 1757,
+  "com.fasterxml.jackson.databind.introspect.TestInferredMutators": 2130,
+  "com.fasterxml.jackson.databind.introspect.TestJacksonAnnotationIntrospector": 6796,
+  "com.fasterxml.jackson.databind.introspect.TestMixinMerging": 1669,
+  "com.fasterxml.jackson.databind.introspect.TestNameConflicts": 3529,
+  "com.fasterxml.jackson.databind.introspect.TestNamingStrategyCustom": 8314,
+  "com.fasterxml.jackson.databind.introspect.TestNamingStrategyStd": 15372,
+  "com.fasterxml.jackson.databind.introspect.TestPOJOPropertiesCollector": 18765,
+  "com.fasterxml.jackson.databind.introspect.TestPropertyConflicts": 4833,
+  "com.fasterxml.jackson.databind.introspect.TestPropertyRename": 2052,
+  "com.fasterxml.jackson.databind.introspect.TestScalaLikeImplicitProperties": 5924,
+  "com.fasterxml.jackson.databind.introspect.TransientTest": 2498,
+  "com.fasterxml.jackson.databind.jsonschema.NewSchemaTest": 8050,
+  "com.fasterxml.jackson.databind.jsonschema.TestGenerateJsonSchema": 8313,
+  "com.fasterxml.jackson.databind.jsonschema.TestReadJsonSchema": 1842,
+  "com.fasterxml.jackson.databind.jsontype.AbstracTypeMapping1186Test": 1477,
+  "com.fasterxml.jackson.databind.jsontype.DefaultTypingWithPrimitivesTest": 1373,
+  "com.fasterxml.jackson.databind.jsontype.Generic1128Test": 2168,
+  "com.fasterxml.jackson.databind.jsontype.PolymorphicList1451SerTest": 1666,
+  "com.fasterxml.jackson.databind.jsontype.PolymorphicViaRefTypeTest": 2626,
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractContainers": 2758,
+  "com.fasterxml.jackson.databind.jsontype.TestAbstractTypeNames": 4450,
+  "com.fasterxml.jackson.databind.jsontype.TestCustomTypeIdResolver": 6946,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForArrays": 4536,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForEnums": 2466,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForLists": 4864,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForMaps": 5816,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForObject": 14675,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForScalars": 3962,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultForTreeNodes": 1236,
+  "com.fasterxml.jackson.databind.jsontype.TestDefaultWithCreators": 2796,
+  "com.fasterxml.jackson.databind.jsontype.TestEnumTyping": 3281,
+  "com.fasterxml.jackson.databind.jsontype.TestGenericListSerialization": 2704,
+  "com.fasterxml.jackson.databind.jsontype.TestNoTypeInfo": 1204,
+  "com.fasterxml.jackson.databind.jsontype.TestOverlappingTypeIdNames": 1863,
+  "com.fasterxml.jackson.databind.jsontype.TestPolymorphicWithDefaultImpl": 10251,
+  "com.fasterxml.jackson.databind.jsontype.TestPropertyTypeInfo": 8313,
+  "com.fasterxml.jackson.databind.jsontype.TestScalars": 5039,
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypes": 11936,
+  "com.fasterxml.jackson.databind.jsontype.TestSubtypesExistingProperty": 15830,
+  "com.fasterxml.jackson.databind.jsontype.TestTypeNames": 4936,
+  "com.fasterxml.jackson.databind.jsontype.TestTypedArrayDeserialization": 4475,
+  "com.fasterxml.jackson.databind.jsontype.TestTypedArraySerialization": 5588,
+  "com.fasterxml.jackson.databind.jsontype.TestTypedContainerSerialization": 4269,
+  "com.fasterxml.jackson.databind.jsontype.TestTypedDeserialization": 8059,
+  "com.fasterxml.jackson.databind.jsontype.TestTypedSerialization": 7055,
+  "com.fasterxml.jackson.databind.jsontype.TestVisibleTypeId": 8320,
+  "com.fasterxml.jackson.databind.jsontype.TestWithGenerics": 7964,
+  "com.fasterxml.jackson.databind.jsontype.TypeRefinementForMapTest": 4423,
+  "com.fasterxml.jackson.databind.jsontype.TypeResolverTest": 1565,
+  "com.fasterxml.jackson.databind.jsontype.UnknownSubClassTest": 825,
+  "com.fasterxml.jackson.databind.jsontype.WrapperObjectWithObjectIdTest": 2525,
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeId198Test": 1999,
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeId999Test": 1734,
+  "com.fasterxml.jackson.databind.jsontype.ext.ExternalTypeIdTest": 18960,
+  "com.fasterxml.jackson.databind.jsontype.ext.JsonValueExtTypeIdTest": 2843,
+  "com.fasterxml.jackson.databind.jsontype.ext.TestSubtypesExternalPropertyMissingProperty": 9027,
+  "com.fasterxml.jackson.databind.misc.AccessFixTest": 1444,
+  "com.fasterxml.jackson.databind.misc.BeanPropertyMapTest": 1534,
+  "com.fasterxml.jackson.databind.misc.CaseInsensitiveDeserTest": 3067,
+  "com.fasterxml.jackson.databind.misc.RaceCondition738Test": 2957,
+  "com.fasterxml.jackson.databind.misc.TestBlocking": 1271,
+  "com.fasterxml.jackson.databind.misc.TestJSONP": 1892,
+  "com.fasterxml.jackson.databind.mixins.MixinsWithBundlesTest": 1078,
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForClass": 3106,
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForCreators": 3320,
+  "com.fasterxml.jackson.databind.mixins.TestMixinDeserForMethods": 1495,
+  "com.fasterxml.jackson.databind.mixins.TestMixinInheritance": 2143,
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForClass": 4015,
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForFields": 2577,
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerForMethods": 6729,
+  "com.fasterxml.jackson.databind.mixins.TestMixinSerWithViews": 5614,
+  "com.fasterxml.jackson.databind.module.TestAbstractTypes": 3553,
+  "com.fasterxml.jackson.databind.module.TestCustomEnumKeyDeserializer": 10094,
+  "com.fasterxml.jackson.databind.module.TestDuplicateRegistration": 1760,
+  "com.fasterxml.jackson.databind.module.TestKeyDeserializers": 1525,
+  "com.fasterxml.jackson.databind.module.TestSimpleModule": 12066,
+  "com.fasterxml.jackson.databind.module.TestTypeModifierNameResolution": 1631,
+  "com.fasterxml.jackson.databind.module.TestTypeModifiers": 11662,
+  "com.fasterxml.jackson.databind.node.NotANumberConversionTest": 1326,
+  "com.fasterxml.jackson.databind.node.TestArrayNode": 5079,
+  "com.fasterxml.jackson.databind.node.TestConversions": 10058,
+  "com.fasterxml.jackson.databind.node.TestDeepCopy": 2520,
+  "com.fasterxml.jackson.databind.node.TestEndOfInputHandling": 800,
+  "com.fasterxml.jackson.databind.node.TestFindMethods": 2397,
+  "com.fasterxml.jackson.databind.node.TestJsonNode": 6638,
+  "com.fasterxml.jackson.databind.node.TestJsonPointer": 1766,
+  "com.fasterxml.jackson.databind.node.TestMissingNode": 883,
+  "com.fasterxml.jackson.databind.node.TestNullNode": 1391,
+  "com.fasterxml.jackson.databind.node.TestNumberNodes": 12873,
+  "com.fasterxml.jackson.databind.node.TestObjectNode": 13246,
+  "com.fasterxml.jackson.databind.node.TestTreeDeserialization": 3951,
+  "com.fasterxml.jackson.databind.node.TestTreeMapperDeserializer": 14636,
+  "com.fasterxml.jackson.databind.node.TestTreeMapperSerializer": 7782,
+  "com.fasterxml.jackson.databind.node.TestTreeTraversingParser": 9577,
+  "com.fasterxml.jackson.databind.node.TestTreeWithType": 4358,
+  "com.fasterxml.jackson.databind.objectid.AlwaysAsReferenceFirstTest": 883,
+  "com.fasterxml.jackson.databind.objectid.JSOGDeserialize622Test": 7272,
+  "com.fasterxml.jackson.databind.objectid.ObjectId825BTest": 5520,
+  "com.fasterxml.jackson.databind.objectid.ObjectId825Test": 1488,
+  "com.fasterxml.jackson.databind.objectid.ObjectIdReordering1388Test": 3285,
+  "com.fasterxml.jackson.databind.objectid.ObjectWithCreator1261Test": 3462,
+  "com.fasterxml.jackson.databind.objectid.ReferentialWithObjectIdTest": 1927,
+  "com.fasterxml.jackson.databind.objectid.TestAbstractWithObjectId": 2109,
+  "com.fasterxml.jackson.databind.objectid.TestObjectId": 5922,
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdDeserialization": 17820,
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdSerialization": 10636,
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithEquals": 4341,
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithInjectables538": 1561,
+  "com.fasterxml.jackson.databind.objectid.TestObjectIdWithPolymorphic": 5015,
+  "com.fasterxml.jackson.databind.seq.ObjectReaderTest": 7149,
+  "com.fasterxml.jackson.databind.seq.ObjectWriterTest": 6628,
+  "com.fasterxml.jackson.databind.seq.PolyMapWriter827Test": 1733,
+  "com.fasterxml.jackson.databind.seq.ReadRecoveryTest": 3129,
+  "com.fasterxml.jackson.databind.seq.ReadValuesTest": 11349,
+  "com.fasterxml.jackson.databind.seq.SequenceWriterTest": 4979,
+  "com.fasterxml.jackson.databind.ser.AnyGetterTest": 5629,
+  "com.fasterxml.jackson.databind.ser.DateSerializationTest": 12861,
+  "com.fasterxml.jackson.databind.ser.FieldSerializationTest": 6737,
+  "com.fasterxml.jackson.databind.ser.NumberSerTest": 3011,
+  "com.fasterxml.jackson.databind.ser.RawValueTest": 3135,
+  "com.fasterxml.jackson.databind.ser.SerializationFeaturesTest": 10861,
+  "com.fasterxml.jackson.databind.ser.TestAnnotationInheritance": 2878,
+  "com.fasterxml.jackson.databind.ser.TestAnnotations": 8231,
+  "com.fasterxml.jackson.databind.ser.TestArraySerialization": 3444,
+  "com.fasterxml.jackson.databind.ser.TestAutoDetect": 4163,
+  "com.fasterxml.jackson.databind.ser.TestBeanSerializer": 13804,
+  "com.fasterxml.jackson.databind.ser.TestCollectionSerialization": 8420,
+  "com.fasterxml.jackson.databind.ser.TestConfig": 8181,
+  "com.fasterxml.jackson.databind.ser.TestCustomSerializers": 6922,
+  "com.fasterxml.jackson.databind.ser.TestCyclicTypes": 2183,
+  "com.fasterxml.jackson.databind.ser.TestEmptyClass": 3128,
+  "com.fasterxml.jackson.databind.ser.TestEnumSerialization": 14664,
+  "com.fasterxml.jackson.databind.ser.TestGenericTypes": 5468,
+  "com.fasterxml.jackson.databind.ser.TestIterable": 3651,
+  "com.fasterxml.jackson.databind.ser.TestJacksonTypes": 1844,
+  "com.fasterxml.jackson.databind.ser.TestJdkTypes": 6398,
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize": 7868,
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize2": 7816,
+  "com.fasterxml.jackson.databind.ser.TestJsonSerialize3": 1311,
+  "com.fasterxml.jackson.databind.ser.TestJsonSerializeAs": 3577,
+  "com.fasterxml.jackson.databind.ser.TestJsonValue": 7451,
+  "com.fasterxml.jackson.databind.ser.TestKeySerializers": 7391,
+  "com.fasterxml.jackson.databind.ser.TestMapSerialization": 10719,
+  "com.fasterxml.jackson.databind.ser.TestRootType": 7226,
+  "com.fasterxml.jackson.databind.ser.TestSerializationOrder": 4265,
+  "com.fasterxml.jackson.databind.ser.TestSerializerProvider": 1954,
+  "com.fasterxml.jackson.databind.ser.TestSimpleAtomicTypes": 1966,
+  "com.fasterxml.jackson.databind.ser.TestSimpleTypes": 4428,
+  "com.fasterxml.jackson.databind.ser.TestStatics": 1688,
+  "com.fasterxml.jackson.databind.ser.TestTreeSerialization": 4152,
+  "com.fasterxml.jackson.databind.ser.TestTypedRootValueSerialization": 2622,
+  "com.fasterxml.jackson.databind.ser.TestUntypedSerialization": 3956,
+  "com.fasterxml.jackson.databind.ser.TestUnwrappedWithTypeInfo": 2341,
+  "com.fasterxml.jackson.databind.ser.TestVirtualProperties": 4434,
+  "com.fasterxml.jackson.databind.struct.FormatFeaturesTest": 9858,
+  "com.fasterxml.jackson.databind.struct.PojoAsArray646Test": 3086,
+  "com.fasterxml.jackson.databind.struct.SingleValueAsArrayTest": 2225,
+  "com.fasterxml.jackson.databind.struct.TestBackRefsWithPolymorphic": 6510,
+  "com.fasterxml.jackson.databind.struct.TestFormatForCollections": 1773,
+  "com.fasterxml.jackson.databind.struct.TestForwardReference": 2399,
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArray": 8197,
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArrayAdvanced": 3814,
+  "com.fasterxml.jackson.databind.struct.TestPOJOAsArrayWithBuilder": 1677,
+  "com.fasterxml.jackson.databind.struct.TestParentChildReferences": 11237,
+  "com.fasterxml.jackson.databind.struct.TestUnwrapped": 6129,
+  "com.fasterxml.jackson.databind.struct.TestUnwrappedWithPrefix": 7203,
+  "com.fasterxml.jackson.databind.struct.TestUnwrappedWithSameName647": 914,
+  "com.fasterxml.jackson.databind.type.DeprecatedConstructType1456Test": 1952,
+  "com.fasterxml.jackson.databind.type.LocalTypeTest": 1002,
+  "com.fasterxml.jackson.databind.type.PolymorphicList036Test": 2863,
+  "com.fasterxml.jackson.databind.type.RecursiveTypeTest": 2864,
+  "com.fasterxml.jackson.databind.type.TestAnnotatedClass": 3080,
+  "com.fasterxml.jackson.databind.type.TestGenericFieldInSubtype": 1197,
+  "com.fasterxml.jackson.databind.type.TestGenericsBounded": 5313,
+  "com.fasterxml.jackson.databind.type.TestJavaType": 6896,
+  "com.fasterxml.jackson.databind.type.TestTypeBindings": 1990,
+  "com.fasterxml.jackson.databind.type.TestTypeFactory": 23345,
+  "com.fasterxml.jackson.databind.type.TestTypeFactoryWithClassLoader": 5415,
+  "com.fasterxml.jackson.databind.type.TestTypeResolution": 3112,
+  "com.fasterxml.jackson.databind.type.TypeAliasesTest": 1131,
+  "com.fasterxml.jackson.databind.util.ArrayBuildersTest": 906,
+  "com.fasterxml.jackson.databind.util.ISO8601DateFormatTest": 2017,
+  "com.fasterxml.jackson.databind.util.ISO8601UtilsTest": 8227,
+  "com.fasterxml.jackson.databind.util.TestClassUtil": 6125,
+  "com.fasterxml.jackson.databind.util.TestObjectBuffer": 2131,
+  "com.fasterxml.jackson.databind.util.TestTokenBuffer": 17254,
+  "com.fasterxml.jackson.databind.views.TestViewDeserialization": 3135,
+  "com.fasterxml.jackson.databind.views.TestViewSerialization": 5976,
+  "com.fasterxml.jackson.databind.views.TestViewsSerialization2": 4081,
+  "com.fasterxml.jackson.databind.views.ViewsWithSchemaTest": 2222
+ }
+}

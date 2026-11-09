@@ -1,0 +1,870 @@
+{
+ "bug": "Compress-45",
+ "pid": "Compress",
+ "bid": 45,
+ "modified_class": "org.apache.commons.compress.archivers.tar.TarUtils",
+ "src_file": "src/main/java/org/apache/commons/compress/archivers/tar/TarUtils.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/brotli/dec/0.1.2/dec-0.1.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.6/xz-1.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-module-junit4/1.6.6/powermock-module-junit4-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-module-junit4-common/1.6.6/powermock-module-junit4-common-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-core/1.6.6/powermock-core-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-reflect/1.6.6/powermock-reflect-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-api-mockito/1.6.6/powermock-api-mockito-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/mockito/mockito-core/1.10.19/mockito-core-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/objenesis/objenesis/2.1/objenesis-2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-api-mockito-common/1.6.6/powermock-api-mockito-common-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-api-support/1.6.6/powermock-api-support-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/work/Compress-45/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Compress-45/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/brotli/dec/0.1.2/dec-0.1.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.6/xz-1.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-module-junit4/1.6.6/powermock-module-junit4-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-module-junit4-common/1.6.6/powermock-module-junit4-common-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-core/1.6.6/powermock-core-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/javassist/javassist/3.21.0-GA/javassist-3.21.0-GA.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-reflect/1.6.6/powermock-reflect-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-api-mockito/1.6.6/powermock-api-mockito-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/mockito/mockito-core/1.10.19/mockito-core-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/objenesis/objenesis/2.1/objenesis-2.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-api-mockito-common/1.6.6/powermock-api-mockito-common-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/powermock/powermock-api-support/1.6.6/powermock-api-support-1.6.6.jar:/Users/datnguyen/Study/research/master-thesis/work/Compress-45/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Compress-45/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Compress-45/b/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/brotli/dec/0.1.2/dec-0.1.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.6/xz-1.6.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Compress-45/f/target/classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/brotli/dec/0.1.2/dec-0.1.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Compress/lib/org/tukaani/xz/1.6/xz-1.6.jar"
+ },
+ "faulty": [
+  {
+   "key": "formatLongOctalOrBinaryBytes(long,byte[],int,int)",
+   "name": "formatLongOctalOrBinaryBytes",
+   "nparams": 4
+  }
+ ],
+ "buggy_methods": {
+  "formatLongOctalOrBinaryBytes(long,byte[],int,int)": "public static int formatLongOctalOrBinaryBytes(\n        final long value, final byte[] buf, final int offset, final int length) {\n\n        // Check whether we are dealing with UID/GID or SIZE field\n        final long maxAsOctalChar = length == TarConstants.UIDLEN ? TarConstants.MAXID : TarConstants.MAXSIZE;\n\n        final boolean negative = value < 0;\n        if (!negative && value <= maxAsOctalChar) { // OK to store as octal chars\n            return formatLongOctalBytes(value, buf, offset, length);\n        }\n\n        if (length < 9) {\n            formatLongBinary(value, buf, offset, length, negative);\n        }\n        formatBigIntegerBinary(value, buf, offset, length, negative);\n\n        buf[offset] = (byte) (negative ? 0xff : 0x80);\n        return offset + length;\n    }"
+ },
+ "fixed_methods": {
+  "formatLongOctalOrBinaryBytes(long,byte[],int,int)": "public static int formatLongOctalOrBinaryBytes(\n        final long value, final byte[] buf, final int offset, final int length) {\n\n        // Check whether we are dealing with UID/GID or SIZE field\n        final long maxAsOctalChar = length == TarConstants.UIDLEN ? TarConstants.MAXID : TarConstants.MAXSIZE;\n\n        final boolean negative = value < 0;\n        if (!negative && value <= maxAsOctalChar) { // OK to store as octal chars\n            return formatLongOctalBytes(value, buf, offset, length);\n        }\n\n        if (length < 9) {\n            formatLongBinary(value, buf, offset, length, negative);\n        } else {\n            formatBigIntegerBinary(value, buf, offset, length, negative);\n        }\n\n        buf[offset] = (byte) (negative ? 0xff : 0x80);\n        return offset + length;\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.compress.archivers.tar.TarUtilsTest::testRoundTripOctalOrBinary8",
+   "error": "java.lang.IllegalArgumentException: Value -72057594037927935 is too large for 8 byte field."
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.compress.archivers.tar.TarUtils",
+  "org.apache.commons.compress.archivers.zip.FallbackZipEncoding",
+  "org.apache.commons.compress.archivers.zip.ZipEncoding",
+  "org.apache.commons.compress.archivers.zip.ZipEncodingHelper",
+  "org.apache.commons.compress.utils.Charsets"
+ ],
+ "suite": [
+  "org.apache.commons.compress.ArchiveReadTest",
+  "org.apache.commons.compress.ArchiveUtilsTest",
+  "org.apache.commons.compress.ChainingTestCase",
+  "org.apache.commons.compress.DetectArchiverTestCase",
+  "org.apache.commons.compress.IOMethodsTest",
+  "org.apache.commons.compress.archivers.ArTestCase",
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.ArchiveServiceLoaderTest",
+  "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest",
+  "org.apache.commons.compress.archivers.CpioTestCase",
+  "org.apache.commons.compress.archivers.DumpTestCase",
+  "org.apache.commons.compress.archivers.ExceptionMessageTest",
+  "org.apache.commons.compress.archivers.JarTestCase",
+  "org.apache.commons.compress.archivers.LongPathTest",
+  "org.apache.commons.compress.archivers.LongSymLinkTest",
+  "org.apache.commons.compress.archivers.SevenZTestCase",
+  "org.apache.commons.compress.archivers.TarTestCase",
+  "org.apache.commons.compress.archivers.ZipTestCase",
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.cpio.CpioUtilTest",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveEntryTest",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.dump.DumpArchiveUtilTest",
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.memory.MemoryArchiveTestCase",
+  "org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntryTest",
+  "org.apache.commons.compress.archivers.sevenz.SevenZFileTest",
+  "org.apache.commons.compress.archivers.sevenz.SevenZMethodConfigurationTest",
+  "org.apache.commons.compress.archivers.sevenz.SevenZOutputFileTest",
+  "org.apache.commons.compress.archivers.tar.SparseFilesTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest",
+  "org.apache.commons.compress.archivers.zip.AsiExtraFieldTest",
+  "org.apache.commons.compress.archivers.zip.BinaryTreeTest",
+  "org.apache.commons.compress.archivers.zip.BitStreamTest",
+  "org.apache.commons.compress.archivers.zip.CircularBufferTest",
+  "org.apache.commons.compress.archivers.zip.DataDescriptorTest",
+  "org.apache.commons.compress.archivers.zip.EncryptedArchiveTest",
+  "org.apache.commons.compress.archivers.zip.ExplodeSupportTest",
+  "org.apache.commons.compress.archivers.zip.ExtraFieldUtilsTest",
+  "org.apache.commons.compress.archivers.zip.GeneralPurposeBitTest",
+  "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest",
+  "org.apache.commons.compress.archivers.zip.ParallelScatterZipCreatorTest",
+  "org.apache.commons.compress.archivers.zip.ScatterSampleTest",
+  "org.apache.commons.compress.archivers.zip.ScatterZipOutputStreamTest",
+  "org.apache.commons.compress.archivers.zip.StreamCompressorTest",
+  "org.apache.commons.compress.archivers.zip.UTF8ZipFilesTest",
+  "org.apache.commons.compress.archivers.zip.X000A_NTFSTest",
+  "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest",
+  "org.apache.commons.compress.archivers.zip.X7875_NewUnixTest",
+  "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraFieldTest",
+  "org.apache.commons.compress.archivers.zip.ZipArchiveEntryTest",
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.zip.ZipEightByteIntegerTest",
+  "org.apache.commons.compress.archivers.zip.ZipEncodingTest",
+  "org.apache.commons.compress.archivers.zip.ZipFileTest",
+  "org.apache.commons.compress.archivers.zip.ZipLongTest",
+  "org.apache.commons.compress.archivers.zip.ZipShortTest",
+  "org.apache.commons.compress.archivers.zip.ZipUtilTest",
+  "org.apache.commons.compress.changes.ChangeSetTestCase",
+  "org.apache.commons.compress.changes.ChangeTest",
+  "org.apache.commons.compress.compressors.BZip2TestCase",
+  "org.apache.commons.compress.compressors.BZip2UtilsTestCase",
+  "org.apache.commons.compress.compressors.CompressorServiceLoaderTest",
+  "org.apache.commons.compress.compressors.CompressorStreamFactoryRoundtripTest",
+  "org.apache.commons.compress.compressors.DeflateTestCase",
+  "org.apache.commons.compress.compressors.DetectCompressorTestCase",
+  "org.apache.commons.compress.compressors.FramedSnappyTestCase",
+  "org.apache.commons.compress.compressors.GZipTestCase",
+  "org.apache.commons.compress.compressors.GzipUtilsTestCase",
+  "org.apache.commons.compress.compressors.LZMATestCase",
+  "org.apache.commons.compress.compressors.Pack200TestCase",
+  "org.apache.commons.compress.compressors.XZTestCase",
+  "org.apache.commons.compress.compressors.ZTestCase",
+  "org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.bzip2.BlockSortTest",
+  "org.apache.commons.compress.compressors.bzip2.PythonTruncatedBzip2Test",
+  "org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStreamTest",
+  "org.apache.commons.compress.compressors.deflate.DeflateParametersTest",
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStreamTest",
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorRoundtripTest",
+  "org.apache.commons.compress.compressors.lz4.FactoryTest",
+  "org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorRoundtripTest",
+  "org.apache.commons.compress.compressors.lz4.XXHash32Test",
+  "org.apache.commons.compress.compressors.lz77support.LZ77CompressorTest",
+  "org.apache.commons.compress.compressors.lz77support.ParametersTest",
+  "org.apache.commons.compress.compressors.lzma.LZMAUtilsTestCase",
+  "org.apache.commons.compress.compressors.pack200.Pack200UtilsTest",
+  "org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.snappy.SnappyRoundtripTest",
+  "org.apache.commons.compress.compressors.xz.XZCompressorInputStreamTest",
+  "org.apache.commons.compress.compressors.xz.XZCompressorOutputStreamTest",
+  "org.apache.commons.compress.compressors.xz.XZUtilsTestCase",
+  "org.apache.commons.compress.compressors.z.ZCompressorInputStreamTest",
+  "org.apache.commons.compress.utils.BitInputStreamTest",
+  "org.apache.commons.compress.utils.ByteUtilsTest",
+  "org.apache.commons.compress.utils.CharsetsTest",
+  "org.apache.commons.compress.utils.ChecksumCalculatingInputStreamTest",
+  "org.apache.commons.compress.utils.ChecksumVerifyingInputStreamTest",
+  "org.apache.commons.compress.utils.CountingStreamTest",
+  "org.apache.commons.compress.utils.FixedLengthBlockOutputStreamTest",
+  "org.apache.commons.compress.utils.IOUtilsTest",
+  "org.apache.commons.compress.utils.SeekableInMemoryByteChannelTest",
+  "org.apache.commons.compress.utils.ServiceLoaderIteratorTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.compress.ArchiveReadTest": {
+   "wall": 0.552003,
+   "cpu": 0.303181,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.ArchiveUtilsTest": {
+   "wall": 0.033018,
+   "cpu": 0.021192,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.ChainingTestCase": {
+   "wall": 0.023176,
+   "cpu": 0.009484999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.DetectArchiverTestCase": {
+   "wall": 0.040119,
+   "cpu": 0.022185,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.IOMethodsTest": {
+   "wall": 0.043349,
+   "cpu": 0.039892000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArTestCase": {
+   "wall": 0.025297999999999998,
+   "cpu": 0.019004,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest": {
+   "wall": 0.015617,
+   "cpu": 0.010341,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArchiveServiceLoaderTest": {
+   "wall": 0.000443,
+   "cpu": 0.0005639999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest": {
+   "wall": 0.042034999999999996,
+   "cpu": 0.020966000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.CpioTestCase": {
+   "wall": 0.055739,
+   "cpu": 0.019742000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.DumpTestCase": {
+   "wall": 0.038837,
+   "cpu": 0.021218,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ExceptionMessageTest": {
+   "wall": 0.000735,
+   "cpu": 0.001063,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.JarTestCase": {
+   "wall": 0.030922,
+   "cpu": 0.009111000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.LongPathTest": {
+   "wall": 0.089747,
+   "cpu": 0.045182,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.LongSymLinkTest": {
+   "wall": 0.008513999999999999,
+   "cpu": 0.004636,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.SevenZTestCase": {
+   "wall": 0.24223,
+   "cpu": 0.152828,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.TarTestCase": {
+   "wall": 0.140466,
+   "cpu": 0.034318,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ZipTestCase": {
+   "wall": 0.326141,
+   "cpu": 0.104673,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStreamTest": {
+   "wall": 0.017483000000000002,
+   "cpu": 0.00881,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStreamTest": {
+   "wall": 0.032104999999999995,
+   "cpu": 0.009994999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStreamTest": {
+   "wall": 0.038475,
+   "cpu": 0.021416,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest": {
+   "wall": 0.021995,
+   "cpu": 0.004715,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest": {
+   "wall": 0.00474,
+   "cpu": 0.002972,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.cpio.CpioUtilTest": {
+   "wall": 0.000625,
+   "cpu": 0.000758,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.dump.DumpArchiveEntryTest": {
+   "wall": 0.00032700000000000003,
+   "cpu": 0.000456,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStreamTest": {
+   "wall": 0.027856000000000002,
+   "cpu": 0.010641999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.dump.DumpArchiveUtilTest": {
+   "wall": 0.000709,
+   "cpu": 0.000758,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStreamTest": {
+   "wall": 0.011122,
+   "cpu": 0.0074080000000000005,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.memory.MemoryArchiveTestCase": {
+   "wall": 0.0035960000000000002,
+   "cpu": 0.001471,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntryTest": {
+   "wall": 0.00047299999999999995,
+   "cpu": 0.000684,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.sevenz.SevenZFileTest": {
+   "wall": 0.522481,
+   "cpu": 1.154423,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.sevenz.SevenZMethodConfigurationTest": {
+   "wall": 0.002003,
+   "cpu": 0.006245,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.sevenz.SevenZOutputFileTest": {
+   "wall": 0.702744,
+   "cpu": 0.889397,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.SparseFilesTest": {
+   "wall": 0.005156,
+   "cpu": 0.002305,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest": {
+   "wall": 0.004834,
+   "cpu": 0.003637,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest": {
+   "wall": 0.06821200000000001,
+   "cpu": 0.073835,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest": {
+   "wall": 2.167229,
+   "cpu": 0.151945,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest": {
+   "wall": 0.0026089999999999998,
+   "cpu": 0.006646,
+   "status": "fail"
+  },
+  "org.apache.commons.compress.archivers.zip.AsiExtraFieldTest": {
+   "wall": 0.000768,
+   "cpu": 0.0015660000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.BinaryTreeTest": {
+   "wall": 0.013208000000000001,
+   "cpu": 0.01345,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.BitStreamTest": {
+   "wall": 0.00066,
+   "cpu": 0.001242,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.CircularBufferTest": {
+   "wall": 0.0037440000000000004,
+   "cpu": 0.005064,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.DataDescriptorTest": {
+   "wall": 0.009329,
+   "cpu": 0.008146,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.EncryptedArchiveTest": {
+   "wall": 0.004196,
+   "cpu": 0.002146,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ExplodeSupportTest": {
+   "wall": 0.026478,
+   "cpu": 0.044841,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ExtraFieldUtilsTest": {
+   "wall": 0.0016120000000000002,
+   "cpu": 0.003966,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.GeneralPurposeBitTest": {
+   "wall": 0.001074,
+   "cpu": 0.002018,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest": {
+   "wall": 0.07472,
+   "cpu": 0.139435,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ParallelScatterZipCreatorTest": {
+   "wall": 0.363759,
+   "cpu": 0.7818379999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ScatterSampleTest": {
+   "wall": 0.034193,
+   "cpu": 0.039270000000000006,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ScatterZipOutputStreamTest": {
+   "wall": 0.008468999999999999,
+   "cpu": 0.006199,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.StreamCompressorTest": {
+   "wall": 0.000484,
+   "cpu": 0.0010409999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.UTF8ZipFilesTest": {
+   "wall": 0.071264,
+   "cpu": 0.046181,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.X000A_NTFSTest": {
+   "wall": 0.000416,
+   "cpu": 0.000539,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest": {
+   "wall": 0.008187,
+   "cpu": 0.009384,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.X7875_NewUnixTest": {
+   "wall": 0.002216,
+   "cpu": 0.004601,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraFieldTest": {
+   "wall": 0.000674,
+   "cpu": 0.0030369999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipArchiveEntryTest": {
+   "wall": 0.00152,
+   "cpu": 0.003421,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest": {
+   "wall": 0.027574,
+   "cpu": 0.026373999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipEightByteIntegerTest": {
+   "wall": 0.000535,
+   "cpu": 0.001428,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipEncodingTest": {
+   "wall": 0.002948,
+   "cpu": 0.006315,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipFileTest": {
+   "wall": 0.031395,
+   "cpu": 0.053742,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipLongTest": {
+   "wall": 0.000395,
+   "cpu": 0.002689,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipShortTest": {
+   "wall": 0.00033400000000000004,
+   "cpu": 0.0005380000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.archivers.zip.ZipUtilTest": {
+   "wall": 0.000662,
+   "cpu": 0.00067,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.changes.ChangeSetTestCase": {
+   "wall": 0.415653,
+   "cpu": 0.295989,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.changes.ChangeTest": {
+   "wall": 0.000639,
+   "cpu": 0.0009260000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.BZip2TestCase": {
+   "wall": 0.053975999999999996,
+   "cpu": 0.027925000000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.BZip2UtilsTestCase": {
+   "wall": 0.00158,
+   "cpu": 0.002506,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.CompressorServiceLoaderTest": {
+   "wall": 0.000215,
+   "cpu": 0.000398,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.CompressorStreamFactoryRoundtripTest": {
+   "wall": 0.012858000000000001,
+   "cpu": 0.022411999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.DeflateTestCase": {
+   "wall": 0.037344999999999996,
+   "cpu": 0.035233,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.DetectCompressorTestCase": {
+   "wall": 0.20012200000000002,
+   "cpu": 0.109769,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.FramedSnappyTestCase": {
+   "wall": 0.792431,
+   "cpu": 0.576425,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.GZipTestCase": {
+   "wall": 0.05274,
+   "cpu": 0.026841999999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.GzipUtilsTestCase": {
+   "wall": 0.004757,
+   "cpu": 0.003695,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.LZMATestCase": {
+   "wall": 0.060533000000000003,
+   "cpu": 0.046391,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.Pack200TestCase": {
+   "wall": 0.431558,
+   "cpu": 0.16827699999999998,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.XZTestCase": {
+   "wall": 0.095055,
+   "cpu": 0.18804200000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.ZTestCase": {
+   "wall": 0.033463,
+   "cpu": 0.0521,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStreamTest": {
+   "wall": 0.076199,
+   "cpu": 0.07657299999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStreamTest": {
+   "wall": 0.411722,
+   "cpu": 0.686075,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.bzip2.BlockSortTest": {
+   "wall": 0.015723,
+   "cpu": 0.024884,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.bzip2.PythonTruncatedBzip2Test": {
+   "wall": 0.008156,
+   "cpu": 0.014557,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStreamTest": {
+   "wall": 0.001461,
+   "cpu": 0.003133,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStreamTest": {
+   "wall": 0.0021070000000000004,
+   "cpu": 0.00615,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.deflate.DeflateParametersTest": {
+   "wall": 0.002164,
+   "cpu": 0.003133,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStreamTest": {
+   "wall": 0.016189,
+   "cpu": 0.020648,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStreamTest": {
+   "wall": 0.017541,
+   "cpu": 0.027854,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorRoundtripTest": {
+   "wall": 0.697376,
+   "cpu": 0.790532,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.FactoryTest": {
+   "wall": 0.02395,
+   "cpu": 0.025734000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStreamTest": {
+   "wall": 0.11606399999999999,
+   "cpu": 0.116517,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorRoundtripTest": {
+   "wall": 1.6421210000000002,
+   "cpu": 1.6738510000000002,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz4.XXHash32Test": {
+   "wall": 0.015391,
+   "cpu": 0.011044,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz77support.LZ77CompressorTest": {
+   "wall": 0.075624,
+   "cpu": 0.006851,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lz77support.ParametersTest": {
+   "wall": 0.00152,
+   "cpu": 0.0020710000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.lzma.LZMAUtilsTestCase": {
+   "wall": 0.000616,
+   "cpu": 0.0007920000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.pack200.Pack200UtilsTest": {
+   "wall": 0.135179,
+   "cpu": 0.038139000000000006,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStreamTest": {
+   "wall": 0.254154,
+   "cpu": 0.21621100000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.snappy.SnappyRoundtripTest": {
+   "wall": 4.717126,
+   "cpu": 4.413499,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.xz.XZCompressorInputStreamTest": {
+   "wall": 0.00048699999999999997,
+   "cpu": 0.000499,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.xz.XZCompressorOutputStreamTest": {
+   "wall": 0.008541,
+   "cpu": 0.007407,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.xz.XZUtilsTestCase": {
+   "wall": 0.0004,
+   "cpu": 0.000426,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.compressors.z.ZCompressorInputStreamTest": {
+   "wall": 0.051243000000000004,
+   "cpu": 0.107009,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.BitInputStreamTest": {
+   "wall": 0.000726,
+   "cpu": 0.001306,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.ByteUtilsTest": {
+   "wall": 0.003548,
+   "cpu": 0.004958000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.CharsetsTest": {
+   "wall": 0.0010760000000000001,
+   "cpu": 0.002376,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.ChecksumCalculatingInputStreamTest": {
+   "wall": 0.00082,
+   "cpu": 0.000829,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.ChecksumVerifyingInputStreamTest": {
+   "wall": 0.000296,
+   "cpu": 0.000309,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.CountingStreamTest": {
+   "wall": 0.012954,
+   "cpu": 0.011461,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.FixedLengthBlockOutputStreamTest": {
+   "wall": 0.06458499999999999,
+   "cpu": 0.105678,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.IOUtilsTest": {
+   "wall": 0.017507,
+   "cpu": 0.019156,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.SeekableInMemoryByteChannelTest": {
+   "wall": 0.0007700000000000001,
+   "cpu": 0.001727,
+   "status": "pass"
+  },
+  "org.apache.commons.compress.utils.ServiceLoaderIteratorTest": {
+   "wall": 0.00444,
+   "cpu": 0.006048,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.6587408750020991,
+  "cpu": 0.490552000000001
+ },
+ "fixed_suite_seconds": [
+  14.73,
+  15.19,
+  19.24
+ ],
+ "covering": [
+  "org.apache.commons.compress.IOMethodsTest",
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.TarTestCase",
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest",
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest",
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest",
+  "org.apache.commons.compress.changes.ChangeSetTestCase"
+ ],
+ "sizes": {
+  "org.apache.commons.compress.ArchiveReadTest": 3990,
+  "org.apache.commons.compress.ArchiveUtilsTest": 5636,
+  "org.apache.commons.compress.ChainingTestCase": 2148,
+  "org.apache.commons.compress.DetectArchiverTestCase": 5285,
+  "org.apache.commons.compress.IOMethodsTest": 7183,
+  "org.apache.commons.compress.archivers.ArTestCase": 13730,
+  "org.apache.commons.compress.archivers.ArchiveOutputStreamTest": 6726,
+  "org.apache.commons.compress.archivers.ArchiveServiceLoaderTest": 1787,
+  "org.apache.commons.compress.archivers.ArchiveStreamFactoryTest": 19256,
+  "org.apache.commons.compress.archivers.CpioTestCase": 11286,
+  "org.apache.commons.compress.archivers.DumpTestCase": 4034,
+  "org.apache.commons.compress.archivers.ExceptionMessageTest": 3040,
+  "org.apache.commons.compress.archivers.JarTestCase": 3881,
+  "org.apache.commons.compress.archivers.LongPathTest": 6419,
+  "org.apache.commons.compress.archivers.LongSymLinkTest": 6213,
+  "org.apache.commons.compress.archivers.SevenZTestCase": 3985,
+  "org.apache.commons.compress.archivers.TarTestCase": 12965,
+  "org.apache.commons.compress.archivers.ZipTestCase": 23635,
+  "org.apache.commons.compress.archivers.ar.ArArchiveInputStreamTest": 2403,
+  "org.apache.commons.compress.archivers.ar.ArArchiveOutputStreamTest": 2528,
+  "org.apache.commons.compress.archivers.arj.ArjArchiveInputStreamTest": 3299,
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveInputStreamTest": 2392,
+  "org.apache.commons.compress.archivers.cpio.CpioArchiveOutputStreamTest": 2586,
+  "org.apache.commons.compress.archivers.cpio.CpioUtilTest": 2700,
+  "org.apache.commons.compress.archivers.dump.DumpArchiveEntryTest": 1700,
+  "org.apache.commons.compress.archivers.dump.DumpArchiveInputStreamTest": 2664,
+  "org.apache.commons.compress.archivers.dump.DumpArchiveUtilTest": 1743,
+  "org.apache.commons.compress.archivers.jar.JarArchiveOutputStreamTest": 2686,
+  "org.apache.commons.compress.archivers.memory.MemoryArchiveTestCase": 1887,
+  "org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntryTest": 1445,
+  "org.apache.commons.compress.archivers.sevenz.SevenZFileTest": 13227,
+  "org.apache.commons.compress.archivers.sevenz.SevenZMethodConfigurationTest": 2853,
+  "org.apache.commons.compress.archivers.sevenz.SevenZOutputFileTest": 19613,
+  "org.apache.commons.compress.archivers.tar.SparseFilesTest": 2622,
+  "org.apache.commons.compress.archivers.tar.TarArchiveEntryTest": 5583,
+  "org.apache.commons.compress.archivers.tar.TarArchiveInputStreamTest": 12701,
+  "org.apache.commons.compress.archivers.tar.TarArchiveOutputStreamTest": 29091,
+  "org.apache.commons.compress.archivers.tar.TarUtilsTest": 17984,
+  "org.apache.commons.compress.archivers.zip.AsiExtraFieldTest": 6717,
+  "org.apache.commons.compress.archivers.zip.BinaryTreeTest": 1807,
+  "org.apache.commons.compress.archivers.zip.BitStreamTest": 3705,
+  "org.apache.commons.compress.archivers.zip.CircularBufferTest": 2505,
+  "org.apache.commons.compress.archivers.zip.DataDescriptorTest": 7862,
+  "org.apache.commons.compress.archivers.zip.EncryptedArchiveTest": 3074,
+  "org.apache.commons.compress.archivers.zip.ExplodeSupportTest": 4158,
+  "org.apache.commons.compress.archivers.zip.ExtraFieldUtilsTest": 8624,
+  "org.apache.commons.compress.archivers.zip.GeneralPurposeBitTest": 4335,
+  "org.apache.commons.compress.archivers.zip.Maven221MultiVolumeTest": 4701,
+  "org.apache.commons.compress.archivers.zip.ParallelScatterZipCreatorTest": 7192,
+  "org.apache.commons.compress.archivers.zip.ScatterSampleTest": 2811,
+  "org.apache.commons.compress.archivers.zip.ScatterZipOutputStreamTest": 3667,
+  "org.apache.commons.compress.archivers.zip.StreamCompressorTest": 2514,
+  "org.apache.commons.compress.archivers.zip.UTF8ZipFilesTest": 14818,
+  "org.apache.commons.compress.archivers.zip.X000A_NTFSTest": 1627,
+  "org.apache.commons.compress.archivers.zip.X5455_ExtendedTimestampTest": 24025,
+  "org.apache.commons.compress.archivers.zip.X7875_NewUnixTest": 9672,
+  "org.apache.commons.compress.archivers.zip.Zip64ExtendedInformationExtraFieldTest": 10020,
+  "org.apache.commons.compress.archivers.zip.ZipArchiveEntryTest": 10843,
+  "org.apache.commons.compress.archivers.zip.ZipArchiveInputStreamTest": 10246,
+  "org.apache.commons.compress.archivers.zip.ZipEightByteIntegerTest": 4685,
+  "org.apache.commons.compress.archivers.zip.ZipEncodingTest": 6764,
+  "org.apache.commons.compress.archivers.zip.ZipFileTest": 28354,
+  "org.apache.commons.compress.archivers.zip.ZipLongTest": 3348,
+  "org.apache.commons.compress.archivers.zip.ZipShortTest": 3058,
+  "org.apache.commons.compress.archivers.zip.ZipUtilTest": 7914,
+  "org.apache.commons.compress.changes.ChangeSetTestCase": 42632,
+  "org.apache.commons.compress.changes.ChangeTest": 1887,
+  "org.apache.commons.compress.compressors.BZip2TestCase": 4311,
+  "org.apache.commons.compress.compressors.BZip2UtilsTestCase": 3426,
+  "org.apache.commons.compress.compressors.CompressorServiceLoaderTest": 1780,
+  "org.apache.commons.compress.compressors.CompressorStreamFactoryRoundtripTest": 3244,
+  "org.apache.commons.compress.compressors.DeflateTestCase": 4452,
+  "org.apache.commons.compress.compressors.DetectCompressorTestCase": 11831,
+  "org.apache.commons.compress.compressors.FramedSnappyTestCase": 6634,
+  "org.apache.commons.compress.compressors.GZipTestCase": 10516,
+  "org.apache.commons.compress.compressors.GzipUtilsTestCase": 4915,
+  "org.apache.commons.compress.compressors.LZMATestCase": 3413,
+  "org.apache.commons.compress.compressors.Pack200TestCase": 7399,
+  "org.apache.commons.compress.compressors.XZTestCase": 3627,
+  "org.apache.commons.compress.compressors.ZTestCase": 3798,
+  "org.apache.commons.compress.compressors.brotli.BrotliCompressorInputStreamTest": 6003,
+  "org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStreamTest": 2652,
+  "org.apache.commons.compress.compressors.bzip2.BlockSortTest": 5671,
+  "org.apache.commons.compress.compressors.bzip2.PythonTruncatedBzip2Test": 5075,
+  "org.apache.commons.compress.compressors.deflate.DeflateCompressorInputStreamTest": 2919,
+  "org.apache.commons.compress.compressors.deflate.DeflateCompressorOutputStreamTest": 1446,
+  "org.apache.commons.compress.compressors.deflate.DeflateParametersTest": 1636,
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorInputStreamTest": 1606,
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorOutputStreamTest": 16348,
+  "org.apache.commons.compress.compressors.lz4.BlockLZ4CompressorRoundtripTest": 4033,
+  "org.apache.commons.compress.compressors.lz4.FactoryTest": 2864,
+  "org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorInputStreamTest": 26581,
+  "org.apache.commons.compress.compressors.lz4.FramedLZ4CompressorRoundtripTest": 4870,
+  "org.apache.commons.compress.compressors.lz4.XXHash32Test": 2260,
+  "org.apache.commons.compress.compressors.lz77support.LZ77CompressorTest": 15430,
+  "org.apache.commons.compress.compressors.lz77support.ParametersTest": 4819,
+  "org.apache.commons.compress.compressors.lzma.LZMAUtilsTestCase": 4151,
+  "org.apache.commons.compress.compressors.pack200.Pack200UtilsTest": 4331,
+  "org.apache.commons.compress.compressors.snappy.FramedSnappyCompressorInputStreamTest": 8008,
+  "org.apache.commons.compress.compressors.snappy.SnappyRoundtripTest": 7075,
+  "org.apache.commons.compress.compressors.xz.XZCompressorInputStreamTest": 1426,
+  "org.apache.commons.compress.compressors.xz.XZCompressorOutputStreamTest": 1852,
+  "org.apache.commons.compress.compressors.xz.XZUtilsTestCase": 4229,
+  "org.apache.commons.compress.compressors.z.ZCompressorInputStreamTest": 1805,
+  "org.apache.commons.compress.utils.BitInputStreamTest": 6641,
+  "org.apache.commons.compress.utils.ByteUtilsTest": 8425,
+  "org.apache.commons.compress.utils.CharsetsTest": 2154,
+  "org.apache.commons.compress.utils.ChecksumCalculatingInputStreamTest": 4899,
+  "org.apache.commons.compress.utils.ChecksumVerifyingInputStreamTest": 3112,
+  "org.apache.commons.compress.utils.CountingStreamTest": 2793,
+  "org.apache.commons.compress.utils.FixedLengthBlockOutputStreamTest": 13759,
+  "org.apache.commons.compress.utils.IOUtilsTest": 4415,
+  "org.apache.commons.compress.utils.SeekableInMemoryByteChannelTest": 7145,
+  "org.apache.commons.compress.utils.ServiceLoaderIteratorTest": 2113
+ }
+}

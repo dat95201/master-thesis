@@ -1,0 +1,173 @@
+{
+ "bug": "Csv-14",
+ "pid": "Csv",
+ "bid": 14,
+ "modified_class": "org.apache.commons.csv.CSVFormat",
+ "src_file": "src/main/java/org/apache/commons/csv/CSVFormat.java",
+ "test_dir": "src/test/java",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.5/commons-io-2.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.182/h2-1.4.182.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/openjdk/jmh/1.21/jmh-core-1.21.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/generationjava/io/1.0/gj-csv-1.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/supercsv/2.4.0/super-csv-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/skife/csv/1.0/csv-1.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/csvreader/1.0/javacsv.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/opencsv/4.0/opencsv-4.0.jar:/Users/datnguyen/Study/research/master-thesis/work/Csv-14/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Csv-14/b/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.3.168/h2-1.3.168.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.180/h2-1.4.180.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.181/h2-1.4.181.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.196/h2-1.4.196.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.198/h2-1.4.198.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.2/commons-io-2.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.4/commons-io-2.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.6/commons-io-2.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/3.8.1/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/4.10/junit-4.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.6/commons-lang3-3.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/mockito/mockito-all/1.9.5/mockito-all-1.9.5.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.5/commons-io-2.5.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.182/h2-1.4.182.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/openjdk/jmh/1.21/jmh-core-1.21.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/generationjava/io/1.0/gj-csv-1.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/supercsv/2.4.0/super-csv-2.4.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/skife/csv/1.0/csv-1.0.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/csvreader/1.0/javacsv.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/opencsv/4.0/opencsv-4.0.jar:/Users/datnguyen/Study/research/master-thesis/work/Csv-14/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Csv-14/f/target/test-classes:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.3.168/h2-1.3.168.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.180/h2-1.4.180.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.181/h2-1.4.181.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.196/h2-1.4.196.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/com/h2database/h2/1.4.198/h2-1.4.198.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.2/commons-io-2.2.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.4/commons-io-2.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/commons-io/commons-io/2.6/commons-io-2.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/3.8.1/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/4.10/junit-4.10.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/junit/junit/4.11/junit-4.11.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.6/commons-lang3-3.6.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.7/commons-lang3-3.7.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/hamcrest/hamcrest-core/1.1/hamcrest-core-1.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/mockito/mockito-all/1.10.19/mockito-all-1.10.19.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Csv/lib/org/mockito/mockito-all/1.9.5/mockito-all-1.9.5.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Csv-14/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Csv-14/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "printAndQuote(Object,CharSequence,int,int,Appendable,boolean)",
+   "name": "printAndQuote",
+   "nparams": 6
+  }
+ ],
+ "buggy_methods": {
+  "printAndQuote(Object,CharSequence,int,int,Appendable,boolean)": "private void printAndQuote(final Object object, final CharSequence value, final int offset, final int len,\n            final Appendable out, final boolean newRecord) throws IOException {\n        boolean quote = false;\n        int start = offset;\n        int pos = offset;\n        final int end = offset + len;\n\n        final char delimChar = getDelimiter();\n        final char quoteChar = getQuoteCharacter().charValue();\n\n        QuoteMode quoteModePolicy = getQuoteMode();\n        if (quoteModePolicy == null) {\n            quoteModePolicy = QuoteMode.MINIMAL;\n        }\n        switch (quoteModePolicy) {\n        case ALL:\n            quote = true;\n            break;\n        case NON_NUMERIC:\n            quote = !(object instanceof Number);\n            break;\n        case NONE:\n            // Use the existing escaping code\n            printAndEscape(value, offset, len, out);\n            return;\n        case MINIMAL:\n            if (len <= 0) {\n                // always quote an empty token that is the first\n                // on the line, as it may be the only thing on the\n                // line. If it were not quoted in that case,\n                // an empty line has no tokens.\n                if (newRecord) {\n                    quote = true;\n                }\n            } else {\n                char c = value.charAt(pos);\n\n                // RFC4180 (https://tools.ietf.org/html/rfc4180) TEXTDATA =  %x20-21 / %x23-2B / %x2D-7E\n                if (newRecord && (c < '0' || c > '9' && c < 'A' || c > 'Z' && c < 'a' || c > 'z')) {\n                    quote = true;\n                } else if (c <= COMMENT) {\n                    // Some other chars at the start of a value caused the parser to fail, so for now\n                    // encapsulate if we start in anything less than '#'. We are being conservative\n                    // by including the default comment char too.\n                    quote = true;\n                } else {\n                    while (pos < end) {\n                        c = value.charAt(pos);\n                        if (c == LF || c == CR || c == quoteChar || c == delimChar) {\n                            quote = true;\n                            break;\n                        }\n                        pos++;\n                    }\n\n                    if (!quote) {\n                        pos = end - 1;\n                        c = value.charAt(pos);\n                        // Some other chars at the end caused the parser to fail, so for now\n                        // encapsulate if we end in anything less than ' '\n                        if (c <= SP) {\n                            quote = true;\n                        }\n                    }\n                }\n            }\n\n            if (!quote) {\n                // no encapsulation needed - write out the original value\n                out.append(value, start, end);\n                return;\n            }\n            break;\n        default:\n            throw new IllegalStateException(\"Unexpected Quote value: \" + quoteModePolicy);\n        }\n\n        if (!quote) {\n            // no encapsulation needed - write out the original value\n            out.append(value, start, end);\n            return;\n        }\n\n        // we hit something that needed encapsulation\n        out.append(quoteChar);\n\n        // Pick up where we left off: pos should be positioned on the first character that caused\n        // the need for encapsulation.\n        while (pos < end) {\n            final char c = value.charAt(pos);\n            if (c == quoteChar) {\n                // write out the chunk up until this point\n\n                // add 1 to the length to write out the encapsulator also\n                out.append(value, start, pos + 1);\n                // put the next starting position on the encapsulator so we will\n                // write it out again with the next string (effectively doubling it)\n                start = pos;\n            }\n            pos++;\n        }\n\n        // write the last segment\n        out.append(value, start, pos);\n        out.append(quoteChar);\n    }"
+ },
+ "fixed_methods": {
+  "printAndQuote(Object,CharSequence,int,int,Appendable,boolean)": "private void printAndQuote(final Object object, final CharSequence value, final int offset, final int len,\n            final Appendable out, final boolean newRecord) throws IOException {\n        boolean quote = false;\n        int start = offset;\n        int pos = offset;\n        final int end = offset + len;\n\n        final char delimChar = getDelimiter();\n        final char quoteChar = getQuoteCharacter().charValue();\n\n        QuoteMode quoteModePolicy = getQuoteMode();\n        if (quoteModePolicy == null) {\n            quoteModePolicy = QuoteMode.MINIMAL;\n        }\n        switch (quoteModePolicy) {\n        case ALL:\n            quote = true;\n            break;\n        case NON_NUMERIC:\n            quote = !(object instanceof Number);\n            break;\n        case NONE:\n            // Use the existing escaping code\n            printAndEscape(value, offset, len, out);\n            return;\n        case MINIMAL:\n            if (len <= 0) {\n                // always quote an empty token that is the first\n                // on the line, as it may be the only thing on the\n                // line. If it were not quoted in that case,\n                // an empty line has no tokens.\n                if (newRecord) {\n                    quote = true;\n                }\n            } else {\n                char c = value.charAt(pos);\n\n                // RFC4180 (https://tools.ietf.org/html/rfc4180) TEXTDATA =  %x20-21 / %x23-2B / %x2D-7E\n                if (newRecord && (c < 0x20 || c > 0x21 && c < 0x23 || c > 0x2B && c < 0x2D || c > 0x7E)) {\n                    quote = true;\n                } else if (c <= COMMENT) {\n                    // Some other chars at the start of a value caused the parser to fail, so for now\n                    // encapsulate if we start in anything less than '#'. We are being conservative\n                    // by including the default comment char too.\n                    quote = true;\n                } else {\n                    while (pos < end) {\n                        c = value.charAt(pos);\n                        if (c == LF || c == CR || c == quoteChar || c == delimChar) {\n                            quote = true;\n                            break;\n                        }\n                        pos++;\n                    }\n\n                    if (!quote) {\n                        pos = end - 1;\n                        c = value.charAt(pos);\n                        // Some other chars at the end caused the parser to fail, so for now\n                        // encapsulate if we end in anything less than ' '\n                        if (c <= SP) {\n                            quote = true;\n                        }\n                    }\n                }\n            }\n\n            if (!quote) {\n                // no encapsulation needed - write out the original value\n                out.append(value, start, end);\n                return;\n            }\n            break;\n        default:\n            throw new IllegalStateException(\"Unexpected Quote value: \" + quoteModePolicy);\n        }\n\n        if (!quote) {\n            // no encapsulation needed - write out the original value\n            out.append(value, start, end);\n            return;\n        }\n\n        // we hit something that needed encapsulation\n        out.append(quoteChar);\n\n        // Pick up where we left off: pos should be positioned on the first character that caused\n        // the need for encapsulation.\n        while (pos < end) {\n            final char c = value.charAt(pos);\n            if (c == quoteChar) {\n                // write out the chunk up until this point\n\n                // add 1 to the length to write out the encapsulator also\n                out.append(value, start, pos + 1);\n                // put the next starting position on the encapsulator so we will\n                // write it out again with the next string (effectively doubling it)\n                start = pos;\n            }\n            pos++;\n        }\n\n        // write the last segment\n        out.append(value, start, pos);\n        out.append(quoteChar);\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.csv.CSVPrinterTest::testEscapeNull1",
+   "error": "junit.framework.AssertionFailedError: expected:<[\\]> but was:<[\"\\\"]>"
+  },
+  {
+   "test": "org.apache.commons.csv.CSVPrinterTest::testEscapeNull4",
+   "error": "junit.framework.AssertionFailedError: expected:<[\\\\]> but was:<[\"\\\\\"]>"
+  },
+  {
+   "test": "org.apache.commons.csv.CSVPrinterTest::testEscapeNull5",
+   "error": "junit.framework.AssertionFailedError: expected:<[\\\\]> but was:<[\"\\\\\"]>"
+  },
+  {
+   "test": "org.apache.commons.csv.CSVPrinterTest::testEscapeBackslash1",
+   "error": "junit.framework.AssertionFailedError: expected:<[\\]> but was:<['\\']>"
+  },
+  {
+   "test": "org.apache.commons.csv.CSVPrinterTest::testEscapeBackslash4",
+   "error": "junit.framework.AssertionFailedError: expected:<[\\\\]> but was:<['\\\\']>"
+  },
+  {
+   "test": "org.apache.commons.csv.CSVPrinterTest::testEscapeBackslash5",
+   "error": "junit.framework.AssertionFailedError: expected:<[\\\\]> but was:<['\\\\']>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.csv.CSVPrinterTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.csv.Assertions",
+  "org.apache.commons.csv.Constants",
+  "org.apache.commons.csv.CSVFormat",
+  "org.apache.commons.csv.CSVPrinter",
+  "org.apache.commons.csv.QuoteMode"
+ ],
+ "suite": [
+  "org.apache.commons.csv.AssertionsTest",
+  "org.apache.commons.csv.CSVFileParserTest",
+  "org.apache.commons.csv.CSVFormatPredefinedTest",
+  "org.apache.commons.csv.CSVFormatTest",
+  "org.apache.commons.csv.CSVParserTest",
+  "org.apache.commons.csv.CSVPrinterTest",
+  "org.apache.commons.csv.CSVRecordTest",
+  "org.apache.commons.csv.ExtendedBufferedReaderTest",
+  "org.apache.commons.csv.LexerTest",
+  "org.apache.commons.csv.TokenMatchersTest",
+  "org.apache.commons.csv.bugs.JiraCsv164Test",
+  "org.apache.commons.csv.bugs.JiraCsv167Test"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.csv.AssertionsTest": {
+   "wall": 0.046348,
+   "cpu": 0.082911,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.CSVFileParserTest": {
+   "wall": 0.032545000000000004,
+   "cpu": 0.049633000000000004,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.CSVFormatPredefinedTest": {
+   "wall": 0.001577,
+   "cpu": 0.002507,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.CSVFormatTest": {
+   "wall": 0.013561,
+   "cpu": 0.024218,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.CSVParserTest": {
+   "wall": 0.026952,
+   "cpu": 0.042055,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.CSVPrinterTest": {
+   "wall": 1.656703,
+   "cpu": 2.8442130000000003,
+   "status": "fail"
+  },
+  "org.apache.commons.csv.CSVRecordTest": {
+   "wall": 0.003094,
+   "cpu": 0.004916,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.ExtendedBufferedReaderTest": {
+   "wall": 0.002519,
+   "cpu": 0.0024820000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.LexerTest": {
+   "wall": 0.007333,
+   "cpu": 0.011361000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.TokenMatchersTest": {
+   "wall": 0.001835,
+   "cpu": 0.00368,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.bugs.JiraCsv164Test": {
+   "wall": 0.000456,
+   "cpu": 0.000515,
+   "status": "pass"
+  },
+  "org.apache.commons.csv.bugs.JiraCsv167Test": {
+   "wall": 0.000842,
+   "cpu": 0.002202,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.16503899999805371,
+  "cpu": 0.18045899999999726
+ },
+ "fixed_suite_seconds": [
+  1.73,
+  1.72,
+  2.17
+ ],
+ "covering": [
+  "org.apache.commons.csv.CSVFormatTest",
+  "org.apache.commons.csv.CSVParserTest",
+  "org.apache.commons.csv.CSVPrinterTest",
+  "org.apache.commons.csv.CSVRecordTest",
+  "org.apache.commons.csv.bugs.JiraCsv164Test"
+ ],
+ "sizes": {
+  "org.apache.commons.csv.AssertionsTest": 1193,
+  "org.apache.commons.csv.CSVFileParserTest": 7487,
+  "org.apache.commons.csv.CSVFormatPredefinedTest": 1705,
+  "org.apache.commons.csv.CSVFormatTest": 16979,
+  "org.apache.commons.csv.CSVParserTest": 44723,
+  "org.apache.commons.csv.CSVPrinterTest": 40227,
+  "org.apache.commons.csv.CSVRecordTest": 6721,
+  "org.apache.commons.csv.ExtendedBufferedReaderTest": 8427,
+  "org.apache.commons.csv.LexerTest": 19508,
+  "org.apache.commons.csv.TokenMatchersTest": 2492,
+  "org.apache.commons.csv.bugs.JiraCsv164Test": 2183,
+  "org.apache.commons.csv.bugs.JiraCsv167Test": 3592
+ }
+}

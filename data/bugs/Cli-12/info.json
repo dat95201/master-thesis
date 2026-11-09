@@ -1,0 +1,238 @@
+{
+ "bug": "Cli-12",
+ "pid": "Cli",
+ "bid": 12,
+ "modified_class": "org.apache.commons.cli.GnuParser",
+ "src_file": "src/java/org/apache/commons/cli/GnuParser.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-12/b/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-12/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-12/b/target/test-classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-12/f/target/lib/junit-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/work/Cli-12/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-12/f/target/test-classes"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Cli-12/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-12/b/target/lib/junit-3.8.1.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Cli-12/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Cli-12/f/target/lib/junit-3.8.1.jar"
+ },
+ "faulty": [
+  {
+   "key": "flatten(Options,String[],boolean)",
+   "name": "flatten",
+   "nparams": 3
+  }
+ ],
+ "buggy_methods": {
+  "flatten(Options,String[],boolean)": "protected String[] flatten(Options options, String[] arguments, boolean stopAtNonOption)\n    {\n        List tokens = new ArrayList();\n\n        boolean eatTheRest = false;\n\n        for (int i = 0; i < arguments.length; i++)\n        {\n            String arg = arguments[i];\n\n            if (\"--\".equals(arg))\n            {\n                eatTheRest = true;\n                tokens.add(\"--\");\n            }\n            else if (\"-\".equals(arg))\n            {\n                tokens.add(\"-\");\n            }\n            else if (arg.startsWith(\"-\"))\n            {\n                String opt = Util.stripLeadingHyphens(arg);\n\n                if (options.hasOption(opt))\n                {\n                    tokens.add(arg);\n                }\n                else\n                {\n                    if (options.hasOption(arg.substring(0, 2)))\n                    {\n                        // the format is --foo=value or -foo=value\n                        // the format is a special properties option (-Dproperty=value)\n                        tokens.add(arg.substring(0, 2)); // -D\n                        tokens.add(arg.substring(2)); // property=value\n                    }\n                    else\n                    {\n                        eatTheRest = stopAtNonOption;\n                        tokens.add(arg);\n                    }\n                }\n            }\n            else\n            {\n                tokens.add(arg);\n            }\n\n            if (eatTheRest)\n            {\n                for (i++; i < arguments.length; i++)\n                {\n                    tokens.add(arguments[i]);\n                }\n            }\n        }\n\n        return (String[]) tokens.toArray(new String[tokens.size()]);\n    }"
+ },
+ "fixed_methods": {
+  "flatten(Options,String[],boolean)": "protected String[] flatten(Options options, String[] arguments, boolean stopAtNonOption)\n    {\n        List tokens = new ArrayList();\n\n        boolean eatTheRest = false;\n\n        for (int i = 0; i < arguments.length; i++)\n        {\n            String arg = arguments[i];\n\n            if (\"--\".equals(arg))\n            {\n                eatTheRest = true;\n                tokens.add(\"--\");\n            }\n            else if (\"-\".equals(arg))\n            {\n                tokens.add(\"-\");\n            }\n            else if (arg.startsWith(\"-\"))\n            {\n                String opt = Util.stripLeadingHyphens(arg);\n\n                if (options.hasOption(opt))\n                {\n                    tokens.add(arg);\n                }\n                else\n                {\n                    if (opt.indexOf('=') != -1 && options.hasOption(opt.substring(0, opt.indexOf('='))))\n                    {\n                        // the format is --foo=value or -foo=value\n                        tokens.add(arg.substring(0, arg.indexOf('='))); // --foo\n                        tokens.add(arg.substring(arg.indexOf('=') + 1)); // value\n                    }\n                    else if (options.hasOption(arg.substring(0, 2)))\n                    {\n                        // the format is a special properties option (-Dproperty=value)\n                        tokens.add(arg.substring(0, 2)); // -D\n                        tokens.add(arg.substring(2)); // property=value\n                    }\n                    else\n                    {\n                        eatTheRest = stopAtNonOption;\n                        tokens.add(arg);\n                    }\n                }\n            }\n            else\n            {\n                tokens.add(arg);\n            }\n\n            if (eatTheRest)\n            {\n                for (i++; i < arguments.length; i++)\n                {\n                    tokens.add(arguments[i]);\n                }\n            }\n        }\n\n        return (String[]) tokens.toArray(new String[tokens.size()]);\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.cli.GnuParserTest::testShortWithEqual",
+   "error": "junit.framework.ComparisonFailure: expected:<[]bar> but was:<[=]bar>"
+  },
+  {
+   "test": "org.apache.commons.cli.GnuParserTest::testLongWithEqualSingleDash",
+   "error": "junit.framework.ComparisonFailure: expected:<[]bar> but was:<[oo=]bar>"
+  },
+  {
+   "test": "org.apache.commons.cli.GnuParserTest::testLongWithEqual",
+   "error": "org.apache.commons.cli.UnrecognizedOptionException: Unrecognized option: --foo=bar"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.cli.GnuParserTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.cli.CommandLine",
+  "org.apache.commons.cli.CommandLineParser",
+  "org.apache.commons.cli.GnuParser",
+  "org.apache.commons.cli.MissingArgumentException",
+  "org.apache.commons.cli.MissingOptionException",
+  "org.apache.commons.cli.Option",
+  "org.apache.commons.cli.OptionBuilder",
+  "org.apache.commons.cli.Options",
+  "org.apache.commons.cli.OptionValidator",
+  "org.apache.commons.cli.ParseException",
+  "org.apache.commons.cli.Parser",
+  "org.apache.commons.cli.UnrecognizedOptionException",
+  "org.apache.commons.cli.Util"
+ ],
+ "suite": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.ArgumentIsOptionTest",
+  "org.apache.commons.cli.BasicParserTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.GnuParserTest",
+  "org.apache.commons.cli.HelpFormatterTest",
+  "org.apache.commons.cli.OptionBuilderTest",
+  "org.apache.commons.cli.OptionGroupTest",
+  "org.apache.commons.cli.OptionTest",
+  "org.apache.commons.cli.OptionsTest",
+  "org.apache.commons.cli.ParseRequiredTest",
+  "org.apache.commons.cli.PatternOptionBuilderTest",
+  "org.apache.commons.cli.PosixParserTest",
+  "org.apache.commons.cli.UtilTest",
+  "org.apache.commons.cli.ValueTest",
+  "org.apache.commons.cli.ValuesTest",
+  "org.apache.commons.cli.bug.BugCLI133Test",
+  "org.apache.commons.cli.bug.BugCLI13Test",
+  "org.apache.commons.cli.bug.BugCLI148Test",
+  "org.apache.commons.cli.bug.BugCLI18Test",
+  "org.apache.commons.cli.bug.BugCLI51Test",
+  "org.apache.commons.cli.bug.BugCLI71Test"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.cli.ApplicationTest": {
+   "wall": 0.052388,
+   "cpu": 0.066998,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ArgumentIsOptionTest": {
+   "wall": 0.0027949999999999997,
+   "cpu": 0.00287,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BasicParserTest": {
+   "wall": 0.002485,
+   "cpu": 0.005273,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.BugsTest": {
+   "wall": 0.029808,
+   "cpu": 0.015571999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.GnuParserTest": {
+   "wall": 0.005501000000000001,
+   "cpu": 0.010659,
+   "status": "fail"
+  },
+  "org.apache.commons.cli.HelpFormatterTest": {
+   "wall": 0.018604,
+   "cpu": 0.008438000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionBuilderTest": {
+   "wall": 0.002222,
+   "cpu": 0.00307,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionGroupTest": {
+   "wall": 0.001534,
+   "cpu": 0.0027589999999999997,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionTest": {
+   "wall": 0.004787,
+   "cpu": 0.007128,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.OptionsTest": {
+   "wall": 0.0009559999999999999,
+   "cpu": 0.00116,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ParseRequiredTest": {
+   "wall": 0.000714,
+   "cpu": 0.001557,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PatternOptionBuilderTest": {
+   "wall": 0.019221,
+   "cpu": 0.020256,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.PosixParserTest": {
+   "wall": 0.001932,
+   "cpu": 0.004067,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.UtilTest": {
+   "wall": 0.000713,
+   "cpu": 0.001893,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValueTest": {
+   "wall": 0.002097,
+   "cpu": 0.004686,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.ValuesTest": {
+   "wall": 0.003189,
+   "cpu": 0.005737,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI133Test": {
+   "wall": 0.000794,
+   "cpu": 0.001353,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI13Test": {
+   "wall": 0.000493,
+   "cpu": 0.000642,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI148Test": {
+   "wall": 0.000508,
+   "cpu": 0.001002,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI18Test": {
+   "wall": 0.002747,
+   "cpu": 0.005668,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI51Test": {
+   "wall": 0.0005600000000000001,
+   "cpu": 0.001277,
+   "status": "pass"
+  },
+  "org.apache.commons.cli.bug.BugCLI71Test": {
+   "wall": 0.0014579999999999999,
+   "cpu": 0.003029,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2290935000010589,
+  "cpu": 0.2255429999999997
+ },
+ "fixed_suite_seconds": [
+  0.45,
+  0.24,
+  0.23
+ ],
+ "covering": [
+  "org.apache.commons.cli.ApplicationTest",
+  "org.apache.commons.cli.BugsTest",
+  "org.apache.commons.cli.GnuParserTest",
+  "org.apache.commons.cli.ParseRequiredTest"
+ ],
+ "sizes": {
+  "org.apache.commons.cli.ApplicationTest": 4656,
+  "org.apache.commons.cli.ArgumentIsOptionTest": 2682,
+  "org.apache.commons.cli.BasicParserTest": 1353,
+  "org.apache.commons.cli.BugsTest": 18100,
+  "org.apache.commons.cli.GnuParserTest": 9080,
+  "org.apache.commons.cli.HelpFormatterTest": 12775,
+  "org.apache.commons.cli.OptionBuilderTest": 5562,
+  "org.apache.commons.cli.OptionGroupTest": 8254,
+  "org.apache.commons.cli.OptionTest": 4238,
+  "org.apache.commons.cli.OptionsTest": 4891,
+  "org.apache.commons.cli.ParseRequiredTest": 4519,
+  "org.apache.commons.cli.PatternOptionBuilderTest": 3192,
+  "org.apache.commons.cli.PosixParserTest": 10859,
+  "org.apache.commons.cli.UtilTest": 1372,
+  "org.apache.commons.cli.ValueTest": 9393,
+  "org.apache.commons.cli.ValuesTest": 8185,
+  "org.apache.commons.cli.bug.BugCLI133Test": 1496,
+  "org.apache.commons.cli.bug.BugCLI13Test": 1938,
+  "org.apache.commons.cli.bug.BugCLI148Test": 2369,
+  "org.apache.commons.cli.bug.BugCLI18Test": 1967,
+  "org.apache.commons.cli.bug.BugCLI51Test": 1791,
+  "org.apache.commons.cli.bug.BugCLI71Test": 3142
+ }
+}

@@ -1,0 +1,267 @@
+{
+ "bug": "Codec-10",
+ "pid": "Codec",
+ "bid": 10,
+ "modified_class": "org.apache.commons.codec.language.Caverphone",
+ "src_file": "src/java/org/apache/commons/codec/language/Caverphone.java",
+ "test_dir": "src/test",
+ "bin_dir": "target/classes",
+ "cp_test": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-10/b/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-10/b/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-10/f/target/classes:/Users/datnguyen/Study/research/master-thesis/work/Codec-10/f/target/tests:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/lib/junit-4.12-hamcrest-1.3.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/junit/junit/4.12/junit-4.12.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.4/commons-lang3-3.4.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar:/Users/datnguyen/Study/research/master-thesis/benchmarks/defects4j/framework/projects/Codec/lib/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar"
+ },
+ "cp_compile": {
+  "b": "/Users/datnguyen/Study/research/master-thesis/work/Codec-10/b/target/classes",
+  "f": "/Users/datnguyen/Study/research/master-thesis/work/Codec-10/f/target/classes"
+ },
+ "faulty": [
+  {
+   "key": "caverphone(String)",
+   "name": "caverphone",
+   "nparams": 1
+  }
+ ],
+ "buggy_methods": {
+  "caverphone(String)": "public String caverphone(String txt) {\n        // NOTE: Version 1.0 of Caverphone is easily derivable from this code \n        // by commenting out the 2.0 lines and adding in the 1.0 lines\n\n        if( txt == null || txt.length() == 0 ) {\n            return \"1111111111\";\n        }\n\n        // 1. Convert to lowercase\n        txt = txt.toLowerCase(java.util.Locale.ENGLISH);\n\n        // 2. Remove anything not A-Z\n        txt = txt.replaceAll(\"[^a-z]\", \"\");\n\n        // 2.5. Remove final e\n        txt = txt.replaceAll(\"e$\", \"\");             // 2.0 only\n\n        // 3. Handle various start options\n        txt = txt.replaceAll(\"^cough\", \"cou2f\");\n        txt = txt.replaceAll(\"^rough\", \"rou2f\");\n        txt = txt.replaceAll(\"^tough\", \"tou2f\");\n        txt = txt.replaceAll(\"^enough\", \"enou2f\");  // 2.0 only\n        txt = txt.replaceAll(\"^trough\", \"trou2f\");  // 2.0 only - note the spec says ^enough here again, c+p error I assume\n        txt = txt.replaceAll(\"^gn\", \"2n\");\n\n        // End \n        txt = txt.replaceAll(\"^mb\", \"m2\");\n\n        // 4. Handle replacements\n        txt = txt.replaceAll(\"cq\", \"2q\");\n        txt = txt.replaceAll(\"ci\", \"si\");\n        txt = txt.replaceAll(\"ce\", \"se\");\n        txt = txt.replaceAll(\"cy\", \"sy\");\n        txt = txt.replaceAll(\"tch\", \"2ch\");\n        txt = txt.replaceAll(\"c\", \"k\");\n        txt = txt.replaceAll(\"q\", \"k\");\n        txt = txt.replaceAll(\"x\", \"k\");\n        txt = txt.replaceAll(\"v\", \"f\");\n        txt = txt.replaceAll(\"dg\", \"2g\");\n        txt = txt.replaceAll(\"tio\", \"sio\");\n        txt = txt.replaceAll(\"tia\", \"sia\");\n        txt = txt.replaceAll(\"d\", \"t\");\n        txt = txt.replaceAll(\"ph\", \"fh\");\n        txt = txt.replaceAll(\"b\", \"p\");\n        txt = txt.replaceAll(\"sh\", \"s2\");\n        txt = txt.replaceAll(\"z\", \"s\");\n        txt = txt.replaceAll(\"^[aeiou]\", \"A\");\n        txt = txt.replaceAll(\"[aeiou]\", \"3\");\n        txt = txt.replaceAll(\"j\", \"y\");        // 2.0 only\n        txt = txt.replaceAll(\"^y3\", \"Y3\");     // 2.0 only\n        txt = txt.replaceAll(\"^y\", \"A\");       // 2.0 only\n        txt = txt.replaceAll(\"y\", \"3\");        // 2.0 only\n        txt = txt.replaceAll(\"3gh3\", \"3kh3\");\n        txt = txt.replaceAll(\"gh\", \"22\");\n        txt = txt.replaceAll(\"g\", \"k\");\n        txt = txt.replaceAll(\"s+\", \"S\");\n        txt = txt.replaceAll(\"t+\", \"T\");\n        txt = txt.replaceAll(\"p+\", \"P\");\n        txt = txt.replaceAll(\"k+\", \"K\");\n        txt = txt.replaceAll(\"f+\", \"F\");\n        txt = txt.replaceAll(\"m+\", \"M\");\n        txt = txt.replaceAll(\"n+\", \"N\");\n        txt = txt.replaceAll(\"w3\", \"W3\");\n        //txt = txt.replaceAll(\"wy\", \"Wy\");    // 1.0 only\n        txt = txt.replaceAll(\"wh3\", \"Wh3\");\n        txt = txt.replaceAll(\"w$\", \"3\");       // 2.0 only\n        //txt = txt.replaceAll(\"why\", \"Why\");  // 1.0 only\n        txt = txt.replaceAll(\"w\", \"2\");\n        txt = txt.replaceAll(\"^h\", \"A\");\n        txt = txt.replaceAll(\"h\", \"2\");\n        txt = txt.replaceAll(\"r3\", \"R3\");\n        txt = txt.replaceAll(\"r$\", \"3\");       // 2.0 only\n        //txt = txt.replaceAll(\"ry\", \"Ry\");    // 1.0 only\n        txt = txt.replaceAll(\"r\", \"2\");\n        txt = txt.replaceAll(\"l3\", \"L3\");\n        txt = txt.replaceAll(\"l$\", \"3\");       // 2.0 only\n        //txt = txt.replaceAll(\"ly\", \"Ly\");    // 1.0 only\n        txt = txt.replaceAll(\"l\", \"2\");\n        //txt = txt.replaceAll(\"j\", \"y\");      // 1.0 only\n        //txt = txt.replaceAll(\"y3\", \"Y3\");    // 1.0 only\n        //txt = txt.replaceAll(\"y\", \"2\");      // 1.0 only\n\n        // 5. Handle removals\n        txt = txt.replaceAll(\"2\", \"\");\n        txt = txt.replaceAll(\"3$\", \"A\");       // 2.0 only\n        txt = txt.replaceAll(\"3\", \"\");\n\n        // 6. put ten 1s on the end\n        txt = txt + \"111111\" + \"1111\";        // 1.0 only has 6 1s\n\n        // 7. take the first six characters as the code\n        return txt.substring(0, 10);          // 1.0 truncates to 6\n    }"
+ },
+ "fixed_methods": {
+  "caverphone(String)": "public String caverphone(String txt) {\n        // NOTE: Version 1.0 of Caverphone is easily derivable from this code \n        // by commenting out the 2.0 lines and adding in the 1.0 lines\n\n        if( txt == null || txt.length() == 0 ) {\n            return \"1111111111\";\n        }\n\n        // 1. Convert to lowercase\n        txt = txt.toLowerCase(java.util.Locale.ENGLISH);\n\n        // 2. Remove anything not A-Z\n        txt = txt.replaceAll(\"[^a-z]\", \"\");\n\n        // 2.5. Remove final e\n        txt = txt.replaceAll(\"e$\", \"\");             // 2.0 only\n\n        // 3. Handle various start options\n        txt = txt.replaceAll(\"^cough\", \"cou2f\");\n        txt = txt.replaceAll(\"^rough\", \"rou2f\");\n        txt = txt.replaceAll(\"^tough\", \"tou2f\");\n        txt = txt.replaceAll(\"^enough\", \"enou2f\");  // 2.0 only\n        txt = txt.replaceAll(\"^trough\", \"trou2f\");  // 2.0 only - note the spec says ^enough here again, c+p error I assume\n        txt = txt.replaceAll(\"^gn\", \"2n\");\n\n        // End \n        txt = txt.replaceAll(\"mb$\", \"m2\");\n\n        // 4. Handle replacements\n        txt = txt.replaceAll(\"cq\", \"2q\");\n        txt = txt.replaceAll(\"ci\", \"si\");\n        txt = txt.replaceAll(\"ce\", \"se\");\n        txt = txt.replaceAll(\"cy\", \"sy\");\n        txt = txt.replaceAll(\"tch\", \"2ch\");\n        txt = txt.replaceAll(\"c\", \"k\");\n        txt = txt.replaceAll(\"q\", \"k\");\n        txt = txt.replaceAll(\"x\", \"k\");\n        txt = txt.replaceAll(\"v\", \"f\");\n        txt = txt.replaceAll(\"dg\", \"2g\");\n        txt = txt.replaceAll(\"tio\", \"sio\");\n        txt = txt.replaceAll(\"tia\", \"sia\");\n        txt = txt.replaceAll(\"d\", \"t\");\n        txt = txt.replaceAll(\"ph\", \"fh\");\n        txt = txt.replaceAll(\"b\", \"p\");\n        txt = txt.replaceAll(\"sh\", \"s2\");\n        txt = txt.replaceAll(\"z\", \"s\");\n        txt = txt.replaceAll(\"^[aeiou]\", \"A\");\n        txt = txt.replaceAll(\"[aeiou]\", \"3\");\n        txt = txt.replaceAll(\"j\", \"y\");        // 2.0 only\n        txt = txt.replaceAll(\"^y3\", \"Y3\");     // 2.0 only\n        txt = txt.replaceAll(\"^y\", \"A\");       // 2.0 only\n        txt = txt.replaceAll(\"y\", \"3\");        // 2.0 only\n        txt = txt.replaceAll(\"3gh3\", \"3kh3\");\n        txt = txt.replaceAll(\"gh\", \"22\");\n        txt = txt.replaceAll(\"g\", \"k\");\n        txt = txt.replaceAll(\"s+\", \"S\");\n        txt = txt.replaceAll(\"t+\", \"T\");\n        txt = txt.replaceAll(\"p+\", \"P\");\n        txt = txt.replaceAll(\"k+\", \"K\");\n        txt = txt.replaceAll(\"f+\", \"F\");\n        txt = txt.replaceAll(\"m+\", \"M\");\n        txt = txt.replaceAll(\"n+\", \"N\");\n        txt = txt.replaceAll(\"w3\", \"W3\");\n        //txt = txt.replaceAll(\"wy\", \"Wy\");    // 1.0 only\n        txt = txt.replaceAll(\"wh3\", \"Wh3\");\n        txt = txt.replaceAll(\"w$\", \"3\");       // 2.0 only\n        //txt = txt.replaceAll(\"why\", \"Why\");  // 1.0 only\n        txt = txt.replaceAll(\"w\", \"2\");\n        txt = txt.replaceAll(\"^h\", \"A\");\n        txt = txt.replaceAll(\"h\", \"2\");\n        txt = txt.replaceAll(\"r3\", \"R3\");\n        txt = txt.replaceAll(\"r$\", \"3\");       // 2.0 only\n        //txt = txt.replaceAll(\"ry\", \"Ry\");    // 1.0 only\n        txt = txt.replaceAll(\"r\", \"2\");\n        txt = txt.replaceAll(\"l3\", \"L3\");\n        txt = txt.replaceAll(\"l$\", \"3\");       // 2.0 only\n        //txt = txt.replaceAll(\"ly\", \"Ly\");    // 1.0 only\n        txt = txt.replaceAll(\"l\", \"2\");\n        //txt = txt.replaceAll(\"j\", \"y\");      // 1.0 only\n        //txt = txt.replaceAll(\"y3\", \"Y3\");    // 1.0 only\n        //txt = txt.replaceAll(\"y\", \"2\");      // 1.0 only\n\n        // 5. Handle removals\n        txt = txt.replaceAll(\"2\", \"\");\n        txt = txt.replaceAll(\"3$\", \"A\");       // 2.0 only\n        txt = txt.replaceAll(\"3\", \"\");\n\n        // 6. put ten 1s on the end\n        txt = txt + \"111111\" + \"1111\";        // 1.0 only has 6 1s\n\n        // 7. take the first six characters as the code\n        return txt.substring(0, 10);          // 1.0 truncates to 6\n    }"
+ },
+ "trigger_tests": [
+  {
+   "test": "org.apache.commons.codec.language.CaverphoneTest::testEndMb",
+   "error": "junit.framework.ComparisonFailure: Source: mbmb expected:<M[PM]1111111> but was:<M[MP]1111111>"
+  }
+ ],
+ "triggering_classes": [
+  "org.apache.commons.codec.language.CaverphoneTest"
+ ],
+ "loaded_classes": [
+  "org.apache.commons.codec.Encoder",
+  "org.apache.commons.codec.EncoderException",
+  "org.apache.commons.codec.language.Caverphone",
+  "org.apache.commons.codec.StringEncoder"
+ ],
+ "suite": [
+  "org.apache.commons.codec.CharEncodingTest",
+  "org.apache.commons.codec.DecoderExceptionTest",
+  "org.apache.commons.codec.EncoderExceptionTest",
+  "org.apache.commons.codec.StringEncoderComparatorTest",
+  "org.apache.commons.codec.binary.Base32InputStreamTest",
+  "org.apache.commons.codec.binary.Base32OutputStreamTest",
+  "org.apache.commons.codec.binary.Base32Test",
+  "org.apache.commons.codec.binary.Base64Codec13Test",
+  "org.apache.commons.codec.binary.Base64InputStreamTest",
+  "org.apache.commons.codec.binary.Base64OutputStreamTest",
+  "org.apache.commons.codec.binary.Base64Test",
+  "org.apache.commons.codec.binary.BaseNCodecTest",
+  "org.apache.commons.codec.binary.BinaryCodecTest",
+  "org.apache.commons.codec.binary.HexTest",
+  "org.apache.commons.codec.binary.StringUtilsTest",
+  "org.apache.commons.codec.digest.DigestUtilsTest",
+  "org.apache.commons.codec.language.CaverphoneTest",
+  "org.apache.commons.codec.language.ColognePhoneticTest",
+  "org.apache.commons.codec.language.DoubleMetaphone2Test",
+  "org.apache.commons.codec.language.DoubleMetaphoneTest",
+  "org.apache.commons.codec.language.MetaphoneTest",
+  "org.apache.commons.codec.language.RefinedSoundexTest",
+  "org.apache.commons.codec.language.SoundexTest",
+  "org.apache.commons.codec.net.BCodecTest",
+  "org.apache.commons.codec.net.QCodecTest",
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest",
+  "org.apache.commons.codec.net.RFC1522CodecTest",
+  "org.apache.commons.codec.net.URLCodecTest",
+  "org.apache.commons.codec.net.UtilsTest"
+ ],
+ "flaky": [],
+ "ci": {
+  "org.apache.commons.codec.CharEncodingTest": {
+   "wall": 0.031978,
+   "cpu": 0.05217,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.DecoderExceptionTest": {
+   "wall": 0.002245,
+   "cpu": 0.003029,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.EncoderExceptionTest": {
+   "wall": 0.001696,
+   "cpu": 0.00449,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.StringEncoderComparatorTest": {
+   "wall": 0.00567,
+   "cpu": 0.009006,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base32InputStreamTest": {
+   "wall": 0.070885,
+   "cpu": 0.110098,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base32OutputStreamTest": {
+   "wall": 0.060340000000000005,
+   "cpu": 0.09234300000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base32Test": {
+   "wall": 0.001633,
+   "cpu": 0.0038250000000000003,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Codec13Test": {
+   "wall": 0.007634999999999999,
+   "cpu": 0.014691000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64InputStreamTest": {
+   "wall": 0.07902500000000001,
+   "cpu": 0.105034,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": {
+   "wall": 0.08917499999999999,
+   "cpu": 0.100106,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.Base64Test": {
+   "wall": 0.011771,
+   "cpu": 0.023382,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BaseNCodecTest": {
+   "wall": 0.0030710000000000004,
+   "cpu": 0.004947,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.BinaryCodecTest": {
+   "wall": 0.0030459999999999997,
+   "cpu": 0.008109,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.HexTest": {
+   "wall": 0.11801,
+   "cpu": 0.262018,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.binary.StringUtilsTest": {
+   "wall": 0.003947,
+   "cpu": 0.010882,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.digest.DigestUtilsTest": {
+   "wall": 0.154728,
+   "cpu": 0.256533,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.CaverphoneTest": {
+   "wall": 0.036534,
+   "cpu": 0.081641,
+   "status": "fail"
+  },
+  "org.apache.commons.codec.language.ColognePhoneticTest": {
+   "wall": 0.007825,
+   "cpu": 0.011998,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": {
+   "wall": 0.011765000000000001,
+   "cpu": 0.028315,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": {
+   "wall": 0.007962,
+   "cpu": 0.022918,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.MetaphoneTest": {
+   "wall": 0.014362999999999999,
+   "cpu": 0.037012,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.RefinedSoundexTest": {
+   "wall": 0.003099,
+   "cpu": 0.006246000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.language.SoundexTest": {
+   "wall": 0.001592,
+   "cpu": 0.002157,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.BCodecTest": {
+   "wall": 0.005011,
+   "cpu": 0.00729,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QCodecTest": {
+   "wall": 0.0036720000000000004,
+   "cpu": 0.006979,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": {
+   "wall": 0.002887,
+   "cpu": 0.007235999999999999,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.RFC1522CodecTest": {
+   "wall": 0.000887,
+   "cpu": 0.002282,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.URLCodecTest": {
+   "wall": 0.003356,
+   "cpu": 0.006873000000000001,
+   "status": "pass"
+  },
+  "org.apache.commons.codec.net.UtilsTest": {
+   "wall": 0.00040500000000000003,
+   "cpu": 0.001248,
+   "status": "pass"
+  }
+ },
+ "ci_jvm": {
+  "wall": 0.2352185830004052,
+  "cpu": 0.2577000000000007
+ },
+ "fixed_suite_seconds": [
+  1.58,
+  1.23,
+  1.03
+ ],
+ "covering": [
+  "org.apache.commons.codec.language.CaverphoneTest"
+ ],
+ "sizes": {
+  "org.apache.commons.codec.CharEncodingTest": 1877,
+  "org.apache.commons.codec.DecoderExceptionTest": 1980,
+  "org.apache.commons.codec.EncoderExceptionTest": 1980,
+  "org.apache.commons.codec.StringEncoderComparatorTest": 3039,
+  "org.apache.commons.codec.binary.Base32InputStreamTest": 16390,
+  "org.apache.commons.codec.binary.Base32OutputStreamTest": 12680,
+  "org.apache.commons.codec.binary.Base32Test": 4483,
+  "org.apache.commons.codec.binary.Base64Codec13Test": 95062,
+  "org.apache.commons.codec.binary.Base64InputStreamTest": 16527,
+  "org.apache.commons.codec.binary.Base64OutputStreamTest": 13057,
+  "org.apache.commons.codec.binary.Base64Test": 71284,
+  "org.apache.commons.codec.binary.BaseNCodecTest": 4390,
+  "org.apache.commons.codec.binary.BinaryCodecTest": 58495,
+  "org.apache.commons.codec.binary.HexTest": 13302,
+  "org.apache.commons.codec.binary.StringUtilsTest": 6906,
+  "org.apache.commons.codec.digest.DigestUtilsTest": 6935,
+  "org.apache.commons.codec.language.CaverphoneTest": 9287,
+  "org.apache.commons.codec.language.ColognePhoneticTest": 4597,
+  "org.apache.commons.codec.language.DoubleMetaphone2Test": 46388,
+  "org.apache.commons.codec.language.DoubleMetaphoneTest": 49890,
+  "org.apache.commons.codec.language.MetaphoneTest": 14737,
+  "org.apache.commons.codec.language.RefinedSoundexTest": 4404,
+  "org.apache.commons.codec.language.SoundexTest": 15251,
+  "org.apache.commons.codec.net.BCodecTest": 5748,
+  "org.apache.commons.codec.net.QCodecTest": 7528,
+  "org.apache.commons.codec.net.QuotedPrintableCodecTest": 9881,
+  "org.apache.commons.codec.net.RFC1522CodecTest": 2818,
+  "org.apache.commons.codec.net.URLCodecTest": 10799,
+  "org.apache.commons.codec.net.UtilsTest": 1438
+ }
+}
