@@ -14,3 +14,7 @@ report/*.bbl
 report/*.blg
 report/*.fls
 report/*.fdb_latexmk
+
+# local backups
+report/backup/
+*.tar.gz

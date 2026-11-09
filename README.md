@@ -32,7 +32,7 @@ How each part of the proposal maps to the code is in
 ## 1. Layout
 
 ```
-thesis/
+master-thesis/
 ├── README.md             this file
 ├── docs/DESIGN.md        proposal -> code: mechanisms, experiments, outputs
 ├── settings.json         every pre-registered value (bugs, ARC, M3, model, prices)
@@ -73,7 +73,7 @@ git, svn, perl + cpanminus, Python 3.10+.
 
 ```bash
 brew install git subversion perl cpanminus openjdk@11 python@3.11   # macOS
-cd thesis
+cd master-thesis
 bash setup.sh                      # venv, Defects4J clone, Perl modules, ./init.sh (10-30 min)
 cp .env.example .env               # put the API key here (not needed for the smoke test)
 .venv/bin/python -m vlayer env     # checks Java 11, Defects4J, Major, the runner, the model

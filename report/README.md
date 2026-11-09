@@ -33,8 +33,6 @@ with real feedback (shared response and audit caches). The record as feedback,
 agentic loops and imperfect fault localisation are future work. The proposal
 reports no preliminary results.
 
-Simplified on 2026-11-08 (37 pages, 41 references); the previous version is in `../thesis-backup-20261108-presimplify.tar.gz`.
-
 Pending (`\pend`): the model (version, temperature), and the values set on the
 development set — variances, ARC location-prior weights, M3 defaults (r, budget B),
 margin, eligibility funnel.
