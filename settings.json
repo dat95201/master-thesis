@@ -1,0 +1,56 @@
+{
+  "_notes": "Pre-registered settings. Values marked TBD-on-dev are fixed on the development set, then `python -m vlayer freeze` records them before E1 runs on the evaluation set.",
+  "seed": 2026,
+  "bugs": {
+    "n_dev": 20,
+    "n_eval": 100,
+    "n_e3": 50,
+    "min_test_classes": 10,
+    "max_suite_seconds": 300
+  },
+  "runner": {
+    "class_timeout_s": 60,
+    "flaky_runs": 3,
+    "order_check_fraction": 0.1,
+    "cost_unit": "cpu"
+  },
+  "arc": {
+    "_tbd": "prior weights, TBD-on-dev",
+    "w_name": 20,
+    "w_package": 3,
+    "w_other": 1
+  },
+  "budget_guard": {
+    "_tbd": "r and budget, TBD-on-dev",
+    "r": 3,
+    "budget": 900,
+    "budget_unit": "seconds"
+  },
+  "e1": {
+    "mutants_per_group": 5,
+    "max_audits_per_group": 10,
+    "sessions_per_bug": 10,
+    "cap_cpu_hours": 2
+  },
+  "live": {
+    "rounds": 20,
+    "sessions": 3,
+    "cap_cpu_hours": 4,
+    "e2_arms": ["default", "frtp", "coverage", "arc"]
+  },
+  "model": {
+    "_tbd": "model name TBD-on-dev (median Default session must need >= 3 rounds)",
+    "name": "gpt-4o-mini",
+    "temperature": 0.8,
+    "max_tokens": 2048
+  },
+  "prices": {
+    "usd_per_mtok_in": 0.15,
+    "usd_per_mtok_out": 0.60,
+    "usd_per_cpu_hour": 0.05
+  },
+  "analysis": {
+    "_tbd": "margin TBD-on-dev",
+    "margin_pp": 10
+  }
+}

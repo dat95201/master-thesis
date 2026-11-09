@@ -1,0 +1,16 @@
+.venv/
+.env
+benchmarks/
+work/
+cache/
+smoke/
+__pycache__/
+.DS_Store
+report/*.aux
+report/*.log
+report/*.out
+report/*.toc
+report/*.bbl
+report/*.blg
+report/*.fls
+report/*.fdb_latexmk
