@@ -1,11 +1,10 @@
 \chapter{Proposed System}
 \label{ch:system}
 
-This chapter presents the proposed system, a \emph{validation layer} placed
-between an LLM repair loop and the project's test runner. It has three modules, one
-per waste of Figure~\ref{fig:intro-bottleneck}. Section~\ref{sec:sys-req} states
-what a practical repair bot needs; Section~\ref{sec:sys-overview} shows the
-layer; the next three sections describe the modules.
+This chapter presents the proposed system, a \emph{tiered repair bot}.
+Section~\ref{sec:sys-req} states what a practical repair bot needs.
+Section~\ref{sec:sys-overview} shows the bot. The next four sections describe
+its modules, and Section~\ref{sec:sys-regimes} states when it helps.
 
 \section{Usage Scenario and Requirements}
 \label{sec:sys-req}
@@ -16,7 +15,9 @@ returns either a plausible patch for a developer to review, or a report of why
 it gave up. Developers name CI as the place they most want repair to
 run~\citep{noller2022trust}, and deployed systems work this way: they act on
 failures found in CI and send every fix to a
-reviewer~\citep{marginean2019sapfix,kirbas2021bloomberg,maddila2025agentic}.
+reviewer~\citep{kirbas2021bloomberg,maddila2025agentic,marginean2019sapfix}.
+Because it runs on every failing build, the bot meets easy and hard bugs
+alike, and it cannot know in advance which is which.
 Table~\ref{tab:sys-needs} lists what such a bot needs.
 
 \begin{table}[htbp]
@@ -24,366 +25,496 @@ Table~\ref{tab:sys-needs} lists what such a bot needs.
 \caption{What a repair bot in CI needs, and the evidence.}
 \label{tab:sys-needs}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.2\textwidth}@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.19\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.27\textwidth}@{}}
 \toprule
 Requirement & Evidence & Served by\\
 \midrule
-P1 bounded time & $63\,\%$ of $103$ practitioners would not wait over an hour~\citep{noller2022trust}, though correctness matters more than speed~\citep{winter2023feel} & M1 Repeat Guard, M2 Test Prioritiser\\
-P2 predictable cost & budgets decided the adoption of repair at Bloomberg~\citep{kirbas2021bloomberg} & M3 Budget Guard\\
-P3 drop-in & developers want repair inside the CI pipeline~\citep{noller2022trust}, fitting their workflow~\citep{winter2022bloomberg} & the layer\\
-P4 trustworthy & a fix must pass all CI checks and be reviewed~\citep{kirbas2021bloomberg} & M1 Repeat Guard, M2 Test Prioritiser\\
+P1 bounded time & $63\,\%$ of $103$ practitioners would not wait over an hour~\citep{noller2022trust}, though correctness matters more than speed~\citep{winter2023feel} & M0 Warm Substrate, M1 Evidence Memory\\
+P2 predictable, low cost & budgets decided the adoption of repair at Bloomberg~\citep{kirbas2021bloomberg} & M2 Escalation Controller, M3 Budget Guard\\
+P3 drop-in & developers want repair inside the CI pipeline~\citep{noller2022trust}, fitting their workflow~\citep{winter2022bloomberg} & no training data; one coverage run of the faulty program\\
+P4 trustworthy & a fix must pass all CI checks and be reviewed~\citep{kirbas2021bloomberg} & M0 and M1: every verdict comes from the tests\\
 P5 explain a failure & unexplained fixes are ignored~\citep{winter2022bloomberg}; developers value the fault location and tests~\citep{noller2022trust} & M3 Budget Guard\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The evidence is strong for P3 and P4 and mixed for P1, so the layer aims at a
+The evidence is strong for P3 and P4 and mixed for P1, so the bot aims at a
 bounded time, not the shortest. P2 and P5 are supported only indirectly; they
 are design choices the evidence favours.
 
 \section{System Overview}
 \label{sec:sys-overview}
 
-Figure~\ref{fig:sys} shows one repair session. In each round the model
-proposes a candidate. The \textbf{Repeat Guard} (M1) checks whether it has seen
-the candidate before; if so, it reuses the stored result. Otherwise the
-\textbf{Test Prioritiser} (M2) orders the tests with \km, and the test runner
-runs them until the first failure. After a rejection, the \textbf{Budget Guard}
-(M3) checks that the session is still making progress and has budget left. If so, the next round starts, and the model is shown either the failure or a
-notice that the candidate was a repeat. Otherwise, the session ends with a
-give-up report.
+Figure~\ref{fig:sys} shows one session. Before the first round the
+\textbf{Warm Substrate} (M0) starts the test runtime on the project as the
+failing build left it; the runtime then stays alive for the whole session. The
+cheap model proposes candidates. The \textbf{Evidence Memory} (M1) checks each
+one: a candidate seen before gets its stored verdict, and a new one is
+compiled by the substrate, loaded into the live runtime and run against the
+scheduled tests until the first failure. After a rejection, the \textbf{Budget
+Guard} (M3) checks that budget is left, and the \textbf{Escalation Controller}
+(M2) checks whether the candidate made progress. While the cheap tier makes
+progress, it proposes again. When it stalls, the controller writes a handover
+note and the strong model takes over. If the strong tier stalls too, or the
+budget is spent, the session ends with a give-up report.
 
-The repair loop interacts with the layer through a single call, which takes a
-candidate and returns the verdict, the feedback for the model and whether the
-session should continue. The layer therefore also determines what the model is told and when the
-session stops:
+The repair loop interacts with the bot through a single call. It takes a
+candidate and returns the verdict, the evidence, and what the session should
+do next:
 \begin{Verbatim}[fontsize=\footnotesize,xleftmargin=8mm]
-result = layer.validate(candidate)
+result = bot.validate(candidate)
 result.verdict    # plausible, rejected, does not compile, or repeat
-result.feedback   # text to show the model in the next round
-result.go_on      # false when the Budget Guard stops the session
-result.report     # the give-up report, when go_on is false
+result.evidence   # the failing test and its failure signature
+result.next       # same tier, step up, or stop
+result.note       # the handover note, when next is step up
+result.report     # the give-up report, when next is stop
 \end{Verbatim}
-The layer is configured with a budget per bug and needs no instrumentation of
-the project.
+The bot is configured with a list of tiers and a budget per bug. It needs no
+training data.
 
 \begin{figure}[htbp]
 \centering
 \resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  font=\small,
-  box/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=4pt,
-              minimum height=14mm,text width=33mm,fill=black!3,
-              execute at begin node={\hyphenpenalty=10000}},
-  mod/.style={box,draw=bkblue,line width=1pt,fill=bkblue!10},
-  term/.style={box,draw=black!70,fill=black!8,text width=21mm,minimum height=11mm},
-  once/.style={box,dashed,fill=white,minimum height=10mm},
-  arr/.style={-{Stealth[length=2.3mm]},draw=black!65},
-  lab/.style={font=\scriptsize,align=center,execute at begin node={\hyphenpenalty=10000}}
+  font=\sffamily\small,
+  box/.style={draw=boxline,line width=0.6pt,rounded corners=2.5pt,align=center,inner sep=4pt,
+              minimum height=12mm,text width=38mm,fill=white},
+  hi/.style={box,draw=hiline,line width=1pt,fill=hifill},
+  tier/.style={box,text width=40mm},
+  term/.style={box,text width=20mm},
+  lab/.style={font=\sffamily\scriptsize,text=black!70,align=left},
+  arr/.style={-{Stealth[length=2.2mm]},draw=black!45,line width=0.7pt}
 ]
-\node (llm) at (0,0)     [box] {\textbf{LLM}\\[1pt]{\scriptsize proposes a candidate}};
-\node (m1)  at (4.5,0)   [mod] {\textbf{M1 Repeat Guard}\\[1pt]{\scriptsize seen before, after normalising?}};
-\node (m2)  at (9.0,0)   [mod] {\textbf{M2 Test Prioritiser}\\[1pt]{\scriptsize orders the tests by \km}};
-\node (run) at (13.5,0)  [box] {\textbf{Test runner}\\[1pt]{\scriptsize runs tests until the first failure}};
-\node (pl)  at (17.6,0)  [term] {\textbf{plausible}\\{\scriptsize stop}};
-\node (m3)  at (13.5,-3.7) [mod] {\textbf{M3 Budget Guard}\\[1pt]{\scriptsize progress, and budget left?}};
-\node (st)  at (17.6,-3.7) [term] {\textbf{give up}\\{\scriptsize with a report}};
-\node (pre) at (9.0,2.2) [once,text width=50mm] {\textbf{before the session} {\scriptsize(once)}\\{\scriptsize class the patch modifies; test times from the failing CI run}};
-\draw[arr] (llm) -- (m1);
-\draw[arr] (m1) -- node[above,lab]{new} (m2);
-\draw[arr] (m2) -- (run);
-\draw[arr] (run) -- node[above,lab]{all pass} (pl);
-\draw[arr] (pre) -- node[right,lab]{prior} (m2);
-\draw[arr] (run) -- node[right,lab]{rejected} (m3);
+\node[font=\sffamily\small\bfseries,anchor=west] at (-2.6,2.75)
+  {Tests check every candidate; a verified stall moves the session up a tier};
+% the two tiers, inside one container
+\draw[draw=boxline,line width=0.6pt,rounded corners=3pt,fill=black!6] (-2.6,-1.95) rectangle (2.6,1.95);
+\node[font=\sffamily\small\bfseries,anchor=north west] at (-2.45,1.9) {Model tiers};
+\node (t1) at (0,0.55)   [tier] {\textbf{Tier 1: cheap model}\\[-1pt]{\scriptsize\color{black!65} $n$ blind samples per call}};
+\node (t2) at (0,-1.05)  [tier] {\textbf{Tier 2: strong model}\\[-1pt]{\scriptsize\color{black!65} conversation, feedback}};
+% the modules
+\node (m1) at (6.6,0)     [box,text width=42mm] {\textbf{M1 Evidence Memory}\\[-1pt]{\scriptsize\color{black!65} verdicts, stored tests}};
+\node (m0) at (12.2,0)    [box,text width=42mm] {\textbf{M0 Warm Substrate}\\[-1pt]{\scriptsize\color{black!65} compile, load, run tests}};
+\node (pl) at (17.0,0)    [term] {\textbf{Plausible}\\ \textbf{patch}};
+\node (m3) at (12.2,-3.7) [box,text width=42mm] {\textbf{M3 Budget Guard}\\[-1pt]{\scriptsize\color{black!65} budget left, not stuck?}};
+\node (gu) at (17.0,-3.7) [term] {\textbf{Give-up}\\ \textbf{report}};
+\node (m2) at (5.9,-3.7)  [hi,text width=52mm] {\textbf{M2 Escalation Controller}\\[-1pt]{\scriptsize\color{black!65} progress, or a stall?}};
+% arrows
+\draw[arr] (2.6,0) -- node[above=1pt,lab]{candidate} (m1.west);
+\draw[arr] (m1) -- node[above=1pt,lab]{new} (m0);
+\draw[arr] (m0) -- node[above=1pt,lab]{all pass} (pl);
+\draw[arr] (m0) -- node[right=2pt,lab,pos=0.5]{rejected} (m3);
 \coordinate (rj) at ([xshift=-12mm]m3.north);
-\draw[arr] (m1.south) -- (m1.south |- 0,-1.8) -- node[above,lab]{repeat: reuse its result} (rj |- 0,-1.8) -- (rj);
-\draw[arr] (m3) -- node[above,lab]{no} (st);
-\draw[arr] (m3.west) -- node[below,lab,pos=0.5]{yes: next round, with the failing test or a repeat notice} (llm.south |- m3.west) -- (llm.south);
+\draw[arr] (m1.south) -- (m1.south |- 0,-1.9) -- node[above=1pt,lab,pos=0.5]{repeat: stored verdict} (rj |- 0,-1.9) -- (rj);
+\draw[arr] (m3) -- node[above=1pt,lab]{no} (gu);
+\draw[arr] (m3) -- node[above=1pt,lab]{yes} (m2);
+\draw[arr] (m2.west) -- (0,-3.7) -- (0,-1.95);
+\node[lab,anchor=north east,align=right] at (-0.2,-2.55) {progress: same tier\\[1pt] stall: step up, with a note};
 \end{tikzpicture}}
-\caption[The validation layer]{One repair session with the validation layer.
-The three modules (highlighted) sit between the repair loop and the project's
-test runner.}
+\caption[One repair session with the tiered bot.]{One repair session with the
+tiered bot. Every candidate of either tier passes through the Evidence Memory
+and the Warm Substrate. The Escalation Controller (highlighted) is the new
+module: while a tier makes progress it proposes again, and a verified stall
+moves the session up a tier with a handover note.}
 \label{fig:sys}
 \end{figure}
 
 \begin{table}[htbp]
 \centering
-\caption[The three modules]{The three modules: what each improves, the cost it
+\caption[The four modules.]{The four modules: what each improves, the cost it
 targets, and how.}
 \label{tab:sys-modules}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth} >{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}p{0.12\textwidth} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.15\textwidth} >{\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}p{0.23\textwidth} >{\raggedright\arraybackslash}X@{}}
 \toprule
 Module & Improves & Targets & How\\
 \midrule
-M1 Repeat Guard & no time or money spent twice on the same patch & $V_{\mathrm{rep}}$ & normalised cache; repeat notice\\
-M2 Test Prioritiser & wrong patches rejected sooner & $V_{\mathrm{rej}}$ & order by \km, learned during the session\\
-M3 Budget Guard & predictable cost; a reason when it fails & failed sessions & stop when stuck or out of budget; give-up report\\
+M0 Warm Substrate & the build and the start-up are paid once per session, not once per candidate & the build and start-up parts of validation, and the tests that do not reach the change & in-process compilation of the patched file; a fresh class loader in a live runtime; a fixed test schedule\\
+M1 Evidence Memory & nothing is validated twice, and evidence survives a model switch & the validation of repeats and of candidates a stored test refutes & normalised verdict cache; stored failing tests and failure signatures\\
+M2 Escalation Controller & the strong model is called only when it is needed & strong-tier calls on bugs the cheap tier repairs & cheap tier first; \Step\ moves up on a verified stall; handover note\\
+M3 Budget Guard & predictable cost, and a reason when it fails & sessions that are never repaired & a budget per tier and per session; a stop when the top tier stalls; give-up report\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\paragraph{A session, round by round.} Table~\ref{tab:sys-walk} follows one
-bug through the three modules, with the Budget Guard set to stop after $r = 2$
-rounds without progress.
+\paragraph{A session, step by step.} Table~\ref{tab:sys-walk} follows one bug
+through the bot.
 
 \begin{table}[htbp]
 \centering
-\caption{One session of a bug in \texttt{DateUtils}, round by round
-(illustrative).}
+\caption{One session of a bug in \texttt{DateUtils} (illustrative).}
 \label{tab:sys-walk}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}c >{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.22\textwidth}@{}}
+\begin{tabularx}{\textwidth}{@{}c >{\raggedright\arraybackslash}p{0.08\textwidth} >{\raggedright\arraybackslash}p{0.16\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.17\textwidth}@{}}
 \toprule
-Round & Candidate & Repeat Guard and Test Prioritiser & Budget Guard\\
+Step & Tier & Candidates & Evidence Memory & Controller\\
 \midrule
-1 & new patch $P_1$ & \km\ runs \texttt{DateUtilsTest} early (named after the modified class); it fails with error A & progress (new failure)\\
-2 & $P_1$ with a variable renamed & repeat: result reused, no test run; the model is told & no progress (1)\\
-3 & new patch $P_3$ & \texttt{DateUtilsTest} passes; \texttt{CalendarTest} fails with error B & progress (new failure)\\
-4 & new patch $P_4$ & \km\ now runs \texttt{CalendarTest} first; it fails with error B again & no progress (1)\\
-5 & new patch $P_5$ & fails with error B again & no progress (2): stop\\
-\midrule
-\multicolumn{4}{@{}l}{Give-up report: stopped for lack of progress; 5 rounds, 4 distinct patches, 1 repeat; error B three times, error A twice.}\\
+1 & cheap & five from one call & two are the same patch after normalising; of the four distinct ones, one does not compile, two fail \texttt{DateUtilsTest} with error A and one fails \texttt{CalendarTest} with error B & progress: three new signatures\\
+2 & cheap & five more & one repeats a patch of step 1 and is answered from the memory; four are new, and all fail with error A or B & no new signature: stall, step up\\
+3 & strong & one, given the handover note & fails \texttt{DateUtilsTest} with a new error C & progress\\
+4 & strong & one, given the failure & passes every test & plausible: stop\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-\section{Module M1: Repeat Guard}
-\label{sec:sys-guard}
+The strong model was called twice. The ten cheap candidates cost two calls of
+the cheap model and eight validations on the warm substrate; two of them were
+answered from the memory.
 
-\paragraph{Principle.} A patch that the model has already proposed in the
-session does not need to be validated again.
+\section{Module M0: Warm Validation Substrate}
+\label{sec:sys-warm}
 
-\paragraph{Normalisation.} The Repeat Guard (M1) keeps a cache of the session's candidates. Each candidate
-is first \emph{normalised}: it is parsed into a syntax tree, comments are
-removed, local variables are renamed in order of appearance ($v_0, v_1,
-\dots$), and the tree is printed back. A candidate whose normalised form is
-already in the cache is a \emph{repeat}; it gets the stored result without
-running any test. The Repeat Guard also tells the model, in the next prompt, that the patch
-was already tried and which test rejected it.
+\paragraph{Principle.} During a repair session the project, its dependencies
+and the test runtime never change. One file changes, in the bodies of a few
+methods. A validator that rebuilds the project and starts a fresh runtime for
+every candidate pays, once per candidate, for work whose result is the same
+every time. A cheap-first bot multiplies candidates, so it pays this more
+often than any other design.
 
-\paragraph{Safety.} Normalisation only removes differences that cannot affect
-behaviour, namely layout, comments and local variable names. Semantically
-equivalent patches (for example $a+b$ and $b+a$) are not merged. Two patches
-therefore share a result only when they behave identically, so reusing the
-result is safe for deterministic tests.
+\paragraph{Mechanism.} M0 does this work once per session and keeps it.
+\begin{enumerate}
+\item \textbf{Build once.} The faulty program is compiled once, with the
+project's own build. In CI the failing build has already done this.
+\item \textbf{Compile one file, in process.} For each candidate only the
+patched source file is compiled, by the compiler shipped with the runtime
+(\code{javax.tools}), inside a process that stays alive, against the classes
+of the first build.
+\item \textbf{Load, do not restart.} The new bytecode is loaded into the live
+test runtime through a fresh class loader, and the tests are run there. The
+Java runtime and the test framework stay loaded and warm; the classes of the
+project, its tests and its libraries are loaded again for each candidate.
+\end{enumerate}
 
-\section{Module M2: Test Prioritiser}
-\label{sec:sys-km}
+\paragraph{Why a fresh class loader.} On-the-fly validators for classical
+repair redefine the patched class in place~\citep{chen2021uniapr}.
+Redefinition has two limits in this setting. It cannot change the shape of a
+class, and a candidate that only rewrites a method body changes it as soon as
+the new body holds a lambda or an anonymous class. And it keeps the static
+state of every loaded class, so what one candidate leaves behind has to be
+reset by other means: UniAPR re-runs class initialisers between patches, and
+before it did so it disagreed with ordinary validation on $4$ of $74$
+bugs~\citep{chen2021uniapr}. A class loader per candidate gives both
+properties by construction. Any candidate that compiles can be loaded, and no
+static state of the project, its tests or its libraries survives from one
+candidate to the next. The price is that these classes are loaded again each
+time; the build and the start-up are still paid once.
 
-\paragraph{Principle.} A wrong patch is rejected most cheaply when the test
-classes run in decreasing $q_t / c_t$: the chance $q_t$ that class $t$ rejects
-it, divided by its running time $c_t$ (Proposition~\ref{prop:ratio}). Neither
-quantity is known in advance, so \km\ (Adaptive Rate-over-Cost) estimates both
-during the session and runs the classes in decreasing
-\[
-\mathrm{score}_t \;=\; \frac{\theta_t}{\hat c_t},
-\]
-where $\theta_t$ is a draw of the failure chance and $\hat c_t$ the estimated
-running time. The paragraphs below define the two parts;
-Algorithm~\ref{alg:km} puts them together.
+\paragraph{Calibration.} At the start of a session the substrate compiles the
+unchanged file in the live runtime and runs the scheduled tests once. Every
+test must end as it did in the failing CI run: the tests that failed there
+fail, and the others pass. If one differs, the live runtime is not trusted for
+this bug, for instance because a test depends on how its classes are loaded,
+and the session falls back to the cold path. The run also warms the runtime up
+before the first candidate arrives.
 
-\paragraph{Failure chance: the prior.} A wrong patch usually fails only a few
-of many test classes, most often the classes that test the code it changes.
-Before any run, each class therefore gets a prior $\pi_t$ from its location.
-The classes fall into three groups: those named after the modified class
-(their simple name starts with its name, e.g.\ \texttt{StringUtilsTest} for
-\texttt{StringUtils}), the other classes of its package, and the rest. Each
-group $g$ receives a share $M_g$, split equally among its $|T_g|$ classes:
-\[
-\pi_t \;=\; \frac{M_g}{|T_g|} \qquad \text{for each class } t \text{ in group } g .
-\]
-The shares sum to one, so the priors do too, which corresponds to about one
-failing class per wrong patch; the share of an empty group is spread over the
-others. The provisional shares are $0.60$ (named after the modified class),
-$0.25$ (same package) and $0.15$ (the rest); the development set fixes them as
-the share of the failing classes of wrong patches that falls in each group
-(Section~\ref{sec:exp-prereg}).
+\paragraph{Test schedule.} The substrate runs the tests in a fixed order that
+needs no learning: first the tests that failed on the faulty program, then the
+tests that rejected earlier candidates of the session, then the remaining
+tests that cover the faulty methods, fastest first. Tests that do not cover
+the faulty methods are skipped, which is safe when a patch only replaces the
+bodies of those methods. The first step is common practice, the second is
+FRTP~\citep{qi2013frtp}, and the third is the rule of
+PIT~\citep{coles2016pit}. What this schedule leaves to any other order is
+measured (Section~\ref{sec:exp-e1}).
 
-\paragraph{Failure chance: what the session observes.} The prior counts as one
-imaginary run of the class, which failed with weight $\pi_t$ and passed with
-weight $1 - \pi_t$; each real run adds one to the failures or to the passes.
-After $n_t$ runs of which $k_t$ failed, the two counts and the estimated
-failure chance are
-\[
-\alpha_t = \pi_t + k_t, \qquad
-\beta_t = (1 - \pi_t) + (n_t - k_t), \qquad
-\hat q_t = \frac{\alpha_t}{\alpha_t + \beta_t} = \frac{\pi_t + k_t}{1 + n_t}.
-\]
-The estimate $\hat q_t$ rises when the class fails and falls when it passes, and the
-observed runs soon outweigh the prior. In Bayesian terms, $\hat q_t$ is the
-mean of the posterior $\mathrm{Beta}(\alpha_t, \beta_t)$ that the prior
-$\mathrm{Beta}(\pi_t, 1 - \pi_t)$ gives after these runs.
+\paragraph{Reported failure.} A candidate can fail several tests, and the
+order decides which failure is met first. What is reported about a rejected
+candidate, to the model and in its failure signature, is therefore fixed by
+the static part of the order: its first failing test among those that failed
+on the faulty program, and otherwise among the covering tests, fastest first.
+The tests that rejected earlier candidates change what a rejection costs,
+never what is reported. A candidate is thus told the same thing whatever was
+tried before it, and this is what allows a session to be replayed
+(Section~\ref{sec:exp-e2}). A deployed bot, which stops at the first failure
+it meets, can differ from this rule only on a candidate that passes every
+originally failing test and then fails several others; how often that happens
+is measured.
 
-\paragraph{Failure chance: exploration.} Ranking by $\hat q_t$ alone has a
-blind spot. Early stopping observes a class only when the order reaches it
-(Section~\ref{sec:bg-censoring}), so a class whose $\hat q_t$ is too low is
-rarely run, and its estimate is rarely corrected. \km\ therefore ranks by a
-random draw from the posterior instead of its mean,
-\[
-\theta_t \sim \mathrm{Beta}(\alpha_t, \beta_t),
-\]
-made anew for each candidate: Thompson sampling~\citep{thompson1933}, the rule
-that does best in practice for cascading bandits, the learning model of
-stop-at-first-success ranking~\citep{zhong2021tscascade}. A class with many runs
-has a narrow posterior and draws close to $\hat q_t$; a class with few runs has
-a wide one, and sometimes draws high enough to move up and be observed. The
-exploration therefore needs no parameter of its own and fades as the session
-observes more.
+\paragraph{Safety.} M0 must not change any verdict. Three things could.
+\begin{itemize}
+\item \textbf{State that outlives a class loader}: system properties, the
+default locale and time zone, files, threads. The substrate restores the first
+three after each candidate and interrupts the threads a candidate leaves
+behind.
+\item \textbf{A candidate that hangs or kills the runtime.} A test that passes
+its time limit cannot be stopped inside a JVM, and a candidate may exit the
+process. The substrate counts that test as failed, discards the runtime and
+starts a new one, and the new start is charged to the candidate.
+\item \textbf{Tests that depend on how classes are loaded.} The calibration
+run catches them before the first candidate.
+\end{itemize}
+The question is treated as empirical. Every candidate of the study is
+validated on the cold path as well, the verdict of record is the cold one, and
+every disagreement is reported (Section~\ref{sec:exp-measure}).
 
-How much it explores depends on the prior being calibrated. With the
-provisional shares, in a suite of $60$ classes (one named after the modified
-class, five in its package) and before any run, the named class is drawn first
-for about three candidates in four, and a class of the third group for fewer
-than one in ten. The draws are seeded by the session and the candidate, so
-every run can be reproduced. Ranking by $\hat q_t$ instead of $\theta_t$ is a
-variant in RQ4, which tests whether exploration pays within the few candidates
-of a session.
+\paragraph{Expected size.} Table~\ref{tab:sys-m0} sets the two paths side by
+side. UniAPR and ExpressAPR report speed-ups of one to two orders of magnitude
+on classical repair tools~\citep{chen2021uniapr,xiao2024expressapr}, where
+most of what they remove is this same build and start-up. How much of that
+carries over to an LLM loop, which validates tens of candidates per bug
+rather than thousands, is what RQ2 measures. For escalation the consequence is
+direct: on the cold path every extra cheap candidate pays a build and a
+start-up of its own.
 
-\paragraph{Running time, $\hat c_t$.} The bot is started by a failing CI run,
-which already timed every class on the faulty program; call this time
-$c_t^{\mathrm{CI}}$. \km\ starts from it and switches to the average of the
-session's own runs once the class has run:
-\[
-\hat c_t \;=\;
-\begin{cases}
-s_t / n_t & \text{if } n_t > 0,\\[2pt]
-c_t^{\mathrm{CI}} & \text{otherwise,}
-\end{cases}
-\]
-where $s_t$ is the total time of its $n_t$ runs. A class with no recorded
-time, such as a new test, is estimated from the size of its test file, at the
-rate observed so far.
+\begin{table}[htbp]
+\centering
+\caption{What one candidate pays with and without M0.}
+\label{tab:sys-m0}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}p{0.3\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Step & Without M0 (cold path) & With M0 (warm path)\\
+\midrule
+Build the candidate & the project's own build & one file, compiled in process\\
+Start the test runtime & once per candidate & once per session, with the calibration run\\
+Run the scheduled tests & to the first failure & the same tests, in a runtime that is already warm\\
+Candidate that hangs or kills the runtime & the runtime is discarded anyway & a new runtime is started and charged to the candidate\\
+\bottomrule
+\end{tabularx}
+\end{table}
 
-\paragraph{Order.} For each new candidate, \km\ draws $\theta_t$ for every
-class, runs the classes in decreasing $\theta_t / \hat c_t$, stops at the first
-failure, and updates the counts of the classes that ran
-(Algorithm~\ref{alg:km}). It needs no extra test run, no model call and no
-instrumentation.
+\paragraph{Relation to existing work.} On-the-fly patch validation is not
+new~\citep{chen2021uniapr,xiao2024expressapr}. M0 claims no new mechanism. Its
+role here is to make the cheap tier's candidates cheap to check, and its
+contribution is the measurement of what that is worth in an LLM loop (RQ2).
+
+\section{Module M1: Evidence Memory}
+\label{sec:sys-memory}
+
+\paragraph{Principle.} What the tests have shown about a candidate is true
+whichever model proposed it. The memory keeps it for the whole session and
+across the switch between models.
+
+\paragraph{What it keeps.}
+\begin{itemize}
+\item \textbf{Verdicts.} Each candidate is first \emph{normalised}: it is
+parsed into a syntax tree, comments are removed, local variables are renamed
+in order of appearance, and the tree is printed back. A candidate whose
+normalised form is already in the memory is a \emph{repeat}: it gets the
+stored verdict without running any test.
+\item \textbf{Failing tests.} Every test that has rejected a candidate is kept
+and scheduled first for later candidates.
+\item \textbf{Failure signatures.} Each distinct signature
+(Section~\ref{sec:bg-stall}) is kept with a count and one example patch. The
+controller reads progress from them, and the handover note and the give-up
+report are written from them.
+\end{itemize}
+
+\paragraph{Across tiers.} The memory outlives the switch. A strong-tier
+candidate that equals a cheap-tier one is answered from the memory, and one
+that fails a stored test is rejected by that test first. How often the strong
+model repeats what the cheap one already showed to be wrong is itself a
+measurement (RQ4). One rule keeps the tiers separable: a model is told when it
+repeats \emph{itself}, but a repeat of the other tier's candidate is reported
+to it as an ordinary failure. Under a cold handover the strong model is
+therefore shown exactly what it would be shown if it ran alone.
+
+\paragraph{Safety.} Normalisation removes only differences that cannot affect
+behaviour: layout, comments and the names of local variables. Two patches
+therefore share a verdict only when they behave identically, so reusing it is
+safe for deterministic tests. Running stored failing tests first changes the
+order of the tests, not the set, so it never changes a verdict.
+
+\section{Module M2: Escalation Controller}
+\label{sec:sys-controller}
+
+\paragraph{Principle.} A bug should be repaired by the cheapest model that can
+repair it. Which model that is cannot be known in advance, but it can be found
+out cheaply: the cheap model tries first, and the tests say whether it is
+getting anywhere.
+
+\paragraph{Tier 1: blind re-sampling.} The cheap tier does not hold a
+conversation. Each call sends the same first prompt and asks for $n$
+candidates; nothing about earlier failures is added. Two results support this
+choice. Independent re-prompting repairs more bugs than a conversation at the
+same number of attempts~\citep{chen2025conversational}. And small models
+anchor on their own failed attempt~\citep{verma2026blind}. Blind re-sampling
+also keeps the prompt constant, so one call returns several candidates for the
+price of one prompt~\citep{hidvegi2024cigar}.
+
+\paragraph{Tier 2: conversation with feedback.} The strong tier runs a
+conversational loop in the style of
+ChatRepair~\citep{xia2024chatrepair}: after each rejected candidate,
+the failing test and its error are fed back. What such feedback gains depends
+on the model that reads it~\citep{olausson2024selfrepair}, which is why only
+the strong tier receives it.
+
+\paragraph{The rule.} After each cheap call, the controller counts the
+candidates that made progress (Section~\ref{sec:bg-stall}). A call has
+\emph{stalled} when at most one of its candidates made progress. The session
+steps up after a stalled call, or when the cheap tier's budget of candidates
+is spent. On a step-up the controller writes the handover note and starts the
+strong tier. Algorithm~\ref{alg:step} gives the rule, called \Step. The
+candidates of a call are validated in the order they were returned, and the
+session ends at the first plausible one.
 
 \begin{algorithm}[htbp]
-\caption{\km\ for one new candidate}
-\label{alg:km}
+\caption{\Step{} for one session}
+\label{alg:step}
 \begin{algorithmic}[1]
-\Require candidate $p$; test classes $T$; for each class $t$: counts $\alpha_t, \beta_t$ (initially $\pi_t$ and $1 - \pi_t$), runs $n_t$ and total time $s_t$ (initially $0$)
-\For{each $t \in T$}
-  \State draw $\theta_t \sim \mathrm{Beta}(\alpha_t, \beta_t)$
-  \State $\hat c_t \gets s_t / n_t$ if $n_t > 0$, else $c_t^{\mathrm{CI}}$
+\Require cheap model $m_1$, strong model $m_2$; $n$ candidates per cheap call; cheap budget $B_1$ candidates; strong budget $R_2$ rounds
+\State $\mathit{seen} \gets \emptyset$ \Comment{failure signatures, kept by the Evidence Memory}
+\While{fewer than $B_1$ cheap candidates were drawn}
+  \State draw $n$ candidates from $m_1$ with the first prompt
+  \State $\mathit{new} \gets 0$
+  \For{each candidate $p$}
+    \State $v \gets \Call{Validate}{p}$ \Comment{the memory, then the schedule}
+    \State \textbf{if} $v$ is plausible \textbf{then return} $p$
+    \State \textbf{if} $\mathrm{signature}(v) \notin \mathit{seen}$ \textbf{then} add it to $\mathit{seen}$;\; $\mathit{new} \gets \mathit{new} + 1$
+  \EndFor
+  \State \textbf{if} $\mathit{new} \le 1$ \textbf{then break} \Comment{the call stalled}
+\EndWhile
+\State $\mathit{note} \gets \Call{Handover}{\mathit{seen}}$ \Comment{empty under a cold handover}
+\For{$\mathit{round} = 1$ \textbf{to} $R_2$}
+  \State $p \gets$ next candidate from $m_2$, given $\mathit{note}$ and the feedback so far
+  \State $v \gets \Call{Validate}{p}$
+  \State \textbf{if} $v$ is plausible \textbf{then return} $p$
+  \State \textbf{if} the Budget Guard stops the session \textbf{then break} \Comment{Section~\ref{sec:sys-guard}}
 \EndFor
-\For{$t$ in $T$ sorted by $\theta_t / \hat c_t$, highest first}
-  \State run $t$ on $p$, taking time $c$
-  \State $n_t \gets n_t + 1$;\; $s_t \gets s_t + c$
-  \If{$t$ failed}
-    \State $\alpha_t \gets \alpha_t + 1$; \textbf{return} ``rejected by $t$''
-  \Else
-    \State $\beta_t \gets \beta_t + 1$
-  \EndIf
-\EndFor
-\State \textbf{return} ``plausible''
+\State \textbf{return} the give-up report
 \end{algorithmic}
 \end{algorithm}
 
-\paragraph{Example.} Table~\ref{tab:sys-example} compares \km\ with \frtp,
-which ranks tests by how many patches they have rejected. \frtp\ ties $T_1$
-with $T_2$ and $T_3$ with $T_4$. \km\ separates them: $T_1$ failed 8 of 10
-times and is fast, so it goes first; $T_4$ has never run but is named after the
-modified class, so it goes second; $T_2$ is thirty times slower than $T_1$; and
-$T_3$, though fastest, has passed 25 times and goes last. This is the order of
-the means $\hat q_t$. With sampling, $T_4$, which has never run, comes first for
-about a quarter of the candidates, while $T_3$ stays last for almost all.
-
-\begin{table}[htbp]
-\centering
-\caption[\frtp\ and \km\ on four tests]{\frtp\ and \km\ on four of $100$ test
-classes (illustrative values).}
-\label{tab:sys-example}
-\small
-\begin{tabular}{@{}l r r r r r@{}}
-\toprule
-Test class & failed $k_t$ & runs $n_t$ & time $\hat c_t$ (s) & $\hat q_t$ & $\hat q_t/\hat c_t$\\
-\midrule
-$T_1$ & 8 & 10 & 0.04 & 0.73 & 18.2\\
-$T_2$ & 8 & 30 & 1.20 & 0.26 & 0.22\\
-$T_3$ & 0 & 25 & 0.03 & 0.00006 & 0.002\\
-$T_4$ (named after the modified class) & 0 & 0 & 0.05 & 0.60 & 12.0\\
-\midrule
-\multicolumn{6}{@{}l}{\frtp:\; $\{T_1, T_2\}$ tied, then $\{T_3, T_4\}$ tied;\qquad \km:\; $T_1, T_4, T_2, T_3$}\\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\paragraph{Relation to existing work.} The information used by \km\ is not new.
-The mutation tool PIT already orders tests by cost and by the location of the
-change~\citep{coles2016pit}, and FaMT uses history across
-mutants~\citep{zhang2013famt}. The difference is that \km\ combines these
-signals in a single estimate, updates it during the session without
-instrumentation, and is designed for patches that arrive one at a time and
-whose reported failure is shown to the model
-(Section~\ref{sec:rel-b}). In bandit terms, \km\ is a cost-aware cascading
-bandit~\citep{kveton2015cascading,zhou2018costcascading} solved by Thompson
-sampling, with two features a repair session needs: a prior from the location
-of the change, because the session is too short to learn from scratch, and test
-times from the failing CI run, so cost is known before the first candidate.
-
-\section{Module M3: Budget Guard}
-\label{sec:sys-stop}
-
-\paragraph{Principle.} The Budget Guard ends sessions that make no progress,
-keeps the cost per bug within a budget and reports why a session stopped.
-Failed sessions account for most of the cost~\citep{fan2025sweeffi}, and
-current tools stop only at a fixed limit without giving a reason (Section~\ref{sec:rel-practice}).
-
-\paragraph{Progress.} A rejected candidate leaves a \emph{failure signature}:
-the test that rejected it, the exception type and its message, without line
-numbers, which change when a patch is reformatted. A round makes progress when its
-candidate is new and fails in a new way. A repeat, or new code that fails
-exactly as before, makes no progress.
-
-\paragraph{When to stop.} The Budget Guard (M3) counts the rounds since the last progress and
-stops when the count reaches $r$. It also stops before a round that the
-remaining budget $B$ (in time, tokens or money) cannot pay for, judged by the
-average cost of the rounds so far. The round limit $R_{\max}$ stays as a hard
-cap. The values of $r$ and $B$ are chosen on the development set
-(Section~\ref{sec:exp-prereg}).
-
-\paragraph{Give-up report.} A session that ends without a plausible patch
-returns: why it stopped; how many rounds, distinct candidates and repeats it
-had; what it spent; and its failure signatures, most frequent first, with the
-test, the error and an example patch. The signatures show where the model repeatedly failed, which is the kind of
-information (fault location and tests) that developers find most useful when
-they fix a bug themselves~\citep{noller2022trust}. Figure~\ref{fig:sys-report}
-shows an example.
+\paragraph{The handover note.} The note is written by the bot from the
+Evidence Memory, not by the cheap model. It holds the number of candidates
+tried; each distinct failure signature, most frequent first, with its test,
+its error and the number of candidates that ended there; and the compiler
+errors seen. It holds none of the cheap model's explanations.
+Figure~\ref{fig:sys-note} shows an example. Four handovers are compared (RQ4):
+\begin{itemize}
+\item \textbf{Cold}: no note. The strong tier starts from the first prompt
+alone.
+\item \textbf{Evidence}: the note described above.
+\item \textbf{Evidence and patches}: the note, with the shortest candidate
+that produced each signature.
+\item \textbf{Transcript}: every cheap candidate and its failure, in the order
+they occurred.
+\end{itemize}
 
 \begin{figure}[htbp]
 \centering
 \begin{minipage}{0.95\textwidth}
-\begin{Verbatim}[frame=single,fontsize=\footnotesize,framesep=2mm]
-Give-up report  (bug Lang-65, session 2)
-Stopped:  no progress for 3 rounds
-Rounds:   9   distinct patches: 7   repeats: 2
-Spent:    410 s  (model 120 s, validation 290 s), 38k tokens
-Failures, most frequent first:
-  4x  DateUtilsTest.testTruncateLang59
+\begin{Verbatim}[frame=single,rulecolor=\color{boxline},fontsize=\footnotesize,framesep=2mm]
+Handover note (10 candidates from the first model, none plausible)
+Verified failures, most frequent first:
+  6x DateUtilsTest.testTruncateLang59
       AssertionFailedError: expected <...MDT 2004> but was <...MST 2004>
-  2x  DateUtilsTest.testRound
+  2x DateUtilsTest.testRound
       ArithmeticException: Calendar value too large
-  1x  compile error: cannot find symbol 'millis'
-Example patch for the most frequent failure: round 7
+  1x compile error: cannot find symbol
+1 candidate repeated an earlier one. No candidate passed DateUtilsTest.
+\end{Verbatim}
+\end{minipage}
+\caption{An example handover note (illustrative values).}
+\label{fig:sys-note}
+\end{figure}
+
+\paragraph{Guarantee.} Under a cold handover, with $R_2$ equal to the budget
+the strong model has when it runs alone, and with the Budget Guard off,
+Proposition~\ref{prop:nolost} applies: the session repairs every bug that the
+strong model alone would repair on the same draws. The price is the cheap
+tier's cost and delay on the bugs it fails, which
+Proposition~\ref{prop:breakeven} weighs against the saving. A note gives up
+this guarantee for a possible gain, and the guard gives it up for a saving.
+That is why both effects are measured rather than assumed, and why a cold
+handover without a stop is the default until they are.
+
+\paragraph{Expected size.} Three figures bound the expectation. For a prompt
+of $1{,}500$ tokens and candidates of $400$ tokens, a cheap call that returns
+five candidates costs about one sixth of one strong call at list
+prices~\citep{aibusiness2026gpt6}, so one cheap candidate costs about one
+thirtieth. By the sufficient condition of Section~\ref{sec:bg-escalation}, ten
+cheap candidates then pay for themselves if the cheap tier repairs more than a
+third of the bugs, and five if it repairs more than a sixth. And in
+neighbouring settings escalation saved between $26\,\%$ and $40\,\%$ of
+cost~\citep{chen2024cascading,gandhi2025strongweak}. The expectation is
+therefore a saving of tens of percent in money, not a factor. The experiments
+report it together with the break-even it implies.
+
+\paragraph{Relation to existing work.} Cascades and routers are not
+new~\citep{chen2023frugalgpt,ong2024routellm,chen2024cascading,gandhi2025strongweak,son2026swerouter,madeyski2026triage}.
+Three things differ here. The trigger is a verified stall rather than a
+prediction, so it needs no training and cannot be wrong about a verdict. The
+cheap tier's candidates are validated on a warm substrate, and that validation
+is priced. And the handover is varied and measured instead of fixed.
+
+\section{Module M3: Budget Guard}
+\label{sec:sys-guard}
+
+\paragraph{Principle.} The Budget Guard keeps the cost per bug within a budget
+and reports why a session stopped. Failed sessions account for most of the
+cost~\citep{fan2025sweeffi}, and current tools stop only at a fixed limit,
+without giving a reason (Section~\ref{sec:rel-practice}).
+
+\paragraph{When to stop.} Each tier has its own share of the session: $B_1$
+candidates for the cheap tier and $R_2$ rounds for the strong tier. On top of
+these the guard watches two things. It stops the session when the top tier
+stalls, that is, after $r$ consecutive rounds of the strong tier without
+progress, where progress is judged against everything the session has seen.
+And it stops before a model call that the remaining budget $B$, in time,
+tokens or money, cannot pay for, judged by the average cost of the tier's
+calls so far. The values of $r$ and $B$ are chosen on the development set
+(Section~\ref{sec:exp-prereg}).
+
+\paragraph{Give-up report.} A session that ends without a plausible patch
+returns: why it stopped; what each tier tried and what it spent; and the
+failure signatures, most frequent first, with the test, the error and an
+example patch. The signatures show where the models repeatedly failed, which
+is the kind of information (fault location and tests) that developers find
+most useful when they fix a bug themselves~\citep{noller2022trust}.
+Figure~\ref{fig:sys-report} shows an example.
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.95\textwidth}
+\begin{Verbatim}[frame=single,rulecolor=\color{boxline},fontsize=\footnotesize,framesep=2mm]
+Give-up report (bug Lang-65, session 2)
+Stopped: no progress for 3 rounds at the strong tier
+Tiers:   cheap 10 candidates (9 distinct, 1 repeat); strong 6 rounds
+Spent:   68 s (models 61 s, validation 7 s), 33k tokens, $0.07
+Failures, most frequent first:
+  9x DateUtilsTest.testTruncateLang59
+      AssertionFailedError: expected <...MDT 2004> but was <...MST 2004>
+  5x DateUtilsTest.testRound
+      ArithmeticException: Calendar value too large
+  1x compile error: cannot find symbol
+Example patch for the most frequent failure (strong tier, round 4):
+    private static void modify(Calendar val, int field, boolean round) {
+        ...
+    }
 \end{Verbatim}
 \end{minipage}
 \caption{An example give-up report (illustrative values).}
 \label{fig:sys-report}
 \end{figure}
 
-\section{When the Layer Helps}
+\paragraph{Measured apart.} Stopping is the one decision of the bot that can
+lose a repair the strong model would still have made. In the experiments the
+guard therefore only records when it would stop. The stop is applied
+afterwards by replay, which gives its saving and its loss for every value of
+$r$ and $B$ from the same sessions.
+
+\section{When the System Helps}
 \label{sec:sys-regimes}
 
-\begin{itemize}[leftmargin=*,itemsep=2pt]
-\item \textbf{Module M1 (Repeat Guard)} saves in proportion to how often the model repeats itself.
-\item \textbf{Module M2 (Test Prioritiser)} saves most when test times differ a lot and a session has
-many wrong patches; it cannot reduce the cost of the final, accepted patch,
-which runs every test in any order.
-\item \textbf{Module M3 (Budget Guard)} saves most when sessions go on long after the model is stuck.
-\item A slow model, compilation and JVM start-up are untouched, so they dilute
-the saving end to end; RQ1 measures by how much.
+\begin{itemize}
+\item \textbf{Escalation} saves most when the price gap between the tiers is
+wide and the cheap tier repairs a fair share of the bugs. If it repairs almost
+none, the bot should start at the strong tier. If it repairs almost all, the
+strong tier is rarely called, and the saving approaches the whole gap.
+\item \textbf{The Warm Substrate} saves in proportion to the share of
+validation spent building and starting. It is also what keeps cheap-first from
+costing time.
+\item \textbf{The Evidence Memory} saves in proportion to how often the models
+repeat themselves and each other.
+\item \textbf{The handover note} can help only on bugs that reach the strong
+tier and are not repaired in its first round.
+\item \textbf{The Budget Guard} saves most when sessions go on long after the
+models are stuck.
+\item \textbf{A slow strong model} is the one cost that no module removes.
+Escalation only avoids calling it.
 \end{itemize}
+
+The modules therefore help in different regimes, and the regime decides their
+order of importance rather than the other way round. RQ1 says which regime the
+benchmark is in.

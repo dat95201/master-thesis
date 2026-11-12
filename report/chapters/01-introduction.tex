@@ -10,144 +10,201 @@ loop: they generate a candidate patch and run the test suite on it; a candidate
 that passes every test is called \emph{plausible}~\citep{qi2015plausibility}.
 Today the candidate comes from a large language model (LLM). If a test fails,
 the tool shows the failure to the model and asks again~\citep{xia2024chatrepair}.
-Each round of this loop has two costs (Figure~\ref{fig:intro-bottleneck}): the
-model call and the test run.
+Each round of this loop has two costs: the model call and the test run.
 
 \paragraph{Need.} The cost per bug is now reported next to the repair rate:
-\textsc{ChatRepair} spends about \$0.42 per bug~\citep{xia2024chatrepair} and
-\textsc{RepairAgent} about $270{,}000$ tokens per bug, with $99\,\%$ of its time
-spent running tools, mostly tests~\citep{bouzenia2025repairagent}. Tools already
-try to lower this cost~\citep{hidvegi2024cigar}, and long, costly sessions are
-named as an obstacle to using LLM-based repair in
-practice~\citep{yang2025llmrepairsurvey}. The practical need is therefore to \emph{lower the cost per repaired bug without
+ChatRepair spends about \$0.42 per bug~\citep{xia2024chatrepair} and
+RepairAgent about $270{,}000$ tokens per
+bug~\citep{bouzenia2025repairagent}. Long, costly sessions are named as an
+obstacle to using LLM-based repair in practice~\citep{yang2025llmrepairsurvey}.
+The practical need is to \emph{lower the cost per repaired bug without
 repairing fewer bugs}. A typical setting is a repair bot in continuous
 integration (CI), which is where developers most want repair to
-run~\citep{noller2022trust}. Such a bot must respond within a bounded time and
-budget, fit into the existing pipeline, never propose a patch that the tests
-reject, and explain its failures.
+run~\citep{noller2022trust}. Such a bot runs on every failing build, so it must
+also choose a model. Prices differ widely within one model family: GPT-6 Sol is
+listed at \$2 and \$10 per million input and output tokens, and GPT-6 Luna at
+\$0.10 and \$0.50, a factor of twenty~\citep{aibusiness2026gpt6}.
+
+\paragraph{What is already known.} Three observations from the literature set
+the direction.
+\begin{enumerate}
+\item \textbf{Validation can be made cheap.} Much of what a plain validation
+pays is overhead: the candidate is rebuilt and the test runtime started again,
+although the project and the runtime do not change during a session.
+On-the-fly validation removes both and speeds classical repair up by one to
+two orders of magnitude~\citep{chen2021uniapr,xiao2024expressapr}. Test
+selection and prioritisation cut what is left~\citep{lou2024aprregression,qi2013frtp,coles2016pit}.
+None of these techniques depends on where a patch comes from, so this thesis
+adopts them as they are.
+\item \textbf{A model repeats itself, and a small model gains little from
+being told.} $65\,\%$ of the patches of ChatRepair were duplicates of
+earlier ones~\citep{chen2025conversational}. Shown its failed attempt, a model
+of up to 7B parameters reproduces a near-identical program in $33\,\%$ to
+$68\,\%$ of retries, against $2\,\%$ to $14\,\%$ when it is simply asked
+again~\citep{verma2026blind}. Stronger models do use feedback, and
+conversational repair is built on it~\citep{xia2024chatrepair}, although what
+it gains depends on the model that reads it~\citep{olausson2024selfrepair}.
+\item \textbf{What crosses a model switch can help or hurt.} A router for
+software agents restarts the strong model from scratch, on the stated ground
+that the weak model's reasoning biases it~\citep{son2026swerouter}, and a weak
+draft can lower the result of the model that revises
+it~\citep{ning2026revision}. Yet an agent restarted with its interrupted diff
+resolved more issues than one restarted cold~\citep{wang2026failfast}.
+\end{enumerate}
+Read together: validation can be made cheap, the outcome of a test is the one
+part of a failed attempt that is verified, and the model that produces the
+evidence is not always the model that can use it.
+
+\paragraph{Problem.} The cost that remains is on the generation side. A bot
+with two models can waste it in three ways (Figure~\ref{fig:intro-wastes}):
+\begin{itemize}
+\item \textbf{Strong price for easy bugs.} A bot that starts at the strong
+model pays its price on bugs the cheap model would have repaired. Low-cost
+models repair over half of moderately complex
+bugs~\citep{liu2026rethinking}, and smaller models repair some bugs that
+larger ones miss~\citep{sun2025empirical}.
+\item \textbf{Cheap budget on hopeless bugs.} A bot that stays at the cheap
+model spends its whole budget on the bugs it cannot repair, and failed
+sessions are the expensive ones~\citep{fan2025sweeffi}.
+\item \textbf{Evidence lost, or carried blindly, at the switch.} When a
+session moves to another model, what the first model learned is either
+dropped or passed on. Dropping it wastes verified facts. Passing it on can
+bias the next model towards the first model's
+mistakes~\citep{son2026swerouter,ning2026revision}.
+\end{itemize}
+How large each waste is in test-driven repair is unknown. Studies of model
+routing and early stopping target issue-resolution agents, decide with learned
+predictors and count tokens only (Chapter~\ref{ch:related}). None uses the
+tests the bot already runs as its signal, prices the validation of the extra
+candidates, or measures what verified evidence is worth to the next model.
 
 \begin{figure}[htbp]
 \centering
-\definecolor{okgreen}{HTML}{2E7D32}
-\resizebox{0.97\textwidth}{!}{%
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
-  font=\small,
-  box/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=5pt,
-              text width=38mm,minimum height=16mm,fill=black!3},
-  res/.style={draw=okgreen,line width=0.8pt,rounded corners=2pt,align=center,
-              inner sep=4pt,text width=20mm,minimum height=11mm,fill=okgreen!10},
-  cost/.style={font=\scriptsize\bfseries,text=bkblue,align=center},
-  tp/.style={draw=okgreen,fill=okgreen!45,minimum width=3.6mm,minimum height=3.6mm,
-             inner sep=0pt,rounded corners=0.5pt},
-  tf/.style={tp,draw=pendred,fill=pendred!60},
-  tn/.style={tp,draw=black!30,fill=white},
-  waste/.style={circle,draw=pendred,fill=pendred!8,text=pendred,font=\scriptsize\bfseries,
-                inner sep=1pt,minimum size=4.6mm},
-  arr/.style={-{Stealth[length=2.4mm]},draw=black!60}
+  font=\sffamily\small,
+  box/.style={draw=boxline,line width=0.6pt,rounded corners=2.5pt,align=center,inner sep=5pt,
+              minimum height=15mm,fill=white},
+  hi/.style={box,draw=hiline,line width=1pt,fill=hifill},
+  lay/.style={box,fill=boxfill,minimum height=11mm},
+  sub/.style={font=\sffamily\scriptsize,text=black!65},
+  lab/.style={font=\sffamily\scriptsize,text=black!70},
+  wmark/.style={circle,draw=black!60,fill=white,font=\sffamily\scriptsize,inner sep=1pt,minimum size=4.4mm},
+  arr/.style={-{Stealth[length=2.2mm]},draw=black!45,line width=0.7pt}
 ]
-\node (llm) at (0,0)    [box] {\textbf{LLM}\\[2pt]{\scriptsize proposes a candidate patch}};
-\node (val) at (7.2,0)  [box] {\textbf{Validation}\\[2pt]{\scriptsize builds it and runs the tests,}\\{\scriptsize stopping at the first failure}};
-\node (pl)  at (12.6,0) [res] {plausible\\ patch};
-\node[cost,above=2pt of llm] {cost 1: model call\\ (tokens, latency)};
-\node[cost,above=2pt of val] {cost 2: validation\\ (CPU time, wall-clock)};
-\draw[arr] (llm.east) -- node[below,font=\scriptsize]{candidate} (val.west);
-\draw[arr,draw=okgreen] (val.east) -- node[above,font=\scriptsize,text=okgreen]{all pass} (pl.west);
-\coordinate (fb) at ([xshift=-14mm]val.south);
-\coordinate (fbl) at ([yshift=-15mm]fb);
-\draw[arr] (fb) -- (fbl) -| node[pos=0.25,below,font=\scriptsize]
-  {a test fails: next round, the failure is fed back} (llm.south);
-\begin{scope}[shift={([xshift=-6mm,yshift=-6mm]val.south)}]
-  \foreach \i in {0,...,3} { \node[tp] at ({0.5*\i},0) {}; }
-  \node[tf] at (2.0,0) {};
-  \foreach \i in {5,6} { \node[tn] at ({0.5*\i},0) {}; }
-  \node[tp,minimum width=2.8mm,minimum height=2.8mm] (lp) at (0,-0.6) {};
-  \node[font=\scriptsize,anchor=west] at (lp.east) {pass};
-  \node[tf,minimum width=2.8mm,minimum height=2.8mm] (lf) at (1.1,-0.6) {};
-  \node[font=\scriptsize,anchor=west] at (lf.east) {fail};
-  \node[tn,minimum width=2.8mm,minimum height=2.8mm] (ln) at (2.1,-0.6) {};
-  \node[font=\scriptsize,anchor=west] at (ln.east) {not run};
-  \node[waste] (w2) at (3.6,0) {2};
-\end{scope}
-\node[waste] (w1) at ($(llm.east)!0.5!(val.west)+(0,0.34)$) {1};
-\node[waste] (w3) at ($(llm.south |- fbl)!0.5!(fbl)+(0,0.34)$) {3};
+\node[font=\sffamily\small\bfseries,anchor=west] at (-1.4,1.7)
+  {Each model, and the switch between them, can waste the budget};
+\node (ci)     at (0,0)      [box,text width=24mm] {\textbf{Failing build}\\[-1pt]{\scriptsize\color{black!65} in CI}};
+\node (cheap)  at (4.55,0)   [box,text width=36mm] {\textbf{Cheap model}\\[-1pt]{\scriptsize\color{black!65} tries first}\\[-2pt]{\scriptsize\color{black!65} \$0.10 in / \$0.50 out}};
+\node (strong) at (11.0,0)   [hi,text width=36mm]  {\textbf{Strong model}\\[-1pt]{\scriptsize\color{black!65} called after a stall}\\[-2pt]{\scriptsize\color{black!65} \$2 in / \$10 out}};
+\node (give)   at (16.3,0)   [box,text width=20mm] {\textbf{Give-up}\\ \textbf{report}};
+\node (val)    at (7.775,-2.45) [lay,text width=100.5mm] {\textbf{Validation layer}\\[-1pt]{\scriptsize\color{black!65} the tests decide every verdict; failing tests are kept}};
+\node (pl)     at (16.3,-2.45) [box,text width=20mm,minimum height=11mm] {\textbf{Plausible}\\ \textbf{patch}};
+\draw[arr] (ci) -- (cheap);
+\draw[arr] (cheap) -- node[above=1pt,lab]{stall: step up} (strong);
+\draw[arr] (strong) -- node[above=1pt,lab]{budget spent} (give);
+\draw[arr] (cheap.south) -- (cheap.south |- val.north);
+\draw[arr] (strong.south) -- (strong.south |- val.north);
+\node[lab] at (7.775,-1.3) {every candidate};
+\draw[arr] (val) -- node[above=1pt,lab]{all pass} (pl);
+\node[wmark] at ([xshift=-3.6mm,yshift=-3.6mm]strong.north east) {1};
+\node[wmark] at ([xshift=-3.6mm,yshift=-3.6mm]cheap.north east) {2};
+\node[wmark] at ($(cheap.east)!0.5!(strong.west)+(0,-0.45)$) {3};
+\node[wmark] (l1) at (-1.15,-3.75) {1};
+\node[lab,anchor=west] at (l1.east) {Starting at the strong model pays its price for bugs the cheap model could repair.};
+\node[wmark] (l2) at (-1.15,-4.3) {2};
+\node[lab,anchor=west] at (l2.east) {Staying at the cheap model burns its budget on bugs it cannot repair.};
+\node[wmark] (l3) at (-1.15,-4.85) {3};
+\node[lab,anchor=west] at (l3.east) {At the switch, evidence is dropped, or carried in a form that biases the next model.};
 \end{tikzpicture}}
-\caption[One round of an LLM-based repair loop]{One round of an LLM-based repair
-loop and its two costs. Under the validation step, the tests of a rejected
-candidate: passing tests (green) run before the failing one (red), and the rest
-are not run. The marks are the three wastes: \textcircled{\scriptsize 1} a
-repeated candidate is generated and tested again; \textcircled{\scriptsize 2}
-passing tests run before the one that rejects a wrong candidate;
-\textcircled{\scriptsize 3} rounds go on after the model has stopped making
-progress.}
-\label{fig:intro-bottleneck}
+\caption[One session of a bot with two models.]{One session of a bot with two
+models; prices are per million tokens~\citep{aibusiness2026gpt6}. The marks are
+the three wastes: (1) the strong price paid on a bug the cheap model could
+repair; (2) the cheap budget spent on a bug it cannot repair; (3) evidence
+dropped at the switch, or carried in a form that biases the next model.}
+\label{fig:intro-wastes}
 \end{figure}
 
-\paragraph{Problem.} A large part of this cost is spent without benefit, in
-three ways:
-\begin{itemize}[leftmargin=*,itemsep=2pt]
-\item \textbf{Repeats.} The model proposes patches it has already proposed:
-$65\,\%$ of the patches of \textsc{ChatRepair} were duplicates~\citep{chen2025conversational}.
-Each repeat costs a model call and often a test run.
-\item \textbf{Slow rejections.} One failing test is enough to reject a wrong
-patch, but a fixed test order may run many passing tests first. Test orderings
-for repair exist~\citep{qi2013frtp}, but they ignore how long each test takes.
-\item \textbf{Stuck sessions.} A session goes on after the model has stopped
-making progress, until its budget runs out. These failed sessions are the
-expensive ones~\citep{fan2025sweeffi}.
-\end{itemize}
-The size of each waste is unknown, because existing studies report either the
-generation or the validation cost, for different tools and settings. It is
-therefore not known how much a technique aimed at each waste can save at most.
-
-\paragraph{Goal.} The three wastes are identified from the literature. This
-thesis builds a \emph{validation layer}, a component placed between the repair
-loop and the test runner, with one module aimed at each waste:
-\begin{enumerate}[leftmargin=*,itemsep=2pt]
-\item \textbf{Module M1, Repeat Guard}, avoids validating the same patch twice: it recognises a repeated patch, reuses
-its result and informs the model;
-\item \textbf{Module M2, Test Prioritiser}, rejects wrong patches early: it runs first the tests with the highest
-probability of failing per second of running time;
-\item \textbf{Module M3, Budget Guard}, stops unproductive sessions: it ends a session when the model makes no progress or the budget is spent, and reports the reason.
+\paragraph{Goal.} This thesis builds a \emph{tiered repair bot}: it tries the
+cheap model first and steps up to the strong model only when the tests show a
+stall. It has four modules:
+\begin{enumerate}
+\item \textbf{Module M0, Warm Substrate}, makes one validation cheap. It
+compiles the patched file in process, loads it into a test runtime that stays
+alive, and runs the tests in a fixed schedule, so the build and the start-up
+are paid once per session instead of once per candidate. Cheap candidates then
+cost little to check.
+\item \textbf{Module M1, Evidence Memory}, keeps what the tests have shown:
+the verdict of every candidate, the tests that failed and how they failed. It
+answers repeats without a test run and screens the candidates of both models.
+\item \textbf{Module M2, Escalation Controller}, decides which model proposes
+next. Its rule, \Step, moves the session up a tier after a verified stall and
+writes a handover note from the evidence.
+\item \textbf{Module M3, Budget Guard}, keeps the cost per bug within a budget
+and reports why a session gave up.
 \end{enumerate}
-The first two never change whether a patch is accepted. The third can, so its
-effect on the repair rate is measured. The thesis also measures how the cost of
-a repair loop is distributed, to know how large each waste is, that is, the
-upper bound on what the module aimed at it can save.
+M0 and M1 are the bot's \emph{validation layer}: they never change whether a
+patch is accepted. M2 changes which model is asked, so its effect on the
+repair rate is measured; with a cold handover it cannot lower it (Section~\ref{sec:bg-escalation}). M3 can end a session that
+would still have found a patch, so its trade-off is measured on its own.
+
+\paragraph{Why this direction.} The choice follows from the size of each
+lever. The validation side has mature techniques with measured
+savings~\citep{chen2021uniapr,xiao2024expressapr,lou2024aprregression}, and
+none of them touches the model call. The price gap between tiers is a factor
+of twenty, and it applies to the part of the bill those techniques leave.
+Studies in neighbouring settings report savings of this order: $26\,\%$ on
+average for a cascade in code completion~\citep{chen2024cascading}, up to
+$40\,\%$ for strong-weak collaboration in issue
+resolution~\citep{gandhi2025strongweak}, and $32\,\%$ on average for early
+termination~\citep{guo2026eet}. Whether such savings hold in a test-driven
+loop, where the tests themselves can be the signal, has not been measured.
 
 \section{Research Questions and Contributions}
 \label{sec:intro-this}
 
-\begin{itemize}[leftmargin=*,itemsep=3pt]
-\item \textbf{RQ1: Where does the cost of an LLM-based repair session go?}
-The cost per repaired bug, split into generating and validating patches, and
-how much of it falls after the model is stuck. The size of each waste bounds
-what the module aimed at it can save in RQ2.
-\item \textbf{RQ2: How much does each module save?} Each of the three
-modules is measured on the part of the cost it targets. The test ordering,
-\km, is compared with \frtp~\citep{qi2013frtp} and with the coverage-based rule
-of the mutation tool PIT~\citep{coles2016pit}.
-\item \textbf{RQ3: Does the whole layer lower the cost per repaired bug?}
-Against a standard conversational loop, without a lower repair rate.
-\item \textbf{RQ4: Why does \km\ differ from existing orderings?} Which of
-its parts matters, and when.
+\begin{itemize}
+\item \textbf{RQ1: Where does the cost of a repair session go, for each
+model?} The cost per repaired bug, split into the model calls of each tier,
+building the candidate, starting the test runtime and executing tests, and how
+much of it falls on bugs the session never repairs. The split bounds what
+escalation can save.
+\item \textbf{RQ2: How cheap does the validation layer make one candidate?}
+The Warm Substrate and its test schedule measured against the per-candidate
+build and restart they replace, with any disagreement in verdict. This fixes
+the price of a cheap-tier attempt.
+\item \textbf{RQ3: Does cheap-first escalation lower the cost per repaired
+bug, and when should a session step up?} \Step\ is compared with each model
+alone, with a switch after a fixed number of candidates, and with a router
+that knows the outcome in hindsight.
+\item \textbf{RQ4: What is the cheap tier's evidence worth to the strong
+tier?} A cold start is compared with a handover note of verified evidence and
+with the full transcript: rounds to repair, tokens, and how often the strong
+model repeats what was already refuted.
+\item \textbf{RQ5: Does the whole system lower the cost per repaired bug?}
+Against a standard conversational loop with the strong model, on bugs that
+played no part in choosing its settings, without a lower repair rate.
 \end{itemize}
 
 \paragraph{Contributions.}
-\begin{enumerate}[label=\textbf{C\arabic*},leftmargin=*,itemsep=2pt]
-\item \textbf{A cost breakdown of LLM-based repair loops}, with the most each
-kind of technique could save.
-\item \textbf{A cost-aware validation layer} of three modules: a repeat guard,
-a test prioritiser and a budget guard.
-\item \textbf{\km} (Adaptive Rate-over-Cost), the test ordering at the core of
-the prioritiser: it
-learns, during the session, how likely each test is to fail and how long it
-takes, and needs no extra instrumentation.
-\item \textbf{A two-level evaluation} on Defects4J: a simulation in which every
-ordering sees the same patches, and live runs with a real model.
+\begin{enumerate}[label=\textbf{C\arabic*}]
+\item \textbf{A cost breakdown of LLM-based repair by model tier and
+validation step}, with the most that escalation and each other kind of
+technique could save. No published study reports this split for a test-driven
+loop.
+\item \textbf{\Step, an escalation rule driven by verified evidence},
+evaluated by replay on recorded sessions and against a hindsight bound. The
+bound says how much any router, learned ones included, could add in this
+setting.
+\item \textbf{A measurement of evidence handover across models}: whether
+verified test evidence helps the next model where drafts and reasoning are
+reported to bias it~\citep{son2026swerouter,ning2026revision}.
+\item \textbf{A tiered repair bot} of four modules on a warm validation
+substrate, released with its data.
 \end{enumerate}
-C1, C3 and C4 are the main research contributions. The repeat guard and the
-budget guard are included mainly for practical reasons, since they are simple,
-do not affect correctness and are absent from current tools (Section~\ref{sec:rel-practice}).
+C1, C2 and C3 are the main research contributions. The Warm Substrate and the
+Budget Guard are supporting modules: they claim no new mechanism, and they are
+there because escalation depends on cheap validation and on a bounded budget.
 
 \section{Scope}
 \label{sec:intro-scope}
@@ -157,23 +214,31 @@ do not affect correctness and are absent from current tools (Section~\ref{sec:re
 \caption{Scope of the study.}
 \label{tab:intro-scope}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.16\textwidth} >{\raggedright\arraybackslash}X@{}}
 \toprule
-In scope & Defects4J~\citep{just2014defects4j} (Java), $100$ single-file bugs; one LLM through an API; a conversational loop with test feedback; the faulty methods are given to the model; success means a plausible patch\\
+Item & Content\\
+\midrule
+In scope & Defects4J~\citep{just2014defects4j} (Java), $100$ single-file bugs; two model tiers, by default two models of one family through an API; test-driven repair, where the failing test is known; the faulty methods are given to the model; success means a plausible patch\\
 Measured & time, CPU time, tokens and money\\
-Out of scope & other languages and benchmarks; finding the faulty code; judging whether a plausible patch is correct; tests run in parallel on many machines\\
+Out of scope & other languages and benchmarks; finding the faulty code; judging whether a plausible patch is correct; issue resolution without a failing test (SWE-bench); training a router; more than two tiers; tests run in parallel on many machines\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
+Two scope decisions deserve a word. Learned routers are out of scope as a
+technique but not as a comparison: the hindsight router of RQ3 is an upper
+bound on what any of them could save. And the bot assumes that a failing test
+exists, as it does in CI; without one a stall cannot be verified, and the rule
+does not apply.
+
 \section{Structure}
 
 The rest of the proposal is organised as follows.
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-\item Chapter~\ref{ch:background} gives the background: the cost of a repair
-session and how to order tests.
+\begin{itemize}
+\item Chapter~\ref{ch:background} gives the background: the cost of a tiered
+session and when escalation pays.
 \item Chapter~\ref{ch:related} reviews related work and the open problems.
-\item Chapter~\ref{ch:system} presents the validation layer and its three
+\item Chapter~\ref{ch:system} presents the tiered repair bot and its four
 modules.
 \item Chapter~\ref{ch:experiments} plans the evaluation.
 \item Chapter~\ref{ch:outcomes} states how each possible result will be read.

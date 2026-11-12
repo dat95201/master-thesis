@@ -1,20 +1,33 @@
+# local environment
 .venv/
 .env
-benchmarks/
-work/
-cache/
-smoke/
 __pycache__/
 .DS_Store
+
+# rebuilt by setup.sh / `tierbot prepare`
+benchmarks/
+work/
+
+# recorded model answers and audits (large; released with the data, not with the code)
+cache/
+
+# `tierbot smoke` output
+smoke/
+
+# LaTeX build files (report/main.pdf is kept)
 report/*.aux
+report/chapters/*.aux
 report/*.log
 report/*.out
 report/*.toc
+report/*.lof
+report/*.lot
 report/*.bbl
 report/*.blg
 report/*.fls
 report/*.fdb_latexmk
+report/*.synctex.gz
 
-# local backups
-report/backup/
+# files set aside for deletion
+_to_delete/
 *.tar.gz

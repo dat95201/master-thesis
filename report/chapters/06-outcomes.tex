@@ -1,0 +1,61 @@
+\chapter{Expected Outcomes}
+\label{ch:outcomes}
+
+Each research question can come out in more than one way.
+Table~\ref{tab:out-map} fixes in advance how each outcome will be read, so that
+negative results can be read as clearly as positive ones.
+
+Two results hold whatever the data show. The cost breakdown of RQ1 is a result
+in any case. And under a cold handover with an unchanged strong budget, the
+repair rate cannot fall (Proposition~\ref{prop:nolost}). The open question of
+RQ3 is therefore the size and sign of the saving, not a loss of repairs.
+
+The expected picture is a saving of tens of percent in money and tokens, a
+small change in time, and an open answer on the handover. Escalation is
+expected to help most where the price gap is wide and the cheap tier repairs a
+fair share of the bugs (Section~\ref{sec:sys-regimes}). The thesis reports
+which of these conditions hold on the benchmark rather than assuming them.
+
+{\footnotesize
+\begin{longtable}{@{}>{\raggedright\arraybackslash}p{0.07\textwidth} >{\raggedright\arraybackslash}p{0.34\textwidth} >{\raggedright\arraybackslash}p{0.53\textwidth}@{}}
+\caption{Possible outcomes and how they will be read.}
+\label{tab:out-map}\\
+\toprule
+RQ & If \dots & then \dots\\
+\midrule
+\endfirsthead
+\toprule
+RQ & If \dots & then \dots\\
+\midrule
+\endhead
+\bottomrule
+\endlastfoot
+RQ1 & the strong tier's calls dominate the cost & escalation is the main lever; its saving is bounded by the strong tier's spend on bugs the cheap tier repairs\\
+RQ1 & validation dominates, even on the warm substrate & the tests are the cost; selection and the schedule matter more than the choice of model, and the saving of escalation is reported as diluted\\
+RQ1 & most of the spend falls on bugs that are never repaired & no choice of model removes it; the Budget Guard is the lever, and its trade-off is reported\\
+\midrule
+RQ2 & M0 removes most of the build and start-up & cheap candidates cost little to check, and cheap-first costs little time\\
+RQ2 & M0 disagrees with cold validation on some candidates & the rate and its causes are reported; the cold path is used wherever the verdict cannot be guaranteed\\
+RQ2 & many bugs fail the calibration, or many candidates force a new runtime & the fallback rate bounds the saving, and those validations are charged at the cold price or with the new start\\
+RQ2 & the schedule leaves much to a better order & the room is reported as the bound on what a new ordering could add; it is not pursued here\\
+\midrule
+RQ3 & \Step\ costs less than Strong-only & the bot meets the need; the breakdown shows where the saving came from\\
+RQ3 & the cheap tier repairs too few bugs to pay & the break-even margin is negative and says by how much; for this setting the recommendation is to start at the strong tier\\
+RQ3 & \Step\ is no better than Fixed-5 or Fixed-10 & the simpler rule is recommended; the stall signal adds nothing here\\
+RQ3 & \Step\ is close to Hindsight & little is left for any router in test-driven repair, learned ones included\\
+RQ3 & \Step\ is far from Hindsight & the gap is the room for a better trigger; whether it comes from hopeless bugs kept too long or from easy bugs given up too early is reported\\
+RQ3 & money falls but time rises & the two prices are reported separately; which one matters is a property of the deployment\\
+RQ3 & with equal attempts, the repair rate falls & the cheap attempts were worth less than the strong rounds they replaced; the budget split at which the loss disappears is reported\\
+\midrule
+RQ4 & a note lowers the strong tier's rounds & verified evidence transfers; the note is worth its tokens and becomes the default\\
+RQ4 & no note differs from Cold & evidence does not transfer for this pair; cold start is recommended, in agreement with the fresh start of SWE-Router~\citep{son2026swerouter}\\
+RQ4 & a note raises the anchoring rate or lowers repairs & the bias reported for drafts~\citep{ning2026revision} extends to this handover; the variant without patches says whether the drafts or the facts caused it\\
+RQ4 & Transcript does as well as the notes & the summary loses nothing, and the shorter note is preferred for its tokens\\
+RQ4 & the strong tier repairs nearly every bug in its first round & there is no room to measure a handover; RQ4 is reported on the pair one step down\\
+\midrule
+RQ5 & the bot costs less at the same repair rate & the system meets the need on this benchmark\\
+RQ5 & the saving comes from the validation layer, not from escalation & the two prices of Strong-only separate them; the layer is recommended on its own, and escalation only where its break-even holds\\
+RQ5 & no saving end to end & the saving is diluted by costs the system does not touch, mainly the strong tier's spend on bugs nobody repairs; the breakdown says which\\
+RQ5 & cheap-tier patches match the developer's fix less often & plausible is not correct, and the cheap tier may overfit more; the saving is reported next to this gap\\
+\end{longtable}
+}

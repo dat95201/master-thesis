@@ -1,0 +1,409 @@
+\chapter{Evaluation Plan}
+\label{ch:experiments}
+
+The evaluation has two levels (Table~\ref{tab:exp-overview}). Policies that do
+not change what a model is shown are compared by \emph{replay}: sessions are
+recorded once, and every policy is charged from the same recorded candidates.
+Handovers that do change what the strong model is shown are run live.
+
+\begin{table}[htbp]
+\centering
+\caption{The five experiments.}
+\label{tab:exp-overview}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth} >{\raggedright\arraybackslash}p{0.06\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Experiment & RQ & What is run\\
+\midrule
+E0 the warm substrate & RQ2 & every distinct candidate of the study validated twice, once on the cold path and once on M0: cost per step and any disagreement in verdict; no model call\\
+E1 single-tier sessions, live & RQ1 & each model alone on the $100$ evaluation bugs, $3$ sessions per bug: the cheap model to $20$ candidates, the strong model to $10$ rounds\\
+E2 escalation policies, replayed & RQ3 & six policies charged from the recorded sessions of E1; no model call\\
+E3 handover, live & RQ4 & on $50$ bugs, the strong tier restarted with each of three notes in the sessions that step up\\
+E4 whole system, live & RQ5 & the full bot against the strong model alone on the other $50$ bugs\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Bugs and Setup}
+\label{sec:exp-selection}
+
+\paragraph{Bugs.} Defects4J~\citep{just2014defects4j} version 3.0.1 has $854$
+real Java bugs from $17$ projects. A bug is used if (i) it can be reproduced,
+that is, its failing tests fail before the fix and pass after it; (ii) the fix
+changes one source file, and in it only the bodies of existing methods; and
+(iii) its test suite has at least ten test classes and runs in under $5$
+minutes. From these, $120$ bugs are drawn at random, spread evenly over the
+projects. Twenty form a \emph{development set}, used to check the pipeline and
+fix every setting in advance. One hundred form the \emph{evaluation set}, on
+which nothing is tuned; it is split at random into two halves of $50$ for E3
+and E4.
+
+\paragraph{Faulty code given.} Finding the faulty code is not studied. As is
+common in LLM-based repair~\citep{xia2024chatrepair}, the model is given the
+methods that the developer's fix changes, and every candidate replaces these
+methods and nothing else. This favours repair success~\citep{liu2019flbias}
+but is the same for every configuration.
+
+\paragraph{Model pair.} Two tiers of one family through an API: GPT-6 Luna as
+the cheap tier and GPT-6 Sol as the strong tier, at the dated snapshots in use
+when the runs start. Defects4J is likely memorised by current
+models~\citep{ramos2024memorizing}. If the cheap tier repaired nearly every
+bug, or the strong tier repaired every remaining bug at once, there would be
+little to measure. The pair is therefore confirmed on the development set by a
+rule fixed in advance. The cheap tier must repair between $20\,\%$ and
+$80\,\%$ of the development bugs within its budget, and the strong tier must
+need more than one round on at least a third of the bugs the cheap tier fails.
+If the cheap tier repairs more than $80\,\%$, or the strong tier fails the
+second condition, the pair moves down one step: a local 7B model
+(\texttt{qwen2.5-coder:7b}) becomes the cheap tier and Luna the strong one. If
+the cheap tier repairs less than $20\,\%$, the pair is kept and the result is
+read as in Chapter~\ref{ch:outcomes}. The thesis reports which pair was used
+and why.
+
+\paragraph{Unit of testing.} Tests are scheduled by test class. A candidate is
+plausible when it passes every scheduled class.
+
+\section{What Is Compared}
+\label{sec:exp-arms}
+
+Six policies are compared in E2 (Table~\ref{tab:exp-arms}). All of them use
+the same validation layer, so they differ only in which model is asked.
+
+\begin{table}[htbp]
+\centering
+\caption{The policies compared.}
+\label{tab:exp-arms}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.15\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.12\textwidth}@{}}
+\toprule
+Policy & Rule & Role\\
+\midrule
+Cheap-only & the cheap model, up to $20$ candidates & reference\\
+Strong-only & the strong model, up to $10$ rounds, conversational & baseline\\
+Fixed-5 & step up after $5$ cheap candidates & baseline\\
+Fixed-10 & step up after $10$ cheap candidates & baseline\\
+\Step & Algorithm~\ref{alg:step}: step up after a stalled call, with at most $20$ cheap candidates & proposed\\
+Hindsight & for each session, the switch point that costs least, chosen with knowledge of the outcome & bound\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{Hindsight} is not a policy that can be deployed. For each session
+it picks, among the switch points of $0$, $5$, $10$, $15$ and $20$ cheap
+candidates, the one whose session costs least in money, and it prefers a
+switch point that ends with a plausible patch to one that does not. It
+therefore marks the most that any router could save by choosing when to
+switch, the learned routers of Section~\ref{sec:rel-f} included. The distance
+between \Step\ and Hindsight is the room left for a better trigger.
+
+\paragraph{Two readings of the budget.} In the main reading, every escalating
+policy gives the strong tier its full $10$ rounds, so
+Proposition~\ref{prop:nolost} applies and no repair is lost. In a second
+reading the total number of attempts is held at $10$: five cheap candidates,
+then five strong rounds. There the repair rate can fall, and it is tested.
+
+\paragraph{Handovers (RQ4).} Cold, Evidence, Evidence and patches, and
+Transcript (Section~\ref{sec:sys-controller}), each with \Step.
+
+\paragraph{Variants of \Step.} A stricter stall, in which a call has stalled
+only when none of its candidates makes progress, is compared by replay. Two
+variants change what the cheap model is sent, so they are run live, on the
+development set only: other numbers of candidates per call ($1$, $3$ and
+$10$), and a conversational cheap tier instead of blind re-sampling.
+
+\section{How Cost Is Measured}
+\label{sec:exp-measure}
+
+\paragraph{Audit.} Every distinct candidate is compiled once and run on every
+scheduled test class, on the cold path and on the warm path, recording the
+result and time of each class. From this record the validation cost of any
+policy on that candidate is computed: compilation, start-up where it applies,
+and the classes run up to the first failure, in the order the session would
+have used. All policies are thus charged from the same measurement. The
+verdict of record is the one of the cold path.
+
+\paragraph{How time is measured.} On the cold path the classes of a candidate
+run one after another in a JVM started for that candidate, as build tools run
+a test suite; on the warm path they run in the live runtime. The runner
+records for each class its result, its wall-clock time and the CPU time of the
+JVM process while the class runs. A class that runs longer than $60$ seconds
+counts as failed. The main unit for validation is CPU seconds, which depend
+less on the load of the machine than wall-clock time; wall-clock time is
+recorded as well. A session on the warm path is also charged, once, for
+starting the runtime and for its calibration run.
+
+\paragraph{What is recorded.} For each model call: tier, latency and tokens.
+For each audit and each path: compile time, start-up, and the result,
+wall-clock time and CPU time of each test class. Costs are reported in time,
+CPU time, tokens and money, using one fixed price list: \$0.10 and \$0.50 per
+million input and output tokens for Luna, \$2 and \$10 for
+Sol~\citep{aibusiness2026gpt6}, and \$0.05 per CPU-hour of validation. A local
+model has no token price. It is charged in time, and in a sensitivity analysis
+at a stated price per GPU-hour.
+
+\paragraph{Reliability checks.} Each test class runs three times on the fixed
+program; classes that change outcome are excluded as flaky. On a random tenth
+of the candidates, the audit is repeated in two other orders, to check that
+results do not depend on test order. Every candidate that passes the scheduled
+classes is run once on the whole suite: a failure there would mean that the
+skipped classes hid it, so the candidate is counted as rejected and the case
+is reported. That run is the CI run any proposed patch receives; it is the
+same under every policy and is not charged to the session.
+
+\section{E0 and E1: Single-Tier Sessions, Audited}
+\label{sec:exp-e1}
+
+\paragraph{The loops.} The cheap tier draws candidates by blind re-sampling:
+each call sends the first prompt and returns $n = 5$ candidates, at
+temperature $1.0$. The strong tier holds a conversation in the style of
+ChatRepair~\citep{xia2024chatrepair}, one candidate per round, with
+the feedback of Table~\ref{tab:exp-prompts}, at the same temperature. The
+first prompt is the same for both tiers and gives the faulty methods, a
+failing test and its error message (Figure~\ref{fig:exp-prompt}). A session
+ends at the first plausible patch or when its budget is spent. If an endpoint
+cannot return several candidates for one request, the five are drawn by five
+requests; the prompt is then paid five times, and the break-even is reported
+at that price.
+
+\begin{table}[htbp]
+\centering
+\caption{Feedback to the strong tier after each round.}
+\label{tab:exp-prompts}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Outcome & Feedback to the model\\
+\midrule
+A test fails & the first failing test, its line and error; ask for a different fix\\
+Does not compile & the compiler error; ask for a corrected version\\
+Unreadable answer & the answer could not be read as the given methods\\
+Repeat of its own candidate & the patch was already tried, and which test rejected it\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\begin{minipage}{0.95\textwidth}
+\begin{Verbatim}[frame=single,rulecolor=\color{boxline},fontsize=\footnotesize,framesep=2mm]
+The following Java method contains a bug:
+
+    private static void modify(Calendar val, int field, boolean round) {
+        ...
+    }
+
+It makes this test fail:
+    Test:  DateUtilsTest::testTruncateLang59
+    Error: AssertionFailedError: Truncate Calendar.SECOND
+           expected:<Sun Oct 31 01:02:03 MDT 2004> but was:<... MST 2004>
+
+Return the complete fixed method in one Java code block.
+\end{Verbatim}
+\end{minipage}
+\caption{The first prompt for Defects4J bug Lang-65.}
+\label{fig:exp-prompt}
+\end{figure}
+
+\paragraph{Same draws for every policy.} Model answers are cached under the
+full prompt and a draw index (bug, session, tier, call). The index omits the
+policy, so two policies that send the same prompt at the same point receive
+the same answer. Audits are cached by normalised patch, so each patch is
+tested once.
+
+\paragraph{What E1 answers.} The recorded sessions give RQ1: where the cost of
+each model goes, split into model calls, building, start-up and tests, and by
+how the session ended. Each session is priced twice: on the warm substrate,
+and as a plain loop that builds and starts a runtime for every candidate and
+validates repeats again. The sessions are also the streams that E2 replays.
+
+\paragraph{What E0 answers.} The audits of the same candidates give RQ2: what
+each step of a validation costs on each path, how often the two paths disagree
+on a verdict, how many bugs fail the calibration and fall back to the cold
+path, and how often a candidate forces a new runtime. They also give what the
+schedule leaves to any other order: the test time it spends before the first
+failure, against the cheapest rejecting test in hindsight.
+
+\section{E2: Escalation Policies by Replay}
+\label{sec:exp-e2}
+
+\paragraph{Why replay is exact.} A policy with a cold handover never changes a
+prompt. What a model is sent depends only on its own earlier candidates and on
+what is reported about them. The reported failure of a candidate does not
+depend on the session (Section~\ref{sec:sys-warm}), and a repeat of the other
+tier's candidate is reported as an ordinary failure
+(Section~\ref{sec:sys-memory}). The session of such a policy is therefore a
+prefix of the recorded cheap session, followed by a prefix of the recorded
+strong session of the same bug and session number. Its cost is read from the
+records: the calls it would have made, and from the audits the validations it
+would have run, in the order its own memory would have scheduled them. Every
+policy thus sees exactly the same candidates, and the costs differ only by the
+policy. In the implementation a replay is the bot itself, run on recorded
+answers only: a policy that needed an answer nobody recorded stops with an
+error instead of calling a model.
+
+\paragraph{What is measured.} For each policy: the cost per repaired bug in
+money, tokens, time and CPU time; the share of sessions repaired at the cheap
+tier; the break-even margin of Proposition~\ref{prop:breakeven}; the time
+spent at the cheap tier in sessions that step up; and the distance to
+Hindsight.
+
+\paragraph{A check, not a test.} In the main reading a policy repairs every
+session that Strong-only repairs. A session in which it does not is a defect
+of the harness, and is investigated as one.
+
+\section{E3 and E4: Handover and Whole System, Live}
+\label{sec:exp-live}
+
+\paragraph{E3: handover.} On $50$ evaluation bugs, three sessions each, E2
+says which sessions step up under \Step. In each of them the strong tier is
+started again with each of three handovers: Evidence, Evidence and patches,
+and Transcript. The Cold handover is the recorded strong session itself. The
+four are compared on the same sessions: rounds of the strong tier until a
+plausible patch, repairs within its budget, and tokens. Two more rates are
+read from the Evidence Memory. The \emph{refuted-again rate} is the share of
+strong candidates that fail with a failure signature the cheap tier had
+already produced. The \emph{anchoring rate} is the share of strong candidates
+that equal a cheap candidate after normalising. A note that helps should lower
+the first without raising the second.
+
+\paragraph{E4: whole system.} The full bot runs on the other $50$ evaluation
+bugs, three sessions each: \Step, the handover chosen on E3 by the rule of
+Table~\ref{tab:exp-provisional}, and the Budget Guard, which only logs when it
+would stop. Its stopping is then replayed, which separates the effect of
+stopping from the rest. The bot is compared with Strong-only on the same bugs,
+priced in two ways: with the same validation layer, which isolates escalation,
+handover and stopping; and as a plain conversational loop, which builds and
+starts a runtime for every candidate and validates repeats again. The second
+is the comparison of RQ5. The main measure is the cost per repaired bug; the
+repair rate must not fall by more than a margin fixed in advance. Choosing the
+handover on one half and testing the system on the other keeps the choice from
+being tested on the bugs that made it.
+
+\section{Metrics}
+\label{sec:exp-metrics}
+
+Table~\ref{tab:exp-metrics} lists the metrics. Costs are summed over sessions
+before dividing, and every comparison is made per bug.
+
+\begin{table}[htbp]
+\centering
+\caption{Metrics.}
+\label{tab:exp-metrics}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.25\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.07\textwidth}@{}}
+\toprule
+Metric & Definition & RQ\\
+\midrule
+Cost per repaired bug & total cost of all sessions divided by the number of bugs repaired; in money, tokens, time and CPU time & 1, 3, 5\\
+Cost breakdown & share of each tier's model calls, of building, of start-up and of tests in the total, by how the session ended & 1\\
+Validation cost per candidate & on the cold path and on M0; rate of disagreement in verdict; share of bugs that fall back & 2\\
+Cheap-tier repair share & share of sessions repaired before any strong call & 3\\
+Break-even margin & the cheap tier's repair share under the policy, minus its mean number of candidates times the price ratio $c_1/c_2$ & 3\\
+Escalation delay & time spent at the cheap tier in sessions that step up & 3\\
+Distance to Hindsight & cost above Hindsight, as a share of the gap between Strong-only and Hindsight & 3\\
+Repair rate difference & share of sessions with a plausible patch, against Strong-only & 3, 4, 5\\
+Strong rounds to repair & rounds of the strong tier until a plausible patch & 4\\
+Refuted-again rate & share of strong candidates that fail with a signature the cheap tier had already produced & 4\\
+Anchoring rate & share of strong candidates equal, after normalising, to a cheap candidate & 4\\
+Cost of failed sessions & share of the total spent on sessions without a plausible patch & 1, 5\\
+Match with the developer's fix & share of plausible patches equal, after normalising, to the developer's fix, per tier & 5\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Statistics}
+\label{sec:exp-size}
+
+The bug is the unit of analysis; the sessions of a bug are averaged first. The
+two main comparisons are \Step\ against Strong-only in cost, and each note
+against Cold in strong rounds. They use a paired Wilcoxon test on the per-bug
+log-ratio, with a Holm correction, and are reported with bootstrap intervals
+over bugs. With $100$ bugs, a saving of $5\,\%$ is detected with power $0.8$
+if the standard deviation of the log-ratio is at most $0.15$. If the spread is
+larger, the smallest detectable saving is reported. The comparison of the
+notes has fewer units: only the bugs of E3 on which a session steps up, at
+most $50$. Their number and the smallest difference they can detect are
+reported with the result, and a null there is read as an absence of evidence,
+not as equivalence.
+
+In the main reading of E2 the repair rate cannot fall, so it is checked rather
+than tested (Section~\ref{sec:exp-e2}). In the equal-attempts reading, and in
+E3 and E4, the repair rate is tested for non-inferiority with a margin of $10$
+percentage points. With $50$ bugs, that margin is reachable if the standard
+deviation of the paired difference is at most $0.24$. If the development set
+shows more spread than assumed, the number of sessions per bug is raised
+before the number of bugs. The assumed values are provisional and checked on
+the development set (Table~\ref{tab:exp-provisional}).
+
+\section{Compute and API Budget}
+\label{sec:exp-compute}
+
+Most of the compute goes to audits, and most of the money to the strong tier.
+Table~\ref{tab:exp-compute} gives the counts. They are upper bounds: a session
+stops at the first plausible patch, and policies share cached answers.
+
+\begin{table}[htbp]
+\centering
+\caption{Calls and audits, as upper bounds.}
+\label{tab:exp-compute}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Work & Upper bound\\
+\midrule
+Flakiness check & $3$ suite runs per bug\\
+E0 & each distinct candidate audited on both paths\\
+E1, cheap tier & $100$ bugs $\times$ $3$ sessions $\times$ $4$ calls of $5$ candidates $= 1{,}200$ calls\\
+E1, strong tier & $100$ bugs $\times$ $3$ sessions $\times$ $10$ rounds $= 3{,}000$ calls\\
+E2 & no model call\\
+E3 & $50$ bugs $\times$ $3$ sessions $\times$ $3$ notes $\times$ $10$ rounds $= 4{,}500$ strong calls\\
+E4 & $50$ bugs $\times$ $3$ sessions $\times$ $10$ rounds $= 1{,}500$ strong calls; cheap calls shared with E1\\
+Audits & one per distinct candidate, shared by all configurations; at most $4$ CPU-hours per bug\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The strong tier makes at most $9{,}000$ calls. If every one carried $6{,}000$
+input and $1{,}000$ output tokens, they would cost about \$200 at list prices;
+the $1{,}200$ cheap calls cost under \$2. The development set adds at most
+$900$ strong calls ($20$ bugs, three sessions, the $15$ rounds of
+Table~\ref{tab:exp-provisional}), about \$20, and its cheap-tier variants a
+few dollars. If the estimate from the development set exceeds the budget, cuts
+are made in a fixed order: the Transcript handover of
+E3 is run on half of its bugs, then the sessions per bug of E3 are lowered
+from three to two. If the pair moves down one step, the bound falls by a
+factor of twenty.
+
+\section{Pre-Registration}
+\label{sec:exp-prereg}
+
+This proposal fixes the bugs, settings, metrics and analyses in advance.
+Table~\ref{tab:exp-provisional} gives the values that still depend on data,
+each with a provisional value and the rule that fixes it. They are frozen
+before E1 starts on the evaluation set, and any later change is reported. The
+experiments run in order: E0 and E1, then E2, then E3, then E4.
+
+\begin{table}[htbp]
+\centering
+\caption{Provisional values and the rules that fix them.}
+\label{tab:exp-provisional}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.2\textwidth} >{\raggedright\arraybackslash}p{0.24\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Value & Provisional & Rule\\
+\midrule
+Model pair & Luna, then Sol & development set: kept if the cheap tier repairs $20\,\%$ to $80\,\%$ of the bugs within its budget and the strong tier needs more than one round on at least a third of the rest; otherwise as in Section~\ref{sec:exp-selection}\\
+Candidates per cheap call, $n$ & $5$, at temperature $1.0$ & development set: the largest $n$ of $1$, $3$, $5$ and $10$ at which at least half of the candidates of a call are distinct after normalising\\
+Cheap budget $B_1$ & $20$ candidates, for \Step\ and for Cheap-only & not changed\\
+Stall rule of the cheap tier & a call in which at most one candidate makes progress & development set: kept if it loses at most $5\,\%$ of the cheap tier's repairs; otherwise a call in which no candidate makes progress\\
+Strong budget $R_2$ & $10$ rounds & development set, run with $15$ rounds: kept if fewer than $5\,\%$ of the repaired strong sessions need more than $10$; otherwise $15$\\
+Stall count $r$ of the strong tier & $3$ rounds without progress & development set: the smallest $r$ whose replay loses at most $5\,\%$ of the plausible sessions\\
+Session budget $B$ & $900$ s of wall-clock time & development set: the $90$th percentile of the time to a plausible patch in the Strong-only sessions\\
+Handover used in E4 & chosen on E3 & on the $50$ bugs of E3: the fewest strong rounds per repaired bug, with a repair rate within the margin of Cold; otherwise Cold\\
+SD of the per-bug log-ratio & $0.15$ & measured; if larger, the smallest detectable saving is reported\\
+SD of the repair-rate difference & $0.24$ & measured; if larger, the sessions per bug are raised, not the margin\\
+Non-inferiority margin & $10$ percentage points & not changed\\
+Bugs & $120$ accepted: $20$ development, $100$ evaluation ($50$ for E3, $50$ for E4) & the share of Defects4J bugs that pass the rules is reported from the selection log\\
+\bottomrule
+\end{tabularx}
+\end{table}

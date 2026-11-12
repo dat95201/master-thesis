@@ -1,0 +1,124 @@
+\chapter{Work Plan and Conclusion}
+\label{ch:plan}
+
+\section{Work Plan}
+\label{sec:plan-work}
+
+The work takes four months (Table~\ref{tab:plan}). Everything before the
+registration point prepares the experiments; everything after it runs them as
+planned.
+
+\begin{table}[htbp]
+\centering
+\caption{Work plan.}
+\label{tab:plan}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.08\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.24\textwidth}@{}}
+\toprule
+Month & Work & Milestone\\
+\midrule
+1 & The warm substrate and its calibration; the two-tier loop with shared caches; the Evidence Memory across tiers; \Step\ and the handover note; development set: model pair, variants, compute estimate, all settings fixed & a tiered session runs on every development bug\\
+2 & E0 and E1: at most $1{,}200$ cheap and $3{,}000$ strong calls, every candidate audited on both paths; E2 by replay & \textbf{registration}; RQ1 to RQ3 analysed\\
+3 & E3: handovers on $50$ bugs; E4 on the other $50$ & RQ4 and RQ5 analysed\\
+4 & Writing; release of the bot, as a command-line tool with a CI workflow, and of the data & thesis draft\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Risks}
+\label{sec:plan-risks}
+
+Table~\ref{tab:risks} lists the main risks and how each is handled.
+
+\begin{table}[H]
+\centering
+\caption{Main risks and how they are handled.}
+\label{tab:risks}
+\footnotesize
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.33\textwidth} >{\raggedright\arraybackslash}X@{}}
+\toprule
+Risk & Handling\\
+\midrule
+Escalation saves little & the cost breakdown (C1) and the break-even stand on their own; the result is read as in Chapter~\ref{ch:outcomes}\\
+\Step\ only matches a fixed switch & reported as a finding, with the simpler rule recommended\\
+The handover shows no effect & cold start is the default and keeps its guarantee; a null answers an open question\\
+The benchmark is memorised, so the strong tier repairs everything at once & the model pair is chosen on the development set by a fixed rule, and can move down one step\\
+The warm path disagrees with ordinary validation & every candidate is also validated on the cold path, whose verdict is the one of record; a bug that fails the calibration falls back\\
+The model service changes & versions pinned, answers cached; E2 needs no model\\
+The API bill is too high & the upper bound is known in advance, with a fixed order of cuts (Section~\ref{sec:exp-compute})\\
+Audits take too long & caps per bug\\
+Flaky or order-dependent tests & detected by repeated runs and excluded\\
+Four months is tight & the Transcript handover is cut first, then E4; E0 to E2 answer RQ1 to RQ3\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\section{Threats to Validity}
+\label{sec:plan-threats}
+
+\paragraph{Internal.} Replay assumes that test results and times do not depend
+on order, and that a cold strong session does not depend on the cheap tier.
+The first is checked on a sample of audits. The second holds by construction,
+since what a model is told about a candidate is fixed by the candidate alone;
+it is also checked, because the replay runs the bot itself and fails if a
+session asks for an answer that was not recorded. Class times are measured
+once per candidate and path, so a charge does not capture how the warmth of
+the runtime changes within a session. Model answers are cached, so every
+comparison is conditional on one table of draws; the replication is over bugs
+and sessions, not over re-sampled answers.
+
+\paragraph{External.} One benchmark, one language, one model family and two
+tiers; the faulty methods are given to the model. Defects4J may be
+memorised~\citep{ramos2024memorizing}, which inflates the cheap tier's repair
+share and with it the saving. Prices change, so the break-even is also
+reported as a ratio that can be re-read at other prices. CI systems that run
+tests in parallel on many machines are not covered, and neither are bugs
+without a failing test.
+
+\paragraph{Construct.} Success means a plausible patch, not a correct one. A
+cheap model may produce plausible but wrong patches more often than a strong
+one, and the bot returns the first plausible patch it finds. The share of
+plausible patches that match the developer's fix is reported per tier as a
+partial check; judging correctness in general is out of scope.
+
+\section{Future Work}
+\label{sec:plan-future}
+
+\paragraph{A benchmark newer than the models.} The clearest extension is a set
+of bugs that the models cannot have seen. It removes the memorisation that
+inflates the cheap tier's repair share on Defects4J, and a second benchmark
+would show whether the break-even moves as its three inputs predict.
+
+\paragraph{More tiers and local models.} A local model has no token price but
+costs time and energy, and smaller is not always
+cheaper~\citep{vallecillos2026quantization}. A third tier would test whether
+the break-even composes.
+
+\paragraph{A learned trigger on top of the verified one.} If \Step\ ends far
+from Hindsight, the gap is the room for a predictor such as those of
+Section~\ref{sec:rel-f}, used only where the tests leave the decision open.
+
+\paragraph{Other settings.} Python, using
+BugsInPy~\citep{widyasari2020bugsinpy}, where there is no build step and one
+validation is cheaper; and repository-level issue
+resolution~\citep{jimenez2024swebench}, where a failing test must first be
+written before a stall can be verified.
+
+\paragraph{Correctness across tiers.} Whether patches from the cheap tier are
+correct as often as those from the strong tier, judged by developers or by
+held-out tests.
+
+\section{Conclusion}
+\label{sec:plan-conclusion}
+
+In LLM-based repair, each round costs a model call and a test run. Known
+techniques make the test run cheap. This proposal turns to the model call. It
+builds a tiered repair bot that tries a cheap model first and steps up to a
+strong model only when the tests show a stall. A Warm Substrate makes cheap
+candidates cheap to check. An Evidence Memory keeps what the tests have shown
+across the switch. An Escalation Controller applies the rule \Step\ and writes
+a handover note. A Budget Guard stops the session and explains why. With a
+cold handover the bot loses no repair that the strong model alone would make,
+so what the evaluation measures is its cost: by replay on recorded sessions
+against a hindsight bound, and in live runs on Defects4J, with the reading of
+every outcome fixed in advance.

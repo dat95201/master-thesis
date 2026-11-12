@@ -1,221 +1,150 @@
-# vlayer: a cost-aware validation layer for LLM-based program repair
+# tierbot
 
-Code and experiments for the thesis proposal *Cutting the Cost of LLM-Based
-Program Repair with a Cost-Aware Validation Layer* (CO5109, HCMUT). The
-proposal itself is in [`report/`](report/) (`report/main.pdf`).
+A tiered repair bot for Java, and the harness that evaluates it.
 
-An LLM repair loop pays twice in every round: one model call to propose a
-patch and one test run to check it. The validation layer sits between the
-loop and the project's test runner and removes three wastes:
+The bot repairs a bug that has a failing test. It asks a cheap model first and
+steps up to a strong model only when the tests show that the session has
+stalled. Four modules do the work:
 
-| Module | Waste it removes | File |
+| Module | What it does | Code |
 |---|---|---|
-| **M1 Repeat Guard** | the same patch validated again | [`vlayer/repeat_guard.py`](vlayer/repeat_guard.py), normalisation in [`vlayer/javasrc.py`](vlayer/javasrc.py) |
-| **M2 Test Prioritiser** (rule **ARC**) | passing tests run before the one that rejects a wrong patch | [`vlayer/orderings.py`](vlayer/orderings.py) |
-| **M3 Budget Guard** | sessions that go on after the model is stuck | [`vlayer/budget_guard.py`](vlayer/budget_guard.py) |
+| M0 Warm Substrate | compiles the patched file in process and runs the tests in a JVM that stays alive, so the build and the start-up are paid once per session | `tierbot/substrate.py`, `tools/WarmRunner.java` |
+| M1 Evidence Memory | keeps every verdict, failing test and failure signature; answers repeats without a test run; spans both models | `tierbot/memory.py` |
+| M2 Escalation Controller | the rule Step: move up a tier after a verified stall, and write the handover note | `tierbot/controller.py` |
+| M3 Budget Guard | stops a session that is stuck or out of budget and says why | `tierbot/budget.py` |
 
-The loop talks to the layer through one call ([`vlayer/layer.py`](vlayer/layer.py)):
+The proposal is in `report/` (`report/main.pdf`). The design notes for the
+code are in `docs/DESIGN.md`.
 
-```python
-result = layer.validate(candidate, gen)
-result.verdict    # plausible, rejected, compile_error, unreadable or repeat
-result.feedback   # text to show the model in the next round
-result.go_on      # false when the session should stop
-result.report     # the give-up report, when it stops without a patch
-```
+## Setup
 
-How each part of the proposal maps to the code is in
-[`docs/DESIGN.md`](docs/DESIGN.md).
-
----
-
-## 1. Layout
-
-```
-master-thesis/
-├── README.md             this file
-├── docs/DESIGN.md        proposal -> code: mechanisms, experiments, outputs
-├── settings.json         every pre-registered value (bugs, ARC, M3, model, prices)
-├── setup.sh              one-time setup (Python env + Defects4J + Major)
-├── requirements.txt
-├── .env.example          API key / base URL of the model (copy to .env)
-├── tools/AuditRunner.java  JUnit runner: per test class pass/fail, wall + CPU time, first failure
-├── vlayer/               the Python package
-│   ├── cli.py            `python -m vlayer <command>`
-│   ├── config.py         paths, settings, Java/Defects4J environment
-│   ├── d4j.py            Defects4J adapter: checkout, compile, run classes, Major mutants
-│   ├── bugs.py           bug selection and per-bug preparation
-│   ├── javasrc.py        find / replace / normalise Java methods, coverage probes, read answers
-│   ├── audit.py          audit a patch once, charge any ordering from the audit
-│   ├── repeat_guard.py   M1
-│   ├── orderings.py      M2: Default, FRTP, Coverage (PIT rule), ARC, Oracle, ARC variants, trigger prefix
-│   ├── budget_guard.py   M3 and the give-up report
-│   ├── layer.py          the validation layer, LiveRunner and AuditedRunner
-│   ├── llm.py            OpenAI-compatible client with a shared answer cache (+ a mock model)
-│   ├── loop.py           the conversational repair loop (ChatRepair style)
-│   ├── experiments.py    E1 (mutants + simulation), E2, E3
-│   └── analysis.py       metrics, Wilcoxon + Holm, bootstrap, report
-├── tests/test_layer.py   unit tests (no Defects4J or model needed)
-├── report/               LaTeX source of the proposal
-├── benchmarks/defects4j/ Defects4J 3.x + Major            (setup.sh, git-ignored)
-├── data/                 selection log, split, per-bug facts, mutant lists   (created)
-├── cache/                model answers and audits, shared by all configs  (created, git-ignored)
-├── results/              E1/E2/E3 outputs and report-<split>.md            (created)
-└── work/                 Defects4J checkouts (scratch, git-ignored)
-```
-
----
-
-## 2. Setup
-
-Requirements: macOS or Linux, **Java 11** (Defects4J is validated on it),
-git, svn, perl + cpanminus, Python 3.10+.
+Needs macOS or Linux with `git`, `svn`, `perl`, `cpanm`, Python 3.10+ and a
+**Java 11 JDK** (Defects4J 3 requires Java 11; the bot uses the JDK's compiler).
 
 ```bash
-brew install git subversion perl cpanminus openjdk@11 python@3.11   # macOS
-cd master-thesis
-bash setup.sh                      # venv, Defects4J clone, Perl modules, ./init.sh (10-30 min)
-cp .env.example .env               # put the API key here (not needed for the smoke test)
-.venv/bin/python -m vlayer env     # checks Java 11, Defects4J, Major, the runner, the model
+bash setup.sh                         # Python environment + Defects4J 3.0.1 (pinned commit)
+cp .env.example .env                  # then put the API key in .env
+.venv/bin/python -m tierbot env       # checks Java, Defects4J, runners, models
+.venv/bin/python -m tierbot smoke     # every stage on one bug with mock models, no API
 ```
 
-You do not need to edit `PATH`: `vlayer` finds Java 11 (Homebrew or
-`JAVA_HOME`), sets `TZ=America/Los_Angeles` as Defects4J requires, and adds
-`~/perl5` to `PERL5LIB` when it calls Defects4J.
+`smoke` writes only to `smoke/`. It takes a minute or two.
 
-The model is any OpenAI-compatible endpoint: set `OPENAI_API_KEY` (and
-`OPENAI_BASE_URL` for OpenRouter, vLLM or Ollama) in `.env`, and the model
-name in `settings.json` → `model.name`.
+## The bugs
 
-Run the unit tests:
+`data/` holds the 120 selected Defects4J bugs and nothing else:
+
+- `data/selection.csv`: every bug that was checked, and why it was kept or dropped.
+- `data/split.json`: 20 development bugs (`dev`) and 100 evaluation bugs
+  (`eval`), the latter halved into `e3` and `e4`.
+- `data/bugs/<bug>/info.json`: the facts recorded for a bug: the faulty
+  methods, the triggering tests, the classes that reach the faulty methods,
+  the time of every test class on the fixed program, flaky classes.
+
+The checkouts under `work/` are scratch. `prepare` rebuilds them:
 
 ```bash
-.venv/bin/python -m unittest discover -s tests -v
+.venv/bin/python -m tierbot prepare --bugs Cli-12 Lang-59     # or any of the 120
 ```
 
----
+`select` is how the set was drawn: bugs in a seeded random order, spread over
+the projects, each checked against the rules of the proposal (Section 5.1)
+until 120 pass. It resumes from `data/selection.csv`; with that log in place it
+checks nothing again and only rewrites `data/split.json` (same seed, same
+split). Without the log it checks out and runs a few hundred bugs.
 
-## 3. Quick start: the smoke test (under a minute, no API key)
+## Running the bot on one bug
 
 ```bash
-.venv/bin/python -m vlayer smoke            # default bug Cli-17 (fast suite)
+.venv/bin/python -m tierbot repair --bug Cli-12 --live
+.venv/bin/python -m tierbot repair --bug Cli-12 --live --policy strong-only
+.venv/bin/python -m tierbot repair --bug Cli-12 --live --handover evidence
+.venv/bin/python -m tierbot repair --bug Cli-12 --mock          # scripted models, no API
 ```
 
-It runs every stage on one bug with small numbers and the **mock model**
-(rounds 1 and 2 return the faulty method, the second time reformatted, so it
-is a repeat; round 3 returns the developer's fix). Outputs go to `smoke/`
-(git-ignored), and the report is `smoke/results/report-smoke.md`.
+`--live` validates the way a deployed bot does: scheduled test classes on the
+warm path, stopping at the first failure. Without it every candidate is
+audited on both paths, as in the experiments. Policies: `step` (default),
+`cheap-only`, `strong-only`, `fixed-K`, `step-strict`, `equal-K-R`. Handovers:
+`cold` (default), `evidence`, `evidence+patches`, `transcript`.
 
-To see the layer on one bug as a CI bot would use it, really running the
-ordered test classes and stopping at the first failure:
+## The experiments
+
+| | Question | Command | Model calls |
+|---|---|---|---|
+| E0 | does the warm path give the same verdicts as build-and-restart, and what does each cost? | part of `e1` (every candidate is audited on both paths) | none |
+| E1 | where does the cost go, for each model alone? | `e1` | yes, recorded once |
+| E2 | which escalation policy is cheapest per repaired bug? | `e2` | none: replay |
+| E3 | what is the handover note worth to the strong model? | `e3` | strong tier only |
+| E4 | does the whole bot lower the cost per repaired bug? | `e4` | yes |
+
+The order of work:
 
 ```bash
-.venv/bin/python -m vlayer repair --bug Cli-17 --live --model mock
-.venv/bin/python -m vlayer repair --bug Lang-6 --live          # with the real model
+# 1. development set: fix the provisional settings
+.venv/bin/python -m tierbot e1 --split dev --jobs 4
+.venv/bin/python -m tierbot e2 --split dev
+.venv/bin/python -m tierbot analyze --split dev      # prints the checks that fix each setting
+#    variants, development set only (results/variants/<name>/); each takes
+#    e1, e2 and analyze with the same variant options:
+.venv/bin/python -m tierbot e1 --split dev --variant r15 --strong-budget 15    # is R2 = 10 enough?
+.venv/bin/python -m tierbot e1 --split dev --variant n10 --cheap-n 10          # also 1 and 3
+.venv/bin/python -m tierbot e1 --split dev --variant conv --cheap-mode conversation
+.venv/bin/python -m tierbot analyze --split dev --variant r15 --strong-budget 15
+
+# 2. registration: edit settings.json as the checks say, then
+.venv/bin/python -m tierbot freeze
+
+# 3. evaluation set
+.venv/bin/python -m tierbot e1 --jobs 4
+.venv/bin/python -m tierbot e2
+.venv/bin/python -m tierbot e3 --jobs 4
+.venv/bin/python -m tierbot e4 --jobs 4
+.venv/bin/python -m tierbot analyze                  # -> results/report-eval.md
 ```
 
----
+Every command is resumable: model answers and audits are cached, and a session
+that is already recorded is skipped. `e2` never calls a model; it runs the bot
+again on the recorded answers and fails loudly if a policy asks for an answer
+that was not recorded.
 
-## 4. Running the study
+Add `--mock` to any experiment to run it with the scripted models, or
+`--model cheap=<name>` / `--model strong=<name>` to try another model through
+the same OpenAI-compatible endpoint.
 
-Every command takes `--split dev|eval` (bugs from `data/split.json`) or
-`--bugs Lang-6 Cli-17 ...`, and `--jobs N` to process bugs in parallel.
-Every stage is resumable: finished bugs and sessions are skipped, audits and
-model answers are cached. Keep `--jobs` at most half the CPU cores, because
-test times are the measurement.
+## Layout
 
-### Step 0. Select the bugs (once)
+```
+tierbot/            the bot and the harness
+  substrate.py        M0: test schedule, warm runtime, cold path
+  memory.py           M1: Evidence Memory
+  controller.py       M2: policies, Step, handover notes
+  budget.py           M3: Budget Guard, give-up report, cost of a call
+  bot.py              one session of the bot; audited and live validators
+  session.py          the loop that drives the models
+  llm.py              model access, answer cache, mock models
+  prompts.py          prompts and feedback
+  audit.py            audits on both paths, and what a candidate is charged
+  experiments.py      E1 to E4
+  analysis.py         metrics, statistics, report
+  bugs.py, d4j.py     bug selection and preparation, Defects4J
+  javasrc.py          Java source handling
+  config.py, cli.py
+tools/              AuditRunner.java (cold path), WarmRunner.java (warm path)
+tests/              unit tests: python -m unittest discover -s tests
+data/               the 120 bugs
+settings.json       every setting of the evaluation, with the rule that fixes it
+report/             the proposal (LaTeX)
+docs/DESIGN.md      design notes
+```
+
+Created when the experiments run, and not under version control except
+`results/`: `benchmarks/` (Defects4J), `work/` (checkouts, compiled runners),
+`cache/` (model answers, audits), `results/` (sessions, reports), `smoke/`.
+
+## Tests
 
 ```bash
-.venv/bin/python -m vlayer select --jobs 4
+.venv/bin/python -m unittest discover -s tests       # no Java, no network
+.venv/bin/python -m tierbot smoke                    # Java and one checkout
 ```
-
-Bugs are drawn at random, round robin over the 17 projects, and kept if they
-pass every rule: the fix changes one file and only the bodies of existing
-methods; the triggering classes fail on the faulty program and pass on the
-fixed one; at least 10 test classes stay after removing classes that do not
-pass 3 runs on the fixed program; the suite runs in under 5 minutes. It stops
-at 120 bugs and writes `data/split.json` (20 dev, 100 eval, 50 of them for
-E3). Every decision is logged in `data/selection.csv`; facts per bug are in
-`data/bugs/<bug>/info.json`.
-
-### Step 1. Development set: fix the settings
-
-```bash
-.venv/bin/python -m vlayer mutants --split dev
-.venv/bin/python -m vlayer e1      --split dev
-.venv/bin/python -m vlayer e2      --split dev
-.venv/bin/python -m vlayer analyze --split dev     # -> results/report-dev.md
-```
-
-The *Development-set checks* section of the report gives what the proposal
-fixes on the dev set: the median rounds per session (the model rule: at
-least 3, otherwise pick a weaker model), the SD of the per-bug log-ratio
-(power), the audit time per bug (compute budget), and suggested values for
-the ARC prior shares and the Budget Guard (`r`, `budget`), each from the rule
-pre-registered in the proposal. Set the final values in `settings.json`
-(`arc.shares`, `budget_guard.r` and `budget`, `model.name`), then freeze them:
-
-```bash
-.venv/bin/python -m vlayer freeze        # writes settings.lock.json (hash + time)
-```
-
-Eval runs warn if `settings.json` was not frozen or changed afterwards.
-
-### Step 2. E1: orderings on mutants (RQ2, RQ4; no model)
-
-```bash
-.venv/bin/python -m vlayer mutants --split eval --jobs 4   # Major mutants S1-S4, audited
-.venv/bin/python -m vlayer e1      --split eval            # simulation, seconds
-```
-
-### Step 3. E2: orderings, live (RQ1, RQ2)
-
-```bash
-.venv/bin/python -m vlayer e2 --split eval --jobs 4
-```
-
-100 bugs × 3 sessions × 4 orderings (Default, FRTP, Coverage, ARC), up to 20
-rounds each. The Repeat Guard and the Budget Guard are evaluated on these
-sessions by replay in the analysis.
-
-### Step 4. E3: the whole layer, live (RQ3)
-
-```bash
-.venv/bin/python -m vlayer e3 --split eval --jobs 4        # runs on the 50 E3 bugs
-```
-
-ARC with the repeat notice on; the Budget Guard only logs when it would stop,
-and its stop is replayed in the analysis.
-
-### Step 5. Analysis
-
-```bash
-.venv/bin/python -m vlayer analyze --split eval            # -> results/report-eval.md
-```
-
----
-
-## 5. Outputs
-
-| Path | Content |
-|---|---|
-| `data/selection.csv` | every bug tried, accepted or not, and why |
-| `data/split.json` | dev / eval / e3 bug lists |
-| `data/bugs/<bug>/info.json` | suite, flaky classes, CI times, triggering and covering classes, faulty methods |
-| `data/bugs/<bug>/mutants.json` | chosen mutants per group S1-S4 and the developer's fix |
-| `cache/audit/<bug>/<key>.json` | one audit: compile time, JVM start-up, every class's result and time |
-| `cache/llm/**.json` | model answers with their latency and tokens |
-| `results/e1/<bug>.json` | mean session cost per ordering, setting (trigger step or not) and session kind |
-| `results/e2/<bug>/<arm>-s<k>.json`, `results/e3/...` | one session: every round with verdict, costs, signature, failure |
-| `results/report-<split>.md` | all tables for RQ1-RQ4 |
-
-## 6. Troubleshooting
-
-| Symptom | Likely cause |
-|---|---|
-| `defects4j : FAILED ... String/Interpolate.pm` | Perl modules missing: `cd benchmarks/defects4j && cpanm --local-lib=~/perl5 --installdeps .` |
-| many bugs rejected with "triggering class ... passes on the faulty program" | wrong Java version; `vlayer env` must show 11 |
-| `test runner did not start` | read the printed Java error; usually a broken checkout: delete `work/<bug>` and rerun |
-| a bug is reported as `dropped (... cap ... reached)` | its audits used the CPU cap of `settings.json` (`e1.cap_cpu_hours`, `live.cap_cpu_hours`) |
-| model errors | check `.env` and `model.name`; `vlayer env` shows what is used |

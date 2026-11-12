@@ -3,30 +3,37 @@
 \markboth{Abstract}{Abstract}
 
 In LLM-based program repair, each round has two costs: the model call that
-proposes a patch and the test run that checks it. Part of this cost is wasted.
-The model often repeats patches it has already proposed, a wrong patch may pass
-many tests before one fails, and sessions continue after the model has stopped
-making progress. The size of these wastes has not been measured.
+proposes a patch and the test run that checks it. Known techniques make the
+test run cheap: the patched file can be compiled in process, the test runtime
+kept alive, and the tests that cannot reach the change skipped. What remains is
+the model call. A strong model repairs more bugs but costs about twenty times
+more per token than a cheap one, and a repair bot must pick a model before it
+knows how hard the bug is. Starting at the strong model pays its price for easy
+bugs. Staying at the cheap model burns its budget on bugs it cannot repair. And
+at a switch between models, what the first model learned is either dropped or
+carried in a form that may bias the second.
 
-This proposal builds a validation layer, placed between the repair loop and the
-project's test runner, with one module aimed at each waste. A \emph{Repeat Guard} recognises
-repeated patches and reuses their results. A \emph{Test Prioritiser} runs first
-the tests most likely to fail per second of running time, using a rule, \km,
-that learns both quantities during the session. A \emph{Budget Guard} stops
-sessions that are stuck or out of budget and reports why. The layer is designed
-for a repair bot in continuous integration and needs no instrumentation. The
-proposal also measures how the cost of a repair loop is distributed, to know
-how large each waste is and so the most each module can save.
+This proposal builds a repair bot that tries the cheap model first and
+\emph{steps up} to the strong model only when the tests show that the session
+has stalled. A \emph{Warm Substrate} pays the build and the start-up of the
+test runtime once per session instead of once per candidate, so the cheap
+model's extra candidates cost little to check. An \emph{Evidence Memory} keeps
+every verdict, failing test and failure signature, and screens the candidates
+of both models. An \emph{Escalation Controller} applies a rule, \Step, that
+moves the session up a tier after a verified stall and writes a \emph{handover
+note} from the evidence. A \emph{Budget Guard} stops sessions that are stuck or
+out of budget and reports why. With a cold handover and an unchanged budget for
+the strong model, the bot repairs every bug that the strong model alone repairs
+on the same recorded sessions; what it changes is the cost.
 
-The evaluation on $100$ Defects4J bugs ($50$ for the end-to-end run) has two
-levels. A simulation on mutated patches, which every test ordering sees alike,
-compares \km\ with \frtp\ and with the rule of the mutation tool PIT, with and
-without first running the failing tests. Live runs with a real model then
-measure where the cost goes and whether the whole layer lowers the cost per
-repaired bug without repairing fewer bugs. The test ordering is expected to
-save mainly on validation; model latency and build time dilute its effect end
-to end.
+The evaluation uses $100$ Defects4J bugs. Sessions of each model alone are
+recorded once. Every escalation policy is then replayed on the same candidates
+and compared with a router that knows the outcome in hindsight. Live runs then
+measure what the handover note is worth to the strong model and, on bugs held
+out from that choice, whether the whole system lowers the cost per repaired
+bug. The saving is expected mainly in money and tokens; in time it depends on
+how long the cheap tier delays the bugs it cannot repair.
 
 \vspace{1em}
 \noindent\textbf{Keywords:} automated program repair, large language models,
-patch validation, test prioritisation, cost analysis
+model escalation, patch validation, cost analysis

@@ -7,13 +7,15 @@ import org.junit.runner.*;
 import org.junit.runner.notification.*;
 
 /**
- * Runs JUnit test classes one after another in a single JVM and records, for
- * each class: pass/fail, wall time, CPU time and its first failure.
+ * The cold path: runs JUnit test classes one after another in a JVM started
+ * for this one candidate, and records for each class pass/fail, wall time,
+ * CPU time and its first failure. WarmRunner reuses runClass() inside a JVM
+ * that stays alive.
  *
- *   java -cp <cp.test>:<dir of this class> AuditRunner <classes.txt> <out.tsv> <mode> <timeout_s> [probe]
+ *   java -cp <dir of this class>:<junit>:<cp.test> AuditRunner <classes.txt> <out.tsv> <mode> <timeout_s> [probe]
  *
  *   mode     "all"   run every class (an audit)
- *            "stop"  stop after the first failing class (a real ordered run)
+ *            "stop"  stop after the first failing class (a real scheduled run)
  *   probe    optional system property name; the runner clears it before each
  *            class and reports whether the class set it (method coverage).
  *
@@ -35,20 +37,28 @@ public class AuditRunner {
         long timeoutMs = (long) (Double.parseDouble(args[3]) * 1000);
         String probe = args.length > 4 ? args[4] : null;
         try (PrintWriter out = new PrintWriter(new FileWriter(args[1]))) {
-            for (String cls : classes) {
-                cls = cls.trim();
-                if (cls.isEmpty()) continue;
-                out.println("START\t" + cls);
-                out.flush();
-                String status = runClass(cls, out, timeoutMs, probe);
-                out.flush();
-                if (status.equals("timeout")) break;          // the hung thread cannot be stopped safely
-                if (stopAtFirst && !status.equals("pass")) break;
-            }
+            runAll(classes, AuditRunner.class.getClassLoader(), out, stopAtFirst, timeoutMs, probe);
             out.println("END");
         }
         // Some test suites leave non-daemon threads behind; Ant also calls exit.
         System.exit(0);
+    }
+
+    /** Runs the classes in order. Returns "timeout" if a class hung (its
+     *  thread cannot be stopped, so the JVM must not be reused), else "ok". */
+    static String runAll(List<String> classes, ClassLoader loader, PrintWriter out,
+                         boolean stopAtFirst, long timeoutMs, String probe) {
+        for (String cls : classes) {
+            cls = cls.trim();
+            if (cls.isEmpty()) continue;
+            out.println("START\t" + cls);
+            out.flush();
+            String status = runClass(cls, loader, out, timeoutMs, probe);
+            out.flush();
+            if (status.equals("timeout")) return "timeout";
+            if (stopAtFirst && !status.equals("pass")) break;
+        }
+        return "ok";
     }
 
     static String clean(String s, int max) {
@@ -57,11 +67,11 @@ public class AuditRunner {
         return s.length() > max ? s.substring(0, max) + "..." : s;
     }
 
-    static String runClass(String cls, PrintWriter out, long timeoutMs, String probe) {
+    static String runClass(String cls, ClassLoader loader, PrintWriter out, long timeoutMs, String probe) {
         if (probe != null) System.clearProperty(probe);
         Class<?> c;
         try {
-            c = Class.forName(cls, false, AuditRunner.class.getClassLoader());
+            c = Class.forName(cls, false, loader);
         } catch (Throwable t) {
             out.println(String.join("\t", "CLASS", cls, "error", "0", "0", "0", "0",
                     "-", t.getClass().getName(), "0", clean(t.toString(), 300), "0"));
@@ -78,6 +88,7 @@ public class AuditRunner {
             });
             result.set(core.run(Request.aClass(c)));
         });
+        worker.setContextClassLoader(loader);
         worker.setDaemon(false);   // threads made by tests inherit this flag
         worker.start();
         try { worker.join(timeoutMs); } catch (InterruptedException e) { /* ignore */ }

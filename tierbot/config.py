@@ -1,5 +1,6 @@
 """Paths, settings and the environment needed to call Defects4J and Java."""
 
+import glob
 import hashlib
 import json
 import os
@@ -10,7 +11,6 @@ ROOT = Path(__file__).resolve().parent.parent
 D4J_HOME = Path(os.getenv("D4J_HOME", ROOT / "benchmarks" / "defects4j"))
 D4J_BIN = D4J_HOME / "framework" / "bin" / "defects4j"
 D4J_PROJECTS = D4J_HOME / "framework" / "projects"
-MAJOR_HOME = D4J_HOME / "major"
 TOOLS = ROOT / "tools"
 
 SETTINGS_FILE = ROOT / "settings.json"
@@ -18,16 +18,16 @@ LOCK_FILE = ROOT / "settings.lock.json"
 
 DATA = ROOT / "data"          # bug selection and per-bug facts
 CACHE = ROOT / "cache"        # model answers and audits, shared by all configurations
-RESULTS = ROOT / "results"    # experiment outputs and the analysis report
-WORK = ROOT / "work"          # Defects4J checkouts (scratch)
+RESULTS = ROOT / "results"    # recorded sessions and the analysis report
+WORK = ROOT / "work"          # Defects4J checkouts and the compiled runners (scratch)
 
-# Defects4J is validated on Java 11.
+# Defects4J is validated on Java 11. A JDK is needed, not a JRE: the Warm
+# Substrate compiles candidates with the compiler of the running JVM.
 _JAVA11_CANDIDATES = [
     os.getenv("JAVA_HOME", ""),
     "/opt/homebrew/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home",
     "/usr/local/opt/openjdk@11/libexec/openjdk.jdk/Contents/Home",
-    "/usr/lib/jvm/java-11-openjdk-amd64",
-    "/usr/lib/jvm/java-11-openjdk",
+    *sorted(glob.glob("/usr/lib/jvm/java-11-openjdk*")),
 ]
 
 
@@ -52,7 +52,7 @@ def java_home() -> str:
 
 
 def tool_env() -> dict:
-    """Environment for Defects4J, Ant, Major and our test runner."""
+    """Environment for Defects4J, Ant and the test runners."""
     env = dict(os.environ)
     jh = java_home()
     if jh:
@@ -60,6 +60,7 @@ def tool_env() -> dict:
         env["PATH"] = f"{jh}/bin:{env.get('PATH', '')}"
     env["PATH"] = f"{D4J_BIN.parent}:{env['PATH']}"
     env["TZ"] = "America/Los_Angeles"          # Defects4J runs its tests in this zone
+    env.pop("JAVA_TOOL_OPTIONS", None)         # would change every JVM we time
     perl5 = Path.home() / "perl5" / "lib" / "perl5"  # cpanm --local-lib default
     if perl5.exists() and str(perl5) not in env.get("PERL5LIB", ""):
         env["PERL5LIB"] = f"{perl5}:{env['PERL5LIB']}" if env.get("PERL5LIB") else str(perl5)
@@ -71,6 +72,23 @@ def java_bin(name: str = "java") -> str:
     return str(Path(jh) / "bin" / name) if jh else (shutil.which(name) or name)
 
 
+def relocate(path: str) -> str:
+    """Paths recorded in data/bugs/*/info.json are absolute. If the project
+    folder was moved, map them onto the current root."""
+    if not path or os.path.exists(path):
+        return path
+    for marker in ("/work/", "/benchmarks/"):
+        if marker in path:
+            return str(ROOT) + path[path.index(marker):]
+    return path
+
+
+def relocate_cp(cp: str) -> str:
+    return os.pathsep.join(relocate(p) for p in cp.split(os.pathsep))
+
+
+# ---------------------------------------------------------------- settings
+
 def load_settings() -> dict:
     return json.loads(SETTINGS_FILE.read_text())
 
@@ -79,12 +97,20 @@ def settings_hash() -> str:
     return hashlib.sha256(SETTINGS_FILE.read_bytes()).hexdigest()[:16]
 
 
-def check_frozen(split: str):
-    """Pre-registration: warn when eval runs use settings that were not frozen."""
-    if split != "eval":
+def tier(settings: dict, name: str) -> dict:
+    """The settings of one tier ('cheap' is the first tier, 'strong' the last)."""
+    for t in settings["tiers"]:
+        if t["name"] == name:
+            return t
+    raise KeyError(f"no tier named {name} in settings.json")
+
+
+def check_frozen(bugs):
+    """Pre-registration: warn when evaluation bugs are run with settings that were not frozen."""
+    if not set(bugs) & set(read_json(DATA / "split.json", {}).get("eval", [])):
         return
     if not LOCK_FILE.exists():
-        print("!! settings.json is not frozen (run `python -m vlayer freeze` after the dev set).")
+        print("!! settings.json is not frozen (run `python -m tierbot freeze` after the dev set).")
         return
     lock = json.loads(LOCK_FILE.read_text())
     if lock.get("hash") != settings_hash():

@@ -1,5 +1,6 @@
-"""Java source handling: find methods, replace them, normalise them (Module M1),
-insert coverage probes, and read a model answer.
+"""Java source handling: find methods, replace them, normalise them (the key
+of the Evidence Memory, Module M1), insert coverage probes, and read a model
+answer.
 
 Everything works on the token stream of the `javalang` tokenizer, which skips
 comments. Method spans are found from tokens alone, so the same code reads a
@@ -9,10 +10,11 @@ whole source file and a model answer that contains only methods.
 import hashlib
 import re
 from dataclasses import dataclass
+from pathlib import Path
 
 import javalang
 
-PROBE_PROPERTY = "vlayer.hit"
+PROBE_PROPERTY = "tierbot.hit"
 
 
 @dataclass
@@ -32,6 +34,21 @@ class Method:
     end: int          # offset just after the closing brace
     body_open: int    # offset of the opening brace of the body
     is_ctor: bool
+
+
+def read_source(path: Path):
+    """Read a Java source file. Returns (text, encoding): UTF-8 when the bytes
+    are valid UTF-8, otherwise ISO-8859-1, which maps every byte, so writing
+    the text back with the same encoding changes nothing outside a patch."""
+    raw = Path(path).read_bytes()
+    try:
+        return raw.decode("utf-8"), "UTF-8"
+    except UnicodeDecodeError:
+        return raw.decode("iso-8859-1"), "ISO-8859-1"
+
+
+def write_source(path: Path, text: str, encoding: str):
+    Path(path).write_bytes(text.encode(encoding, errors="replace"))
 
 
 def tokens(text: str) -> list:
@@ -170,6 +187,16 @@ def replace_methods(text: str, new: dict) -> str:
     for m in sorted(methods, key=lambda m: -m.start):
         text = text[:m.start] + new[m.key] + text[m.end:]
     return text
+
+
+def dedent(method_text: str) -> str:
+    """A method cut out of a source file starts at its first token, so its
+    first line has no indentation while the others keep theirs; remove the
+    indentation the other lines share."""
+    lines = method_text.split("\n")
+    rest = [l for l in lines[1:] if l.strip()]
+    cut = min((len(l) - len(l.lstrip()) for l in rest), default=0)
+    return "\n".join([lines[0]] + [l[cut:] if l.strip() else "" for l in lines[1:]])
 
 
 def token_values(text: str) -> list:

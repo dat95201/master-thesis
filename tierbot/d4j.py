@@ -1,5 +1,5 @@
-"""Defects4J adapter: checkout, metadata, compile, run test classes, mutants."""
-
+"""Defects4J adapter: metadata, checkout, the project's own build, and the
+cold path (one JVM per candidate)."""
 
 import re
 import resource
@@ -34,11 +34,36 @@ def run(cmd, cwd=None, timeout=None, env=None):
         code, out = p.returncode, p.stdout
     except subprocess.TimeoutExpired as e:
         code, out = -9, (e.stdout or "") if isinstance(e.stdout, str) else ""
+    except FileNotFoundError as e:
+        code, out = 127, str(e)
     return code, out, time.perf_counter() - t0, _child_cpu() - c0
 
 
 def d4j(args, cwd=None, timeout=1800):
     return run([str(C.D4J_BIN)] + args, cwd=cwd, timeout=timeout)
+
+
+_STATUS = {}
+
+
+def status() -> str:
+    """'ok' when the Defects4J command line runs here, else why it does not.
+    It is needed for the cold path and for preparing bugs, not for the warm
+    path. Checked once per process."""
+    if "d4j" not in _STATUS:
+        if not C.D4J_BIN.exists():
+            _STATUS["d4j"] = f"not found at {C.D4J_BIN}"
+        elif shutil.which("perl") is None:
+            _STATUS["d4j"] = "perl is not installed"
+        else:               # `pids` loads the Perl modules that every command needs
+            code, out, _, _ = d4j(["pids"], timeout=120)
+            last = (out.strip().splitlines() or ["no output"])[-1][:200]
+            _STATUS["d4j"] = "ok" if code == 0 else f"does not run ({last})"
+    return _STATUS["d4j"]
+
+
+def available() -> bool:
+    return status() == "ok"
 
 
 # ---------------------------------------------------------------- metadata (no checkout)
@@ -107,7 +132,7 @@ def export(workdir: Path, prop: str) -> str:
 
 
 def compile_project(workdir: Path):
-    """defects4j compile. Returns (ok, wall_s, cpu_s, error_text)."""
+    """The project's own build (defects4j compile). Returns (ok, wall_s, cpu_s, error_text)."""
     code, out, wall, cpu = d4j(["compile", "-w", str(workdir)], timeout=1800)
     if code == 0:
         return True, wall, cpu, ""
@@ -135,24 +160,33 @@ def drop_class_files(bin_dir: Path, fqcn: str):
             f.unlink()
 
 
-# ---------------------------------------------------------------- test runner
+# ---------------------------------------------------------------- test runners
 
 def build_runner() -> Path:
-    cls = RUNNER_DIR / "AuditRunner.class"
-    src = C.TOOLS / "AuditRunner.java"
-    if cls.exists() and cls.stat().st_mtime >= src.stat().st_mtime:
+    """Compile tools/*.java (AuditRunner for the cold path, WarmRunner for M0)."""
+    sources = sorted(C.TOOLS.glob("*.java"))
+    stamp = RUNNER_DIR / "WarmRunner.class"
+    if stamp.exists() and all(stamp.stat().st_mtime >= s.stat().st_mtime for s in sources):
         return RUNNER_DIR
     RUNNER_DIR.mkdir(parents=True, exist_ok=True)
-    code, out, _, _ = run([C.java_bin("javac"), "-cp", str(JUNIT), "-d", str(RUNNER_DIR), str(src)])
+    args = ["-cp", str(JUNIT), "-d", str(RUNNER_DIR)] + [str(s) for s in sources]
+    javac = C.java_bin("javac")
+    if Path(javac).exists() or shutil.which(javac):
+        cmd = [javac] + args
+    else:       # a runtime that ships the compiler module but no javac launcher
+        cmd = [C.java_bin(), "-m", "jdk.compiler/com.sun.tools.javac.Main"] + args
+    code, out, _, _ = run(cmd)
     if code != 0:
-        raise RuntimeError(f"cannot compile AuditRunner:\n{out}")
+        raise RuntimeError(f"cannot compile the test runners (a Java 11 JDK is needed):\n{out}")
     return RUNNER_DIR
 
 
-def _parse_runner_output(path: Path):
-    started, records = [], {}
+def parse_runner_output(path: Path):
+    """Read the runner's event file. Returns (started, records, compile) where
+    compile is None on the cold path, else {ok, wall, cpu, error}."""
+    started, records, comp, errs = [], {}, None, []
     if not path.exists():
-        return started, records
+        return started, records, comp
     for line in path.read_text(errors="replace").splitlines():
         f = line.split("\t")
         if f[0] == "START":
@@ -163,12 +197,23 @@ def _parse_runner_output(path: Path):
                 "n_run": int(f[5]), "n_fail": int(f[6]), "test": f[7], "exc": f[8],
                 "line": int(f[9]) if f[9].isdigit() else 0, "msg": f[10], "hit": f[11] == "1",
             }
-    return started, records
+        elif f[0] == "COMPILE" and len(f) >= 4:
+            comp = {"ok": f[1] == "ok", "wall": float(f[2]) / 1000, "cpu": float(f[3]) / 1000, "error": ""}
+        elif f[0] == "ERR":
+            errs.append(f[1] if len(f) > 1 else "")
+    if comp is not None:
+        comp["error"] = "\n".join(errs)
+    return started, records, comp
+
+
+def crashed_record(msg="the test JVM stopped while running this class", exc="JVMCrash", status="fail"):
+    return {"status": status, "wall": 0.0, "cpu": 0.0, "n_run": 0, "n_fail": 1, "test": "-",
+            "exc": exc, "line": 0, "msg": msg, "hit": False}
 
 
 def run_classes(workdir: Path, cp_test: str, classes: list, mode="all",
                 class_timeout=60.0, probe=False):
-    """Run test classes in the given order in one JVM.
+    """The cold path: run test classes in the given order in a new JVM.
 
     mode "all" runs every class (restarting the JVM after a crash or timeout);
     mode "stop" stops at the first failing class.
@@ -181,75 +226,35 @@ def run_classes(workdir: Path, cp_test: str, classes: list, mode="all",
         with tempfile.TemporaryDirectory() as tmp:
             lst, out = Path(tmp) / "classes.txt", Path(tmp) / "out.tsv"
             lst.write_text("\n".join(todo) + "\n")
-            cmd = [C.java_bin(), "-Xmx2g", "-cp", f"{runner}:{JUNIT}:{cp_test}", "AuditRunner",
+            # apple.awt.UIElement: on macOS a JVM that loads AWT (e.g. Chart's
+            # tests) shows a Dock icon and takes focus; this hides it without
+            # going headless, so tests behave as under Defects4J
+            cmd = [C.java_bin(), "-Xmx2g", "-Dapple.awt.UIElement=true",
+                   "-cp", f"{runner}:{JUNIT}:{cp_test}", "AuditRunner",
                    str(lst), str(out), mode, str(class_timeout)]
             if probe:
                 from .javasrc import PROBE_PROPERTY
                 cmd.append(PROBE_PROPERTY)
             budget = class_timeout * len(todo) + 120
             _, log, wall, cpu = run(cmd, cwd=workdir, timeout=budget)
-            started, recs = _parse_runner_output(out)
+            started, recs, _ = parse_runner_output(out)
         if not started:
             print(f"    test runner did not start:\n{log[-800:]}")
         if jvm is None:
             jvm = {"wall": max(0.0, wall - sum(r["wall"] for r in recs.values())),
                    "cpu": max(0.0, cpu - sum(r["cpu"] for r in recs.values()))}
         records.update(recs)
-        crashed = [c for c in started if c not in recs]
-        for c in crashed:          # the JVM died inside this class
-            records[c] = {"status": "fail", "wall": 0.0, "cpu": 0.0, "n_run": 0, "n_fail": 1,
-                          "test": "-", "exc": "JVMCrash", "line": 0,
-                          "msg": "the test JVM stopped while running this class", "hit": False}
+        for c in started:          # the JVM died inside this class
+            if c not in recs:
+                records[c] = crashed_record()
         if mode == "stop" and any(r["status"] != "pass" for r in records.values()):
             break
         todo = [c for c in todo if c not in records]
         if todo and not started:   # nothing ran at all: give up on the rest
             for c in todo:
-                records[c] = {"status": "error", "wall": 0.0, "cpu": 0.0, "n_run": 0, "n_fail": 1,
-                              "test": "-", "exc": "RunnerError", "line": 0,
-                              "msg": "the test runner did not start", "hit": False}
+                records[c] = crashed_record("the test runner did not start", "RunnerError", "error")
             break
     return records, jvm or {"wall": 0.0, "cpu": 0.0}
-
-
-# ---------------------------------------------------------------- mutants (Major)
-
-def generate_mutants(workdir: Path, src_file: Path, cp_compile: str, outdir: Path) -> list:
-    """Run Major on one source file and export every mutant as a source file.
-
-    Returns [{id, op, line, method, path}] where path is the mutated file.
-    """
-    if outdir.exists():
-        shutil.rmtree(outdir)
-    (outdir / "bin").mkdir(parents=True)
-    env = C.tool_env()
-    env["MML"] = f"mml:{C.MAJOR_HOME / 'mml' / 'all.mml.bin'}"
-    env["EXPORT"] = "export.mutants"
-    code, out, _, _ = run([str(C.MAJOR_HOME / "bin" / "major"), "-cp", cp_compile,
-                           "-d", str(outdir / "bin"), str(src_file)], cwd=outdir, env=env)
-    log = outdir / "mutants.log"
-    if code != 0 or not log.exists():
-        print(f"    Major failed on {src_file.name}: {out[-500:]}")
-        return []
-    rel = None
-    mutants = []
-    for line in log.read_text(errors="replace").splitlines():
-        parts = line.split(":", 4)
-        if len(parts) < 5:
-            continue
-        mid, op, rest = parts[0], parts[1], parts[4]
-        loc_line = rest.split(":", 3)          # location, line, offset, description
-        if len(loc_line) < 3 or not loc_line[1].isdigit():
-            continue
-        mdir = outdir / "mutants" / mid
-        if rel is None:
-            found = list(mdir.rglob("*.java")) if mdir.exists() else []
-            rel = found[0].relative_to(mdir) if found else None
-        if rel is None:
-            continue
-        mutants.append({"id": int(mid), "op": op, "location": loc_line[0],
-                        "line": int(loc_line[1]), "path": str(mdir / rel)})
-    return mutants
 
 
 def cleanup(path: Path):

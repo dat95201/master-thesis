@@ -1,14 +1,15 @@
-"""Bug selection and per-bug preparation.
+"""Bug selection and per-bug preparation (Section 5.1 of the proposal).
 
 `prepare` checks one bug against the selection rules and records every fact
 the experiments need in data/bugs/<bug>/info.json:
 
-  * the faulty methods (the methods the developer's fix changes),
+  * the faulty methods (the methods the developer's fix changes), which are
+    given to the model and are the only code a candidate may replace,
   * the test suite after removing flaky classes (3 runs on the fixed program),
-  * the "failing CI run": one run of the suite on the faulty program, which
-    gives the start times of ARC and the triggering classes,
-  * the classes that reach the faulty methods (for the Coverage ordering),
-  * the size of each test file (fallback start time).
+  * the failing CI run: one run of the suite on the faulty program, which
+    gives the classes that fail before any repair and the time of every class,
+  * the classes that reach the faulty methods (one instrumented run), which
+    are the classes the Warm Substrate schedules.
 """
 
 import csv
@@ -37,17 +38,34 @@ def info_path(bug: str) -> Path:
 def load_info(bug: str) -> dict:
     info = C.read_json(info_path(bug))
     if info is None:
-        raise SystemExit(f"{bug} is not prepared; run `python -m vlayer prepare --bugs {bug}`")
+        raise SystemExit(f"{bug} is not prepared; run `python -m tierbot prepare --bugs {bug}`")
+    for key in ("cp_test", "cp_compile"):       # absolute paths: follow the project folder
+        info[key] = {v: C.relocate_cp(cp) for v, cp in info[key].items()}
     return info
 
 
 def ensure_checkout(info: dict, version: str) -> Path:
     """Re-create a working copy if the scratch directory was deleted."""
     w = workdir(info["bug"], version)
-    if not (w / ".defects4j.config").exists():
+    if not (w / ".defects4j.config").exists() and not (w / info["src_file"]).exists():
         d4j.checkout(info["pid"], info["bid"], version, w)
         d4j.compile_project(w)
     return w
+
+
+def verify_checkout(info: dict) -> str:
+    """'' when the source file in work/<bug>/b still holds the faulty methods
+    that info.json records, else what differs. Every candidate is built from
+    that file, so a checkout left patched (an interrupted run, an edit by
+    hand) would silently shift every verdict of the bug."""
+    path = ensure_checkout(info, "b") / info["src_file"]
+    if not path.exists():
+        return f"{path} is missing"
+    have = javasrc.method_texts(javasrc.read_source(path)[0])
+    for key, text in info["buggy_methods"].items():
+        if have.get(key) != text:
+            return f"{info['src_file']}: `{key}` is not the recorded faulty method"
+    return ""
 
 
 def source_path(w: Path, src_dir: str, cls: str) -> str:
@@ -73,15 +91,10 @@ def metadata_ok(pid: str, bid: int):
     return True, "ok"
 
 
-def _suite_run(w, cp, classes, timeout, probe=False):
-    recs, jvm = d4j.run_classes(w, cp, classes, "all", timeout, probe=probe)
-    return recs, jvm
-
-
 def prepare(bug: str, settings: dict, force=False):
     """Check one bug and record its facts. Returns (info or None, reason)."""
     if not force and info_path(bug).exists():
-        return C.read_json(info_path(bug)), "ok (cached)"
+        return load_info(bug), "ok (cached)"
     sel, rs = settings["bugs"], settings["runner"]
     pid, bid = split_bug(bug)
     ok, why = metadata_ok(pid, bid)
@@ -100,8 +113,8 @@ def prepare(bug: str, settings: dict, force=False):
     rel_src = source_path(wb, src_dir, mod)
     if not (wb / rel_src).exists():
         return None, f"source file not found: {rel_src}"
-    buggy_text = (wb / rel_src).read_text(errors="replace")
-    fixed_text = (wf / rel_src).read_text(errors="replace")
+    buggy_text, _ = javasrc.read_source(wb / rel_src)
+    fixed_text, _ = javasrc.read_source(wf / rel_src)
     keys, why = javasrc.faulty_methods(buggy_text, fixed_text)
     if keys is None:
         return None, why
@@ -116,7 +129,7 @@ def prepare(bug: str, settings: dict, force=False):
     stable = set(tests_all)
     fixed_runs = []
     for i in range(rs["flaky_runs"]):
-        recs, jvm = _suite_run(wf, cp_f, tests_all, timeout)
+        recs, jvm = d4j.run_classes(wf, cp_f, tests_all, "all", timeout)
         total = jvm["wall"] + sum(r["wall"] for r in recs.values())
         if i == 0 and total > sel["max_suite_seconds"]:
             return None, f"suite takes {total:.0f} s"
@@ -125,7 +138,7 @@ def prepare(bug: str, settings: dict, force=False):
     flaky = sorted(set(tests_all) - stable)
 
     # the failing CI run: the suite on the faulty program
-    ci, ci_jvm = _suite_run(wb, cp_b, tests_all, timeout)
+    ci, ci_jvm = d4j.run_classes(wb, cp_b, tests_all, "all", timeout)
     triggers = d4j.trigger_tests(pid, bid)
     trig_classes = sorted({t.split("::")[0] for t, _ in triggers})
     for tc in trig_classes:
@@ -137,19 +150,13 @@ def prepare(bug: str, settings: dict, force=False):
     if len(suite) < sel["min_test_classes"]:
         return None, f"only {len(suite)} stable test classes"
 
-    covering = coverage(wb, rel_src, buggy_text, keys, mod, d4j.export(wb, "dir.bin.classes"),
-                        cp_b, suite, timeout)
+    bin_dir = d4j.export(wb, "dir.bin.classes")
+    covering = coverage(wb, rel_src, keys, mod, bin_dir, cp_b, suite, timeout)
 
     test_dir = d4j.export(wb, "dir.src.tests")
-    sizes = {}
-    for c in suite:
-        f = wb / test_dir / (c.split("$")[0].replace(".", "/") + ".java")
-        sizes[c] = f.stat().st_size if f.exists() else 0
-
     info = {
         "bug": bug, "pid": pid, "bid": bid,
-        "modified_class": mod, "src_file": rel_src, "test_dir": test_dir,
-        "bin_dir": d4j.export(wb, "dir.bin.classes"),
+        "modified_class": mod, "src_file": rel_src, "test_dir": test_dir, "bin_dir": bin_dir,
         "cp_test": {"b": cp_b, "f": cp_f},
         "cp_compile": {"b": d4j.export(wb, "cp.compile"), "f": d4j.export(wf, "cp.compile")},
         "faulty": [{"key": k, "name": found[k].name, "nparams": found[k].nparams} for k in keys],
@@ -164,18 +171,18 @@ def prepare(bug: str, settings: dict, force=False):
         "ci_jvm": ci_jvm,
         "fixed_suite_seconds": fixed_runs,
         "covering": covering,
-        "sizes": sizes,
     }
     C.write_json(info_path(bug), info)
-    return info, "ok"
+    return load_info(bug), "ok"
 
 
-def coverage(w, rel_src, original, keys, mod, bin_dir, cp, suite, timeout):
+def coverage(w, rel_src, keys, mod, bin_dir, cp, suite, timeout):
     """One instrumented run of the faulty program: which classes reach the
     faulty methods. Returns None if the probes could not be compiled."""
     src = w / rel_src
+    original, enc = javasrc.read_source(src)
     try:
-        src.write_text(javasrc.insert_probes(original, keys))
+        javasrc.write_source(src, javasrc.insert_probes(original, keys), enc)
         d4j.drop_class_files(w / bin_dir, mod.split("$")[0])
         ok, _, _, _ = d4j.compile_project(w)
         if not ok:
@@ -183,7 +190,7 @@ def coverage(w, rel_src, original, keys, mod, bin_dir, cp, suite, timeout):
         recs, _ = d4j.run_classes(w, cp, suite, "all", timeout, probe=True)
         return [c for c in suite if recs.get(c, {}).get("hit")]
     finally:
-        src.write_text(original)
+        javasrc.write_source(src, original, enc)
         d4j.drop_class_files(w / bin_dir, mod.split("$")[0])
         d4j.compile_project(w)
 
@@ -262,7 +269,7 @@ def select(settings: dict, n_dev: int, n_eval: int, n_e3: int, projects=None, jo
     if len(accepted) < want:
         print(f"!! only {len(accepted)} bugs pass the rules (wanted {want})")
 
-    # split: dev and eval spread over projects; E3 uses part of eval
+    # split: dev and eval spread over projects; the evaluation set is halved for E3 and E4
     shuffled = accepted[:]
     rng.shuffle(shuffled)
     by_pid = {}
@@ -274,10 +281,10 @@ def select(settings: dict, n_dev: int, n_eval: int, n_e3: int, projects=None, jo
             if by_pid[pid]:
                 rr.append(by_pid[pid].pop(0))
     dev, ev = rr[:n_dev], rr[n_dev:]
-    split = {"dev": sorted(dev), "eval": sorted(ev), "e3": sorted(ev[:n_e3])}
+    split = {"dev": sorted(dev), "eval": sorted(ev), "e3": sorted(ev[:n_e3]), "e4": sorted(ev[n_e3:])}
     C.write_json(SPLIT_FILE, split)
-    print(f"split: {len(split['dev'])} dev, {len(split['eval'])} eval, {len(split['e3'])} for E3"
-          f" -> {SPLIT_FILE}")
+    print(f"split: {len(split['dev'])} dev, {len(split['eval'])} eval "
+          f"({len(split['e3'])} for E3, {len(split['e4'])} for E4) -> {SPLIT_FILE}")
     return split
 
 
@@ -286,5 +293,7 @@ def bugs_for(split: str = None, bugs=None) -> list:
         return list(bugs)
     s = C.read_json(SPLIT_FILE)
     if s is None:
-        raise SystemExit("no data/split.json; run `python -m vlayer select` or pass --bugs")
+        raise SystemExit("no data/split.json; run `python -m tierbot select` or pass --bugs")
+    if split == "e4" and "e4" not in s:
+        return sorted(set(s["eval"]) - set(s["e3"]))
     return s[split]

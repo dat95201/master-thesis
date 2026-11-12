@@ -1,5 +1,5 @@
 {
-  "_notes": "Pre-registered settings. Values marked TBD-on-dev are fixed on the development set, then `python -m vlayer freeze` records them before E1 runs on the evaluation set.",
+  "_notes": "Pre-registered settings (proposal, Table 5.6). Values marked TBD-on-dev are fixed on the development set; `python -m tierbot freeze` then records them before E1 runs on the evaluation set.",
   "seed": 2026,
   "bugs": {
     "n_dev": 20,
@@ -12,43 +12,67 @@
     "class_timeout_s": 60,
     "flaky_runs": 3,
     "order_check_fraction": 0.1,
-    "cost_unit": "cpu"
+    "cost_unit": "cpu",
+    "cap_cpu_hours": 4
   },
-  "arc": {
-    "_tbd": "prior shares per location group, TBD-on-dev (share of the failing classes of wrong patches in each group; `analyze --split dev` suggests them)",
-    "shares": {"name": 0.60, "package": 0.25, "other": 0.15}
+  "substrate": {
+    "_notes": "paths: which paths every candidate is audited on (E0 needs both). reference: the path whose verdict is the verdict of record.",
+    "paths": ["cold", "warm"],
+    "reference": "cold",
+    "confirm_plausible": true,
+    "candidates_per_runtime": 30
+  },
+  "tiers": [
+    {
+      "_tbd": "model pair: kept if the cheap tier repairs 20% to 80% of the dev bugs within its budget and the strong tier needs more than one round on at least a third of the rest; otherwise one step down (a local 7B model, then gpt-6-luna). n: the largest of 1, 3, 5, 10 at which at least half of the candidates of a call are distinct.",
+      "name": "cheap",
+      "model": "gpt-6-luna",
+      "mode": "blind",
+      "n": 5,
+      "budget": 20,
+      "n_per_request": true,
+      "params": {"temperature": 1.0, "max_completion_tokens": 2048},
+      "usd_per_mtok_in": 0.10,
+      "usd_per_mtok_out": 0.50
+    },
+    {
+      "_tbd": "budget (R2): kept if fewer than 5% of the repaired strong sessions need more than 10 rounds; otherwise 15.",
+      "name": "strong",
+      "model": "gpt-6-sol",
+      "mode": "conversation",
+      "n": 1,
+      "budget": 10,
+      "params": {"temperature": 1.0, "max_completion_tokens": 2048},
+      "usd_per_mtok_in": 2.00,
+      "usd_per_mtok_out": 10.00
+    }
+  ],
+  "step": {
+    "_tbd": "stall rule of the cheap tier: a call has stalled when at most `stall_new_max` of its candidates made progress. 1 is kept if it loses at most 5% of the cheap tier's repairs on dev; otherwise 0.",
+    "stall_new_max": 1
   },
   "budget_guard": {
-    "_tbd": "r: smallest r whose replay loses <= 5% of plausible Default sessions; budget: 90th percentile of the time to a plausible patch in Default sessions (TBD-on-dev)",
+    "_tbd": "r: the smallest r whose replay loses at most 5% of the plausible sessions; budget: the 90th percentile of the time to a plausible patch in the Strong-only sessions (TBD-on-dev).",
     "r": 3,
     "budget": 900,
     "budget_unit": "seconds"
   },
-  "e1": {
-    "mutants_per_group": 5,
-    "max_audits_per_group": 10,
-    "sessions_per_bug": 10,
-    "cap_cpu_hours": 2
+  "sessions": 3,
+  "e2": {
+    "policies": ["cheap-only", "strong-only", "fixed-5", "fixed-10", "step", "hindsight"],
+    "equal_attempts": {"cheap": 5, "strong": 5}
   },
-  "live": {
-    "rounds": 20,
-    "sessions": 3,
-    "cap_cpu_hours": 4,
-    "e2_arms": ["default", "frtp", "coverage", "arc"]
+  "e3": {
+    "handovers": ["evidence", "evidence+patches", "transcript"]
   },
-  "model": {
-    "_tbd": "kept if the median Default session needs >= 3 rounds on dev, otherwise a weaker model",
-    "name": "gpt-6-luna",
-    "temperature": 0.8,
-    "max_tokens": 2048
+  "e4": {
+    "_tbd": "the handover chosen on the 50 bugs of E3: the fewest strong rounds per repaired bug with a repair rate within the margin of cold; otherwise cold.",
+    "handover": "cold"
   },
   "prices": {
-    "usd_per_mtok_in": 0.10,
-    "usd_per_mtok_out": 0.50,
     "usd_per_cpu_hour": 0.05
   },
   "analysis": {
-    "_tbd": "margin TBD-on-dev",
     "margin_pp": 10
   }
 }

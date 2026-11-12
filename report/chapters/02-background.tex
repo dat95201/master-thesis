@@ -4,302 +4,204 @@
 \section{APR Pipeline}
 \label{sec:bg-pipeline}
 
-Figure~\ref{fig:bg-pipeline} places validation in the full repair pipeline.
 Fault localisation finds the code most likely to hold the bug. The generator
 proposes a candidate patch there, and the validator builds it and runs the
 test suite. A plausible candidate goes on to a human or automatic correctness
-check; a failing one, in an LLM-based loop, returns its failure to the model,
-which proposes the next candidate.
+check. A failing one, in an LLM-based loop, returns its failure to the loop,
+which asks for the next candidate. A tiered loop makes one more decision in
+each round: which model proposes next.
 
-\begin{figure}[htbp]
-\centering
-\resizebox{0.98\textwidth}{!}{%
-\begin{tikzpicture}[
-  font=\small,
-  st/.style={draw=black!55,rounded corners=2pt,align=center,inner sep=4pt,
-             minimum height=11mm,text width=21mm,fill=black!3},
-  vs/.style={draw=bkblue,line width=0.9pt,rounded corners=2pt,align=center,
-             inner sep=4pt,minimum height=11mm,text width=21mm,fill=bkblue!10},
-  arr/.style={-{Stealth[length=2.4mm]},draw=black!60}
-]
-\node (fl)  at (0,0)    [st] {fault\\ localisation};
-\node (gen) at (3.2,0)  [st] {patch\\ generation};
-\node (bld) at (6.4,0)  [vs] {build};
-\node (run) at (9.6,0)  [vs] {run tests};
-\node (pl)  at (13.8,0) [st] {plausible\\ patch};
-\node (ok)  at (17.0,0) [st] {correctness\\ check};
-\draw[arr] (fl) -- (gen);
-\draw[arr] (gen) -- (bld);
-\draw[arr] (bld) -- (run);
-\draw[arr] (run) -- node[above,pos=0.6,font=\scriptsize]{all pass} (pl);
-\draw[arr] (pl) -- (ok);
-\draw[arr] (run.south) -- ++(0,-0.75) -| node[pos=0.25,below,font=\scriptsize]
-  {a test fails: feedback for the next candidate} (gen.south);
-\node[draw=bkblue,dashed,rounded corners=3pt,fit=(bld)(run),inner sep=6pt,
-      label={[font=\scriptsize\itshape,text=bkblue]above:validation}] {};
-\end{tikzpicture}}
-\caption[The generate-and-validate pipeline]{The generate-and-validate
-pipeline. Validation (highlighted) runs once per candidate.}
-\label{fig:bg-pipeline}
-\end{figure}
+Part of each validation is overhead: recompiling and starting the runtime. On
+the JVM it can be removed by validating in one long-lived
+JVM~\citep{chen2021uniapr,xiao2024expressapr}. The rest is running tests.
 
-Part of each validation is overhead (recompiling and starting the runtime),
-which on the JVM can be removed by validating in one long-lived
-JVM~\citep{chen2021uniapr,xiao2024expressapr}; the rest is running tests.
-
-\section{Cost Model of a Repair Session}
+\section{Cost Model of a Tiered Session}
 \label{sec:bg-cost}
 
-This section makes precise the first question of the thesis: where the cost
-of a repair session goes. A session runs rounds $i = 1, \dots, R$; in each round the model
-proposes one candidate $p_i$ and the validator judges it. The session ends at
-the first plausible candidate or when the round budget $R_{\max}$ is spent. Its
-cost is
+A session runs in rounds. In each round one model proposes candidates and the
+validator judges them. The session ends at the first plausible candidate or
+when its budget is spent. With two tiers its cost is
 \begin{equation}
-E \;=\; \sum_{i=1}^{R} G_i \;+\; \sum_{i=1}^{R} V_i ,
+E \;=\; G_1 + G_2 + V ,
 \label{eq:bg-e2e}
 \end{equation}
-where $G_i$ is the cost of the model call of round $i$ and $V_i$ everything it
-costs to validate its candidate: applying the patch, building it, starting the
-runtime and running the tests. Cost is measured in three units, each reported
-on both sides: wall-clock time, which is what a user waits for; compute (CPU
-seconds for validation, tokens for generation); and money, from a fixed price
-list. The model has two layers: what the session spent, and what each family of
-techniques could have saved.
+where $G_1$ and $G_2$ are the cost of the model calls of the cheap and of the
+strong tier, and $V$ is everything it costs to validate the candidates:
+applying the patch, building it, starting the runtime and running the tests.
+Cost is measured in three units, each reported on both sides: wall-clock time,
+which is what a user waits for; compute (CPU seconds for validation, tokens
+for generation); and money, from a fixed price list.
 
-\paragraph{What the session spent.} A candidate is a \emph{repeat} if its
-normalised text equals that of a candidate already proposed in the same
-session. Splitting the rounds by whether their candidate is a repeat, and the
-validated candidates by their verdict, gives five components, each read
-directly from the session:
+\paragraph{What the session spent.} Splitting generation by tier and
+validation by step gives five components, each read directly from the session:
 \begin{equation}
-E \;=\; \underbrace{G_{\mathrm{new}} + G_{\mathrm{rep}}}_{\text{generation}}
-\;+\; \underbrace{V_{\mathrm{rep}} + V_{\mathrm{rej}} + V_{\mathrm{acc}}}_{\text{validation}} ,
+E \;=\; \underbrace{G_1 + G_2}_{\text{generation}}
+\;+\; \underbrace{V_{\mathrm{build}} + V_{\mathrm{start}} + V_{\mathrm{test}}}_{\text{validation}} .
 \label{eq:bg-decomp}
 \end{equation}
-where $G_{\mathrm{new}}$ and $G_{\mathrm{rep}}$ are the generation of new and of
-repeated candidates; $V_{\mathrm{rep}}$ is the validation of repeats, which a
-verdict cache removes; $V_{\mathrm{rej}}$ the validation of new candidates that
-were rejected; and $V_{\mathrm{acc}}$ the validation of the accepted candidate,
-which runs the whole suite in any order.
+Each component is also split by how the session ended: repaired at the cheap
+tier, repaired at the strong tier, or not repaired.
 
 \paragraph{What each family could save.} Each family of techniques
-(Section~\ref{sec:rel-taxonomy}) acts on part of Equation~\eqref{eq:bg-decomp}, and
-that part bounds what it can save (Table~\ref{tab:bg-headroom}). Two bounds need
-a definition. The \emph{ordering headroom} is $V_{\mathrm{rej}} -
-V_{\mathrm{rej}}^{*}$, where $V_{\mathrm{rej}}^{*}$ is what rejecting the same
-candidates would have cost had each been rejected by its cheapest rejecting test, which is the least any
-order can pay (Section~\ref{sec:bg-problem}). The
-\emph{start-up share} is the part of validation spent building candidates and
-starting the runtime rather than executing tests. Unlike the five components,
-the bounds are counterfactual; all of them are computed after the session from
-the outcome and cost of every test on every distinct candidate, without running
-any technique.
+(Section~\ref{sec:rel-taxonomy}) acts on part of this sum, and that part
+bounds what it can save (Table~\ref{tab:bg-headroom}). The bounds are
+counterfactual. All of them are computed after the session from its record,
+without running any technique.
 
 \begin{table}[htbp]
 \centering
-\caption[What each family of techniques can save]{What each family of
-techniques can save at most, in the terms of Equation~\eqref{eq:bg-decomp}.}
+\caption{What each family of techniques can save at most.}
 \label{tab:bg-headroom}
 \footnotesize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.32\textwidth} >{\raggedright\arraybackslash}X@{}}
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.27\textwidth} >{\raggedright\arraybackslash}X@{}}
 \toprule
 Family & Upper bound on its saving\\
 \midrule
-Verdict cache (patch reduction) & $V_{\mathrm{rep}}$\\
-Test prioritisation & the ordering headroom, $V_{\mathrm{rej}} - V_{\mathrm{rej}}^{*}$\\
-Test selection & the cost of tests that do not reach the change; zero where every test runs the whole program\\
-Execution acceleration & the start-up share of validation\\
-Generation-side reduction & $G_{\mathrm{rep}}$, plus the validation of the rounds saved\\
+Execution acceleration & the build and start-up parts of validation, $V_{\mathrm{build}} + V_{\mathrm{start}}$\\
+Test selection and prioritisation & the tests run before the first failing one, and the tests that do not reach the change\\
+Verdict cache & the validation of repeated candidates\\
+Model escalation & what the strong tier spends on bugs the cheap tier repairs, minus what the cheap tier spends\\
+Early stopping & what is spent after the last round that made progress, in sessions that are never repaired\\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-The share of each component in $E$ is not a property of a technique but of a
-setting. The generation side scales with the latency and price of the model;
-the start-up share with the runtime and the build; the rest of validation with
-the number of tests, their cost and its spread. Two consequences follow. A
-technique can save a large fraction of its own component and a small fraction
-of $E$; and the same technique can be worth deploying in one setting and not in
-another.
+The share of each component is a property of a setting, not of a technique.
+Generation scales with the price and latency of the model, the build and
+start-up share with the runtime, and the rest with the tests. The same
+technique can therefore be worth deploying in one setting and not in another.
 
-\section{Test Ordering under Early Stopping}
-\label{sec:bg-problem}
+\section{Escalation and Its Break-Even}
+\label{sec:bg-escalation}
 
-This section states the problem test ordering solves: it concerns the test-execution part of $V_i$ in
-Equation~\eqref{eq:bg-e2e}. A session produces candidates $p_1, p_2, \dots$ in order and has a test suite
-$T$. For a candidate $p$ and test $t$, let $o(p,t) = 1$ if $t$ rejects $p$ and
-$0$ otherwise, and let $c(p,t) > 0$ be the cost of running it (CPU time unless stated
-otherwise). Neither is
-known before the test runs. A candidate is plausible when no test rejects it.
+This section states the problem that escalation solves. Fix a bug, and let the
+cheap tier propose up to $r$ candidates. Let $X$ be the position of its first
+plausible candidate, with $X = \infty$ if none of the $r$ is plausible. Let
+$c_1$ be the cost of one cheap candidate, generation and validation together,
+and let $S$ be the cost of a session of the strong model alone on the same bug.
 
-\begin{definition}[Validation with early stopping]
-\label{def:strategy}
-For each candidate $p$, the validator runs the tests in an order $\sigma_p$ and
-stops at the first test that rejects $p$. The order for a candidate may depend
-on everything observed on earlier candidates.
+\begin{definition}[Cold escalation]
+\label{def:cold}
+The session draws cheap candidates until one is plausible or $r$ have failed.
+In the second case it starts the strong model as if nothing had happened: the
+strong model receives the same first prompt, the same feedback and the same
+budget as when it runs alone.
 \end{definition}
 
-The validation cost of a session is
-\begin{equation}
-C \;=\; \sum_{p} \; \sum_{j=1}^{r_p} c\bigl(p, \sigma_p(j)\bigr),
-\label{eq:bg-cost}
-\end{equation}
-where $r_p$ is the position of the first rejecting test, or $|T|$ if none
-rejects, and the sum runs over the candidates actually validated: a repeat
-whose verdict is served from a cache contributes nothing. In the terms of
-Equation~\eqref{eq:bg-decomp}, $C$ is the test-execution part of
-$V_{\mathrm{rej}} + V_{\mathrm{acc}}$ with a verdict cache, and of
-$V_{\mathrm{rep}}$ as well without one. A technique is \emph{safe} if it declares a candidate plausible
-exactly when it is. Reordering is safe whenever tests are deterministic and
-their outcomes do not depend on the order in which they run, since every test
-still runs before a candidate is accepted.
+Under cold escalation, the strong part of the session is distributed exactly
+as a session of the strong model alone. The escalating session costs
+$c_1 \cdot \min(X, r)$, plus $S$ when $X = \infty$. Two properties follow.
 
-\paragraph{Lower bound.} If all outcomes were known,
-the cheapest cost would be
-\begin{equation}
-C^{*} \;=\;
-\sum_{p \text{ invalid}} \; \min_{t \,:\, o(p,t)=1} c(p,t)
-\;+\;
-\sum_{p \text{ plausible}} \; \sum_{t \in T} c(p,t).
-\label{eq:bg-hindsight}
-\end{equation}
-The second term is fixed: a plausible candidate runs the whole suite in any order. Ordering acts only on the first term, the cost of rejecting invalid
-candidates. In a session that stops at the first plausible candidate, every
-candidate but the last is invalid by construction. Search-based tools generate
-many invalid candidates, so there the first term dominates. An LLM-based loop validates few distinct candidates per session,
-so the second term (one full suite) can be of the same order as the first, and the room left for ordering is correspondingly smaller. Which term dominates is measured in the experiments (Chapter~\ref{ch:experiments}).
-
-\paragraph{Optimal order.} The validator does not know the outcomes in
-advance, so it has to estimate them. If each test rejected independently with
-probability $q_t$ at cost $c_t$, the best order is a classical result: the
-least-cost testing sequence~\citep{mitten1960}, also derived for satisficing
-search~\citep{simon1975satisficing}. It is restated here, with
-the exchange argument, because the rest of the thesis estimates its two
-quantities.
-
-\begin{proposition}[Rate-over-cost order~\citep{mitten1960,simon1975satisficing}]
-\label{prop:ratio}
-Under independent rejection probabilities $q_t$ and costs $c_t$, running tests
-in decreasing $q_t / c_t$ minimises the expected cost of rejecting an invalid
-candidate.
+\begin{proposition}[No lost repairs]
+\label{prop:nolost}
+Under cold escalation, the session ends with a plausible patch whenever the
+strong model alone would have, on the same draws.
 \end{proposition}
 \begin{proof}
-For adjacent tests $a$ and $b$, running $a$ first costs $c_a + (1-q_a)\,c_b$
-in expectation and running $b$ first costs $c_b + (1-q_b)\,c_a$. So $a$ should
-go first exactly when $q_a/c_a > q_b/c_b$. Any other order contains an adjacent pair whose swap lowers the expected cost.
+If a cheap candidate is plausible, the session has succeeded. Otherwise the
+session runs the strong model's session unchanged, and succeeds exactly when
+that session does.
 \end{proof}
 
-\paragraph{Example.} Take two test classes. Class $A$ rejects a wrong patch
-with probability $0.5$ and takes $10$ seconds; class $B$ rejects it with
-probability $0.2$ and takes $1$ second. Running $A$ first costs on average
-$10 + 0.5 \times 1 = 10.5$ seconds, since $B$ runs only when $A$ passes;
-running $B$ first costs $1 + 0.8 \times 10 = 9$ seconds. The rule gives the same
-answer: $q/c$ is $0.05$ for $A$ and $0.2$ for $B$, so $B$ goes first even though
-$A$ fails more often. A failure count would put $A$ first.
+\begin{proposition}[Break-even]
+\label{prop:breakeven}
+Cold escalation costs less in expectation than the strong model alone exactly
+when
+\[
+\mathbb{E}\bigl[S \cdot \mathbf{1}\{X \le r\}\bigr] \;>\; c_1 \cdot \mathbb{E}\bigl[\min(X, r)\bigr] .
+\]
+\end{proposition}
+\begin{proof}
+The strong model alone costs $S$. Escalation costs $c_1 \cdot \min(X, r)$, plus
+$S$ only when $X = \infty$. The difference is
+$S \cdot \mathbf{1}\{X \le r\} - c_1 \cdot \min(X, r)$; take expectations.
+\end{proof}
 
-A failure count, as in \frtp, estimates neither $q_t$ nor $c_t$.
-Proposition~\ref{prop:ratio} is the target; the contribution of this thesis is
-not the rule but estimating its two quantities online, from what validation
-reveals.
-
-\paragraph{Target rate.} When rejections are correlated, what matters for a test
-at a given position is its rejection probability \emph{given} that every test
-before it has passed. A record built under early stopping estimates a rate of this kind (rejections among the candidates that reached
-the test), but averaged over whatever tests happened to precede it, so it equals neither the
-marginal rate nor the conditional rate of any one order. The thesis takes the
-rate conditional on reaching the test as the target, and will measure how far
-the record departs from it (Chapter~\ref{ch:experiments}).
-
-\section{Regression Test Prioritisation}
-\label{sec:bg-regression}
-
-Ordering tests is an old problem in regression testing, where a changed program
-is re-tested against an existing suite.
-\citet{rothermel2001prioritizing} introduced the two greedy strategies that
-later studies, including the study of validation in repair by
-\citet{lou2024aprregression}, use as baselines: \emph{total} (\tptot) ranks tests by how much code they
-cover, and \emph{additional} (\tpadd) by how much they cover that earlier tests
-did not. An order is scored by how early it detects faults:
+The left side is what the strong model would have spent on the bugs the cheap
+tier repairs. The right side is what the cheap tier spends on all bugs. A
+sufficient condition is simple to check. A strong session costs at least one
+strong call, $c_2$, so escalation pays whenever
 \begin{equation}
-\mathrm{APFD} \;=\; 1 - \frac{\mathit{TF}_1 + \dots + \mathit{TF}_m}{n\,m} + \frac{1}{2n},
-\label{eq:apfd}
+\Pr[X \le r] \;>\; r \cdot \frac{c_1}{c_2} .
+\label{eq:bg-sufficient}
 \end{equation}
-where $n$ is the number of tests, $m$ the number of faults and $\mathit{TF}_i$
-the position of the first test revealing fault $i$.
-\citet{elbaum2001cost} extended it to APFD$_C$, which weighs each test by its
-cost.
+In words: the cheap tier's success rate within its budget must exceed its
+budget times the price ratio. A condition of the same form is derived for
+routing by code health~\citep{madeyski2026triage}.
 
-Two differences separate patch validation from this setting. Under early
-stopping only the \emph{first} failure of each candidate matters, so the relevant score is the cost paid before it (Equation~\eqref{eq:bg-cost})
-rather than how early all faults are found. And in a repair loop the
-``program'' changes with every candidate, so an order can learn from one
-candidate to the next.
+\paragraph{Example.} Suppose a cheap candidate costs one thirtieth of a strong
+call, and the cheap tier may propose five. Escalation is then sure to pay if
+the cheap tier repairs more than $5/30$, about $17\,\%$, of the bugs. For
+comparison, low-cost models are reported to repair over half of moderately
+complex bugs~\citep{liu2026rethinking}. If the strong model usually needs
+several calls, the threshold is lower still.
 
-\section{Censored Test Outcomes}
-\label{sec:bg-censoring}
-
-Picture the outcomes of a session as a matrix: one row per candidate, one
-column per test. An order learns from this matrix, but under early stopping it
-sees only part of it. For each invalid candidate it observes a few passes and
-one rejection, and nothing about the tests after the rejection. The record is
-\emph{censored}, and by construction not at random: a test is observed only
-when every test ranked before it has passed, so the tests ranked first are
-observed most often. Four consequences follow.
-
-\begin{itemize}[leftmargin=*,itemsep=3pt]
-\item \textbf{A count is not a rate.} A count of rejections gives zero both to
-a test never run and to a test run many times without rejecting. A rate
-(rejections over runs) separates them, but is estimated from few observations
-for the tests ranked low.
-\item \textbf{Joint rejections are never observed.} Validation stops at the
-first rejection, so the record of a candidate never shows two tests rejecting
-it. Whether two tests reject the same candidates, a relation that selection and
-redundancy arguments rely on, cannot be read from the record,
-and a rule that needs it cannot be fed by the session's own runs.
-\item \textbf{Cost estimates need repeated runs.} One rejection already shows
-that a test can reject; a cost estimate is an average of timings and becomes
-reliable only after a test has run several times. Each test's cost on the
-faulty program is measured once before repair, but its cost on a candidate is
-observed only when it runs on that candidate.
-\item \textbf{The rates need not be stationary.} In a conversational loop the
-failing test is shown to the model, which then aims at it; a test that has just
-been reported may reject the next candidate less often. A rate pooled over the
-whole session assumes otherwise.
+\paragraph{What the propositions do not cover.} Four things, all of which are
+measured (Chapter~\ref{ch:experiments}).
+\begin{itemize}
+\item \textbf{Time.} On a bug the cheap tier cannot repair, escalation adds
+the time of $r$ cheap candidates before the strong model starts.
+\item \textbf{A shared budget.} If the cheap tier's spending is taken out of
+one total budget, the strong model has less left, and
+Proposition~\ref{prop:nolost} no longer applies.
+\item \textbf{An early stop.} A rule that ends the strong part before its
+budget is spent can lose a repair in the same way.
+\item \textbf{A warm handover.} If the strong model is given the cheap tier's
+evidence, its session is no longer distributed as when it runs alone. It may
+do better or worse.
 \end{itemize}
 
-A history-based order is therefore learned from data that its own early
-stopping withholds.
+\section{Verified Progress and Stall}
+\label{sec:bg-stall}
 
-\paragraph{The cascade view.} This is the observation model of \emph{cascading
-bandits}~\citep{kveton2015cascading}, a learning-to-rank setting in which a user
-scans a ranked list and stops at the first attractive item; here the validator
-scans the ordered tests and stops at the first rejection. Two facts carry over.
-First, if outcomes are independent, whether a test is reached does not depend
-on its own outcome, so its rate among the runs that reached it is unbiased;
-with correlated outcomes the same rate is the rate conditional on reaching,
-the target of Section~\ref{sec:bg-problem}. Censoring thus costs observations
-more than accuracy. Second, that cost falls on the tests ranked low: a test
-whose rate is underestimated is rarely reached, so its estimate is rarely
-corrected. Reweighting the record by the inverse probability of reaching each
-test does not help, because a deterministic order reaches a test with
-probability zero or one. An order obtains the missing observations only by
-\emph{exploring}: running an uncertain test earlier than its estimate alone
-would.
+A rejected candidate leaves a \emph{failure signature}: the test that rejected
+it, the exception type and its message, without line numbers. A candidate that
+does not compile leaves the first compiler error as its signature. A candidate
+makes \emph{progress} when it is new and fails in a new way. A repeat, or new
+code that fails exactly as an earlier candidate did, makes none. A session
+\emph{stalls} when its latest candidates make no progress;
+Sections~\ref{sec:sys-controller} and~\ref{sec:sys-guard} fix the exact rule
+for each tier.
+
+Progress and stall are \emph{verified}: they are read from executed tests, not
+predicted from the prompt or from the model's own account. This matters for
+two reasons. A prediction can be wrong in either direction: it can keep a
+session going that the tests have already refuted, or reject a patch that the
+project's tests accept, as when a model judges its patch by tests it wrote
+itself. And a verified signal needs no training data, so it is available on
+the first bug of a new project.
+
+\section{What Can Be Handed Over}
+\label{sec:bg-handover}
+
+When a session moves to another model, three kinds of history can move with
+it:
+\begin{itemize}
+\item \textbf{Reasoning}: the first model's explanations of the bug.
+\item \textbf{Drafts}: its candidate patches.
+\item \textbf{Verified evidence}: which tests rejected which behaviour, and
+how.
+\end{itemize}
+The first two are the first model's opinions. The third is a fact about the
+program. A handover that passes only verified evidence can be shorter than a
+transcript, and it does not ask the next model to trust the first. Whether it
+helps is an empirical question (RQ4).
 
 \section{Benchmark}
 \label{sec:bg-benchmarks}
 
-Repair tools are evaluated on benchmarks of real bugs, each shipped with a
-test suite that exposes the bug. This thesis uses \textbf{Defects4J}, the
-common benchmark of Java repair~\citep{just2014defects4j}: real bugs from
-open-source projects, each with the developer's fix and at least one test that
-fails before the fix and passes after it. UniAPR~\citep{chen2021uniapr} and the
-study of test selection in repair~\citep{lou2024aprregression} were also
-evaluated on it. Other benchmarks differ in what a test is: in
-ConDefects~\citep{wu2024condefects} a test is one run of a whole contest
-program, and in SWE-bench~\citep{jimenez2024swebench} a test of a large Python
-repository. Two properties of a benchmark decide how much a validation
-technique can help: how fine-grained a test is, which decides whether test
-selection has anything to remove, and how much test costs differ within one
-bug, which decides whether the order of tests matters in seconds.
+Repair tools are evaluated on benchmarks of real bugs, each shipped with tests
+that expose the bug. This thesis uses \textbf{Defects4J}~\citep{just2014defects4j},
+the common benchmark of Java repair: real bugs from open-source projects, each
+with the developer's fix and at least one test that fails before the fix and
+passes after it. The on-the-fly validators and the study of test selection in
+repair were evaluated on
+it~\citep{chen2021uniapr,xiao2024expressapr,lou2024aprregression}, and so was
+conversational repair~\citep{xia2024chatrepair}.
+
+Three properties of a benchmark decide how much escalation can help: the share
+of bugs the cheap model repairs, the price ratio between the tiers, and what
+one validation costs. The first is likely inflated on Defects4J, since current
+models may have memorised it~\citep{ramos2024memorizing}.
+Section~\ref{sec:exp-selection} handles this by choosing the model pair on a
+development set with a rule fixed in advance.
