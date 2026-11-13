@@ -423,7 +423,9 @@ handover without a stop is the default until they are.
 of $1{,}500$ tokens and candidates of $400$ tokens, a cheap call that returns
 five candidates costs about one sixth of one strong call at list
 prices~\citep{aibusiness2026gpt6}, so one cheap candidate costs about one
-thirtieth. By the sufficient condition of Section~\ref{sec:bg-escalation}, ten
+thirtieth. This counts no reasoning tokens: the cheap tier runs without
+reasoning, and the reasoning of the strong tier only lowers the ratio. By the
+sufficient condition of Section~\ref{sec:bg-escalation}, ten
 cheap candidates then pay for themselves if the cheap tier repairs more than a
 third of the bugs, and five if it repairs more than a sixth. And in
 neighbouring settings escalation saved between $26\,\%$ and $40\,\%$ of
@@ -443,8 +445,9 @@ is priced. And the handover is varied and measured instead of fixed.
 
 \paragraph{Principle.} The Budget Guard keeps the cost per bug within a budget
 and reports why a session stopped. Failed sessions account for most of the
-cost~\citep{fan2025sweeffi}, and current tools stop only at a fixed limit,
-without giving a reason (Section~\ref{sec:rel-practice}).
+cost~\citep{fan2025sweeffi}, and the systems of
+Section~\ref{sec:rel-practice} are described as stopping at a limit fixed in
+advance.
 
 \paragraph{When to stop.} Each tier has its own share of the session: $B_1$
 candidates for the cheap tier and $R_2$ rounds for the strong tier. On top of

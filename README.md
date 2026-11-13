@@ -90,6 +90,7 @@ The order of work:
 .venv/bin/python -m tierbot e1 --split dev --variant r15 --strong-budget 15    # is R2 = 10 enough?
 .venv/bin/python -m tierbot e1 --split dev --variant n10 --cheap-n 10          # also 1 and 3
 .venv/bin/python -m tierbot e1 --split dev --variant conv --cheap-mode conversation
+.venv/bin/python -m tierbot e1 --split dev --variant low --cheap-effort low        # cheap tier with reasoning
 .venv/bin/python -m tierbot analyze --split dev --variant r15 --strong-budget 15
 
 # 2. registration: edit settings.json as the checks say, then
@@ -107,6 +108,11 @@ Every command is resumable: model answers and audits are cached, and a session
 that is already recorded is skipped. `e2` never calls a model; it runs the bot
 again on the recorded answers and fails loudly if a policy asks for an answer
 that was not recorded.
+
+Money is reported twice: with every input token at the list price (`usd`), and
+with a prompt cache that holds, within one session, the prefix a tier already
+sent (`usd_cached`). Reasoning tokens count as output. The reasoning effort of
+each tier is pinned in `settings.json` (`tiers[].params.reasoning_effort`).
 
 Add `--mock` to any experiment to run it with the scripted models, or
 `--model cheap=<name>` / `--model strong=<name>` to try another model through

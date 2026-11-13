@@ -41,7 +41,7 @@ def _models(args):
 def _apply_variant(args, settings):
     """A variant changes how a tier draws. It keeps its results apart from
     the pre-registered runs and never touches settings.json."""
-    changes = {k: getattr(args, k, None) for k in ("cheap_n", "cheap_mode", "strong_budget")}
+    changes = {k: getattr(args, k, None) for k in ("cheap_n", "cheap_mode", "cheap_effort", "strong_budget")}
     if not any(v is not None for v in changes.values()) and not getattr(args, "variant", None):
         return
     if not getattr(args, "variant", None):
@@ -53,10 +53,15 @@ def _apply_variant(args, settings):
         cheap["mode"] = changes["cheap_mode"]
         if cheap["mode"] == "conversation":
             cheap["n"] = 1
+    if changes["cheap_effort"]:
+        cheap["params"]["reasoning_effort"] = changes["cheap_effort"]
+        if changes["cheap_effort"] != "none":       # sampling parameters are refused when the model reasons
+            cheap["params"].pop("temperature", None)
     if changes["strong_budget"]:
         strong["budget"] = changes["strong_budget"]
     C.RESULTS = C.ROOT / "results" / "variants" / args.variant
-    print(f"variant {args.variant}: cheap tier {cheap['mode']}, n={cheap['n']}; "
+    print(f"variant {args.variant}: cheap tier {cheap['mode']}, n={cheap['n']}, "
+          f"reasoning {cheap['params'].get('reasoning_effort', 'default')}; "
           f"strong budget {strong['budget']} -> {C.RESULTS}")
 
 
@@ -89,7 +94,8 @@ def cmd_env(args, settings):
     C.load_dotenv()
     has_key = bool(os.getenv("OPENAI_API_KEY"))
     for t in settings["tiers"]:
-        print(f"tier      : {t['name']:<6} {t['model']}  ({t['mode']}, n={t['n']}, budget {t['budget']})")
+        print(f"tier      : {t['name']:<6} {t['model']}  ({t['mode']}, n={t['n']}, budget {t['budget']}, "
+              f"reasoning {t.get('params', {}).get('reasoning_effort', 'default')})")
     print(f"api       : key {'set' if has_key else 'not set'}, base url {os.getenv('OPENAI_BASE_URL') or 'default'}")
     print("\nall good" if ok else "\nfix the items above (see README, Setup)")
 
@@ -205,6 +211,8 @@ def main(argv=None):
         g.add_argument("--variant", metavar="NAME", help="name of the variant run")
         g.add_argument("--cheap-n", type=int, help="candidates per cheap call (1, 3, 5 or 10)")
         g.add_argument("--cheap-mode", choices=["blind", "conversation"], help="how the cheap tier draws")
+        g.add_argument("--cheap-effort", choices=["none", "low", "medium"],
+                       help="reasoning effort of the cheap tier")
         g.add_argument("--strong-budget", type=int, help="rounds of the strong tier")
         return p
 

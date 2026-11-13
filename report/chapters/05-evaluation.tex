@@ -46,7 +46,14 @@ but is the same for every configuration.
 
 \paragraph{Model pair.} Two tiers of one family through an API: GPT-6 Luna as
 the cheap tier and GPT-6 Sol as the strong tier, at the dated snapshots in use
-when the runs start. Defects4J is likely memorised by current
+when the runs start. Both models reason before they answer, by default at
+effort \emph{medium}, and reasoning tokens are billed as
+output~\citep{openai2026models}. The strong tier keeps that default. The cheap
+tier runs with reasoning off: its part is to supply many cheap, independent
+candidates, and reasoning would raise the price of each one and slow the
+tier that every session waits for first. Whether this costs the cheap tier too
+many repairs is checked on the development set
+(Table~\ref{tab:exp-provisional}). Defects4J is likely memorised by current
 models~\citep{ramos2024memorizing}. If the cheap tier repaired nearly every
 bug, or the strong tier repaired every remaining bug at once, there would be
 little to measure. The pair is therefore confirmed on the development set by a
@@ -106,10 +113,11 @@ then five strong rounds. There the repair rate can fall, and it is tested.
 Transcript (Section~\ref{sec:sys-controller}), each with \Step.
 
 \paragraph{Variants of \Step.} A stricter stall, in which a call has stalled
-only when none of its candidates makes progress, is compared by replay. Two
-variants change what the cheap model is sent, so they are run live, on the
+only when none of its candidates makes progress, is compared by replay. Three
+variants change what the cheap model is asked, so they are run live, on the
 development set only: other numbers of candidates per call ($1$, $3$ and
-$10$), and a conversational cheap tier instead of blind re-sampling.
+$10$), a conversational cheap tier instead of blind re-sampling, and a cheap
+tier that reasons at effort \emph{low}.
 
 \section{How Cost Is Measured}
 \label{sec:exp-measure}
@@ -134,12 +142,32 @@ starting the runtime and for its calibration run.
 
 \paragraph{What is recorded.} For each model call: tier, latency and tokens.
 For each audit and each path: compile time, start-up, and the result,
-wall-clock time and CPU time of each test class. Costs are reported in time,
-CPU time, tokens and money, using one fixed price list: \$0.10 and \$0.50 per
-million input and output tokens for Luna, \$2 and \$10 for
-Sol~\citep{aibusiness2026gpt6}, and \$0.05 per CPU-hour of validation. A local
-model has no token price. It is charged in time, and in a sensitivity analysis
-at a stated price per GPU-hour.
+wall-clock time and CPU time of each test class. For each model call the
+record also holds the reasoning tokens and the input tokens that the API
+reports as read from or written to its prompt cache. Costs are reported in
+time, CPU time, tokens and money, using one fixed price
+list~\citep{openai2026models}: \$0.10 and \$0.50 per million input and output
+tokens for Luna, \$2 and \$10 for Sol, and \$0.05 per CPU-hour of validation.
+A local model has no token price. It is charged in time, and in a sensitivity
+analysis at a stated price per GPU-hour.
+
+\paragraph{Prompt caching.} The API caches the prefix of any prompt of at
+least $1{,}024$ tokens by default. A token read from the cache costs a tenth
+of the input price, and a token written to it $1.25$
+times~\citep{openai2026caching}. What a request finds in the cache depends on
+what was sent in the minutes before it, so the bill of a recorded call is not
+a property of its session, and a replayed policy cannot be priced from it.
+Money is therefore reported in two readings that depend on the session
+alone. In the first, every
+input token pays the input price. In the second, a cache holds, within one
+session, every prefix that a tier has already sent: a blind call re-reads its
+prompt, and a round of a conversation reads the previous prompt and writes
+what was added. The first reading ignores the cache; the second gives a
+session the most it can get from the cache on its own. The cache is expected
+to favour the strong tier, whose conversation sends its history again in
+every round. The conclusions of RQ3 and RQ5 are drawn from whichever reading
+shows the smaller saving, and the tokens that the API reported as cached are
+shown next to the model.
 
 \paragraph{Reliability checks.} Each test class runs three times on the fixed
 program; classes that change outcome are excluded as flaky. On a random tenth
@@ -155,9 +183,10 @@ same under every policy and is not charged to the session.
 
 \paragraph{The loops.} The cheap tier draws candidates by blind re-sampling:
 each call sends the first prompt and returns $n = 5$ candidates, at
-temperature $1.0$. The strong tier holds a conversation in the style of
-ChatRepair~\citep{xia2024chatrepair}, one candidate per round, with
-the feedback of Table~\ref{tab:exp-prompts}, at the same temperature. The
+temperature $1.0$ and with reasoning off. The strong tier holds a conversation
+in the style of ChatRepair~\citep{xia2024chatrepair}, one candidate per round,
+with the feedback of Table~\ref{tab:exp-prompts}, at its default reasoning
+effort and sampling. The
 first prompt is the same for both tiers and gives the faulty methods, a
 failing test and its error message (Figure~\ref{fig:exp-prompt}). A session
 ends at the first plausible patch or when its budget is spent. If an endpoint
@@ -294,7 +323,7 @@ before dividing, and every comparison is made per bug.
 \toprule
 Metric & Definition & RQ\\
 \midrule
-Cost per repaired bug & total cost of all sessions divided by the number of bugs repaired; in money, tokens, time and CPU time & 1, 3, 5\\
+Cost per repaired bug & total cost of all sessions divided by the number of bugs repaired; in money (both readings of Section~\ref{sec:exp-measure}), tokens, time and CPU time & 1, 3, 5\\
 Cost breakdown & share of each tier's model calls, of building, of start-up and of tests in the total, by how the session ended & 1\\
 Validation cost per candidate & on the cold path and on M0; rate of disagreement in verdict; share of bugs that fall back & 2\\
 Cheap-tier repair share & share of sessions repaired before any strong call & 3\\
@@ -364,10 +393,11 @@ Audits & one per distinct candidate, shared by all configurations; at most $4$ C
 \end{table}
 
 The strong tier makes at most $9{,}000$ calls. If every one carried $6{,}000$
-input and $1{,}000$ output tokens, they would cost about \$200 at list prices;
+input and $3{,}000$ output tokens, reasoning included, they would cost about
+\$380 at list prices, and less with the prompt cache;
 the $1{,}200$ cheap calls cost under \$2. The development set adds at most
 $900$ strong calls ($20$ bugs, three sessions, the $15$ rounds of
-Table~\ref{tab:exp-provisional}), about \$20, and its cheap-tier variants a
+Table~\ref{tab:exp-provisional}), about \$40, and its cheap-tier variants a
 few dollars. If the estimate from the development set exceeds the budget, cuts
 are made in a fixed order: the Transcript handover of
 E3 is run on half of its bugs, then the sessions per bug of E3 are lowered
@@ -394,6 +424,7 @@ Value & Provisional & Rule\\
 \midrule
 Model pair & Luna, then Sol & development set: kept if the cheap tier repairs $20\,\%$ to $80\,\%$ of the bugs within its budget and the strong tier needs more than one round on at least a third of the rest; otherwise as in Section~\ref{sec:exp-selection}\\
 Candidates per cheap call, $n$ & $5$, at temperature $1.0$ & development set: the largest $n$ of $1$, $3$, $5$ and $10$ at which at least half of the candidates of a call are distinct after normalising\\
+Reasoning effort & cheap tier: none; strong tier: medium & development set: none is kept if the cheap tier still repairs at least $20\,\%$ of the bugs within its budget; otherwise low. The strong tier is not changed\\
 Cheap budget $B_1$ & $20$ candidates, for \Step\ and for Cheap-only & not changed\\
 Stall rule of the cheap tier & a call in which at most one candidate makes progress & development set: kept if it loses at most $5\,\%$ of the cheap tier's repairs; otherwise a call in which no candidate makes progress\\
 Strong budget $R_2$ & $10$ rounds & development set, run with $15$ rounds: kept if fewer than $5\,\%$ of the repaired strong sessions need more than $10$; otherwise $15$\\

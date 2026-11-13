@@ -42,8 +42,11 @@ class LLM:
         return hashlib.sha256(blob.encode()).hexdigest()
 
     def draw(self, messages: list, n: int, index, info: dict = None):
-        """Ask for n candidates. Returns (answers, gen) with
-        gen = {wall, tok_in, tok_out, cached}."""
+        """Ask for n candidates. Returns (answers, gen) with gen = {wall,
+        tok_in, tok_out, requests, tok_reason, tok_in_cached, tok_in_write,
+        cached}. tok_out includes the reasoning tokens (tok_reason), as the
+        bill does; the last two are what the provider's prompt cache reported
+        for this very request, which depends on what was sent before it."""
         key = self._key(messages, n, index)
         path = C.CACHE / "llm" / key[:2] / f"{key}.json"
         hit = C.read_json(path)
@@ -55,8 +58,8 @@ class LLM:
         if self.model.startswith("mock"):
             answers, gen = _mock(self.model, messages, n, index, info)
         else:
-            answers, tin, tout = self._call(messages, n)
-            gen = {"wall": time.perf_counter() - t0, "tok_in": tin, "tok_out": tout}
+            answers, usage = self._call(messages, n)
+            gen = {"wall": time.perf_counter() - t0, **usage}
         C.write_json(path, {"model": self.model, "index": list(index), "answers": answers, "gen": gen})
         return answers, {**gen, "cached": False}
 
@@ -70,15 +73,36 @@ class LLM:
         # one request with n choices pays for the prompt once; an endpoint that
         # cannot do that gets n requests
         batches = [n] if self.tier.get("n_per_request", True) else [1] * n
-        answers, tin, tout = [], 0, 0
+        answers = []
+        use = {"tok_in": 0, "tok_out": 0, "requests": len(batches),
+               "tok_reason": 0, "tok_in_cached": 0, "tok_in_write": 0}
         for k in batches:
             extra = {"n": k} if k > 1 else {}
-            resp = self.client.chat.completions.create(model=self.model, messages=msgs,
-                                                       **extra, **self.params)
+            try:
+                resp = self.client.chat.completions.create(model=self.model, messages=msgs,
+                                                           **extra, **self.params)
+            except Exception as e:  # noqa: BLE001
+                if getattr(e, "status_code", None) == 400:
+                    raise RuntimeError(
+                        f"{self.model} rejected the request ({e}). Check this tier's `params` and "
+                        f"`n_per_request` in settings.json: a reasoning model may refuse "
+                        f"`temperature` or several choices per request.") from e
+                raise
             answers += [c.message.content or "" for c in resp.choices]
-            tin += getattr(resp.usage, "prompt_tokens", 0) or 0
-            tout += getattr(resp.usage, "completion_tokens", 0) or 0
-        return answers, tin, tout
+            u = resp.usage
+            use["tok_in"] += getattr(u, "prompt_tokens", 0) or 0
+            use["tok_out"] += getattr(u, "completion_tokens", 0) or 0
+            use["tok_reason"] += _detail(u, "completion_tokens_details", "reasoning_tokens")
+            use["tok_in_cached"] += _detail(u, "prompt_tokens_details", "cached_tokens")
+            use["tok_in_write"] += _detail(u, "prompt_tokens_details", "cache_write_tokens")
+        return answers, use
+
+
+def _detail(usage, group: str, name: str) -> int:
+    """A count from the usage details of a response; 0 when the endpoint does not report it."""
+    d = getattr(usage, group, None)
+    v = d.get(name) if isinstance(d, dict) else getattr(d, name, None)
+    return v or 0
 
 
 def tiers(settings: dict, cache_only=False, models: dict = None) -> dict:

@@ -171,8 +171,30 @@ Strong-only priced both ways.
 left the recorded table of draws and is a defect of the harness, never a
 result.
 
-**Units.** Every cost is kept in four units: dollars, tokens, wall seconds,
-CPU seconds. Prices are in `settings.json`.
+**Units.** Every cost is kept in tokens, wall seconds, CPU seconds and
+dollars. Prices are in `settings.json`.
+
+**Tokens and the prompt cache.** A recorded call keeps what the API reported:
+input and output tokens (`tok_in`, `tok_out`; output includes the reasoning
+tokens, as the bill does), the reasoning tokens alone (`tok_reason`), and the
+input tokens read from and written to the provider's prompt cache
+(`tok_in_cached`, `tok_in_write`). The last two depend on what was sent in the
+minutes before the request, so they are not a property of the session and a
+replayed policy cannot be priced from them. Money therefore has two readings
+that are functions of the session alone:
+
+- `usd`: every input token at the list price;
+- `usd_cached`: the split of `budget.cache_split`. A prompt under
+  `prices.cache_min_prompt_tokens` is not cached. Otherwise the prefix the same
+  tier already sent in this session is read at the cached price and the rest
+  is written at the cache-write price. Sessions and tiers share nothing.
+
+The report shows both, with the provider's own counts beside the model.
+Conclusions are drawn from the reading that shows the smaller saving.
+
+**Reasoning effort** is part of a tier's `params`, so it is part of the cache
+key of every answer. The cheap tier runs at `none`, the strong tier at the
+model's default, both pinned.
 
 ## 7. Data
 

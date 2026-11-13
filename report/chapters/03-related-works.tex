@@ -72,47 +72,31 @@ seen. Which bugs needed that model is not reported.
 \section{Validation, Repeats and Stopping in Current Tools}
 \label{sec:rel-practice}
 
-How current tools validate, deduplicate and stop was read from the code of six
-open-source repair agents and from the reports of three deployed systems
-(Table~\ref{tab:rel-practice}). Four findings matter here.
-\begin{itemize}
-\item No tool orders tests by how likely they are to fail or by their cost,
-and none stops at the first failing test.
-\item Only AutoCodeRover~\citep{zhang2024autocoderover} caches
-validation results, and only by exact text.
-\item All tools set budgets in dollars, steps, rounds or timeouts, but only
-OpenHands~\citep{openhands2026sdk} detects a stuck agent.
-\item No tool reports why it gave up beyond an exit status, except an exit
-summary in Meta's repair agent~\citep{maddila2025agentic}.
-\end{itemize}
-For this proposal the last three matter most. A repeat, a stall and a give-up
-are the events the Escalation Controller and the Budget Guard act on, and
-current tools either ignore them or treat them as the end of the session.
+The papers of these systems describe how a candidate is validated and when a
+session stops. They say much less about a candidate that was proposed before,
+or about a session that goes nowhere.
 
-\begin{table}[htbp]
-\centering
-\caption[Validation, deduplication and stopping in current repair tools.]{How
-current repair tools validate, deduplicate and stop, read from their code
-(open-source agents, November 2026) or reports (deployed systems).}
-\label{tab:rel-practice}
-\scriptsize
-\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}p{0.17\textwidth} >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}p{0.17\textwidth} >{\raggedright\arraybackslash}p{0.24\textwidth}@{}}
-\toprule
-Tool & Validation & Repeats & Budget, stop, give-up\\
-\midrule
-SWE-agent~\citep{yang2024sweagent} & the model runs a reproduction script through the shell & identical parallel actions dropped & \$ and call limits, timeouts; on exit submits the current diff\\
-OpenHands~\citep{openhands2026sdk} & left to the model & notice after repeated identical calls & step and \$ limits; stuck detector; status only\\
-Agentless~\citep{xia2025agentless} & regression and reproduction tests on every sample, after generation; no feedback & normalised, for voting only & number of samples, timeouts\\
-AutoCodeRover~\citep{zhang2024autocoderover} & reproducer, an LLM reviewer, then the developer's tests & exact-text cache of results & retry and round caps; a reason string\\
-Aider~\citep{aider2026} & linter, then the user's test command & notice for an edit already applied & three reflections\\
-RepairAgent~\citep{bouzenia2025repairagent} & the whole Defects4J suite & notice for a repeated command & 40 cycles\\
-\midrule
-SapFix (Meta)~\citep{marginean2019sapfix} & reproduction, analysis, CI tests & one fix published & dropped if unreviewed in 7 days\\
-Repair agent (Meta)~\citep{maddila2025agentic} & the broken tests, analysis, an LLM judge & failures grouped by cause & timeout and cap; exit summary\\
-Passerine (Google)~\citep{rondon2025passerine} & the bug-reproduction tests & --- & 20 trajectories of 25 steps\\
-\bottomrule
-\end{tabularx}
-\end{table}
+\paragraph{Validation.} ChatRepair and RepairAgent run the project's tests on
+each candidate and return the failure to the
+model~\citep{xia2024chatrepair,bouzenia2025repairagent}. Agentless validates
+after generation: it filters its samples with regression and reproduction
+tests and then votes among them~\citep{xia2025agentless}. In SWE-agent and
+AutoCodeRover the model decides when a test is
+run~\citep{yang2024sweagent,zhang2024autocoderover}. Deployed systems put
+further checks between the tests and the developer who reviews the
+fix~\citep{marginean2019sapfix,maddila2025agentic,rondon2025passerine}.
+
+\paragraph{Stopping.} Each of these systems is described with a limit that is
+set in advance: a number of attempts, cycles or steps, or a cost per bug. The
+session ends when the limit is reached or a patch passes.
+
+\paragraph{What the descriptions leave out.} As far as these papers report,
+none describes reusing the verdict of a candidate that was already tested,
+stopping because the tests show no progress, or reporting why a session gave
+up. Repeats are common where they have been counted: $65\,\%$ of the patches
+of ChatRepair duplicate earlier ones~\citep{chen2025conversational}. A repeat,
+a stall and a give-up are the events that the Evidence Memory, the Escalation
+Controller and the Budget Guard act on.
 
 \section{Cost Measurement in LLM-Based Repair}
 \label{sec:rel-cost}
@@ -347,7 +331,8 @@ separated from the rest.
 multiplies candidates. On a cold path each costs a build and a start-up, which
 can cancel the saving in time.
 \item \textbf{Repeats and stuck sessions are not managed.} Small models anchor
-on their own attempts~\citep{verma2026blind}, only one tool caches results,
-and sessions stop at a fixed budget without a reason
-(Section~\ref{sec:rel-practice}).
+on their own attempts~\citep{verma2026blind}, a conversational loop repeats
+most of its patches~\citep{chen2025conversational}, and the systems of
+Section~\ref{sec:rel-practice} are described as stopping at a limit fixed in
+advance.
 \end{enumerate}

@@ -19,16 +19,53 @@ from . import javasrc
 from . import memory as M
 
 
-def call_cost(gen: dict, vals: list, tier: dict, prices: dict) -> dict:
-    """Cost of one model call and of validating its candidates, in the four
-    units of the proposal: seconds (wall-clock), cpu (validation), tokens, usd."""
-    gen = gen or {}
+def cache_split(earlier: list, step: dict, prices: dict) -> dict:
+    """Input tokens of a model call that a prompt cache reads and writes,
+    under one fixed model of the cache: {read, write}.
+
+    A prompt shorter than `cache_min_prompt_tokens` is not cached. A prefix
+    the same tier already sent in this session is read; the rest of the
+    prompt is written. So a blind call repeats a prompt the cache holds, and
+    a round of a conversation reads the previous prompt and writes what was
+    added. Nothing is shared between sessions or tiers.
+
+    The model is a function of the session alone, which the provider's own
+    report (gen.tok_in_cached) is not: that depends on what happened to be
+    sent in the minutes before. It is the most a cache can give a session."""
+    gen = step["gen"] or {}
+    tin, requests = gen.get("tok_in", 0), max(1, gen.get("requests", 1))
+    least = prices.get("cache_min_prompt_tokens")
+    per = tin / requests
+    if not least or per < least:
+        return {"read": 0, "write": 0}
+    prev = [s for s in earlier if s["tier"] == step["tier"]]
+    if step["mode"] == "blind":
+        write = 0 if prev else per
+        return {"read": tin - write, "write": write}
+    held = (prev[-1]["gen"] or {}).get("tok_in", 0) if prev else 0
+    read = min(held, tin) if held >= least else 0
+    return {"read": read, "write": tin - read}
+
+
+def call_cost(gen: dict, vals: list, tier: dict, prices: dict, cache: dict = None) -> dict:
+    """Cost of one model call and of validating its candidates, in the units
+    of the proposal: seconds (wall-clock), cpu (validation), tokens, and money
+    in two readings: usd, with every input token at the list price, and
+    usd_cached, with the split of `cache_split` at the tier's prices for
+    cached input and cache writes."""
+    gen, cache = gen or {}, cache or {"read": 0, "write": 0}
     tin, tout = gen.get("tok_in", 0), gen.get("tok_out", 0)
+    p_in, p_out = tier.get("usd_per_mtok_in", 0.0), tier.get("usd_per_mtok_out", 0.0)
+    read, write = cache["read"], cache["write"]
     cpu = sum(v.get("cpu", 0.0) for v in vals)
-    usd = (tin * tier.get("usd_per_mtok_in", 0.0) + tout * tier.get("usd_per_mtok_out", 0.0)) / 1e6
+    val_usd = cpu * prices["usd_per_cpu_hour"] / 3600
+    usd = (tin * p_in + tout * p_out) / 1e6
+    usd_c = ((tin - read - write) * p_in + read * tier.get("usd_per_mtok_in_cached", p_in)
+             + write * tier.get("usd_per_mtok_cache_write", p_in) + tout * p_out) / 1e6
     return {"seconds": gen.get("wall", 0.0) + sum(v.get("wall", 0.0) for v in vals),
             "model_seconds": gen.get("wall", 0.0), "cpu": cpu, "tokens": tin + tout,
-            "model_usd": usd, "usd": usd + cpu * prices["usd_per_cpu_hour"] / 3600}
+            "model_usd": usd, "usd": usd + val_usd,
+            "model_usd_cached": usd_c, "usd_cached": usd_c + val_usd, "cache": cache}
 
 
 class BudgetGuard:

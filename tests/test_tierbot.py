@@ -322,6 +322,47 @@ class BudgetGuardTest(unittest.TestCase):
         self.assertEqual(B.replay(steps, 3, None, "seconds"), (3, None))
 
 
+class PromptCacheTest(unittest.TestCase):
+    """Money in the second reading: a tier re-reads, within a session, the
+    prefix it already sent; what is new is written."""
+    PRICES = {"usd_per_cpu_hour": 0.05, "cache_min_prompt_tokens": 1024}
+    TIER = {"usd_per_mtok_in": 2.0, "usd_per_mtok_in_cached": 0.2, "usd_per_mtok_cache_write": 2.5,
+            "usd_per_mtok_out": 10.0}
+
+    @staticmethod
+    def step(tier, mode, tok_in, requests=1):
+        return {"tier": tier, "mode": mode, "gen": {"tok_in": tok_in, "tok_out": 100, "requests": requests}}
+
+    def test_blind_calls_repeat_one_prompt(self):
+        a, b = self.step("cheap", "blind", 1500), self.step("cheap", "blind", 1500)
+        self.assertEqual(B.cache_split([], a, self.PRICES), {"read": 0, "write": 1500})
+        self.assertEqual(B.cache_split([a], b, self.PRICES), {"read": 1500, "write": 0})
+        five = self.step("cheap", "blind", 7500, requests=5)          # five requests for five candidates
+        self.assertEqual(B.cache_split([], five, self.PRICES), {"read": 6000, "write": 1500})
+
+    def test_a_conversation_reads_its_previous_prompt(self):
+        cheap = self.step("cheap", "blind", 1500)
+        r1, r2 = self.step("strong", "conversation", 1500), self.step("strong", "conversation", 2100)
+        self.assertEqual(B.cache_split([cheap], r1, self.PRICES), {"read": 0, "write": 1500})   # tiers share nothing
+        self.assertEqual(B.cache_split([cheap, r1], r2, self.PRICES), {"read": 1500, "write": 600})
+
+    def test_short_prompts_are_not_cached(self):
+        a, b = self.step("strong", "conversation", 800), self.step("strong", "conversation", 1300)
+        self.assertEqual(B.cache_split([], a, self.PRICES), {"read": 0, "write": 0})
+        self.assertEqual(B.cache_split([a], b, self.PRICES), {"read": 0, "write": 1300})
+        self.assertEqual(B.cache_split([], self.step("strong", "conversation", 5000), {"usd_per_cpu_hour": 0.05}),
+                         {"read": 0, "write": 0})                      # no threshold set: no cache
+
+    def test_two_readings_of_money(self):
+        gen = {"wall": 1.0, "tok_in": 2100, "tok_out": 100}
+        c = B.call_cost(gen, [], self.TIER, self.PRICES, {"read": 1500, "write": 600})
+        self.assertAlmostEqual(c["usd"], (2100 * 2.0 + 100 * 10.0) / 1e6)
+        self.assertAlmostEqual(c["usd_cached"], (1500 * 0.2 + 600 * 2.5 + 100 * 10.0) / 1e6)
+        plain = B.call_cost(gen, [], {"usd_per_mtok_in": 2.0, "usd_per_mtok_out": 10.0}, self.PRICES,
+                            {"read": 1500, "write": 600})
+        self.assertAlmostEqual(plain["usd_cached"], plain["usd"])     # a tier without cache prices
+
+
 class FakeValidator:
     """Judges a candidate by its text; every validation costs the same."""
 

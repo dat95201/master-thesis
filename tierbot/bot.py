@@ -26,7 +26,7 @@ from . import audit as A
 from . import config as C
 from . import javasrc
 from . import prompts
-from .budget import BudgetGuard, call_cost, give_up_report
+from .budget import BudgetGuard, cache_split, call_cost, give_up_report
 from .bugs import ensure_checkout
 from .controller import Controller, Policy, handover_note
 from .memory import EvidenceMemory
@@ -217,5 +217,7 @@ class TieredBot:
         cands = step["candidates"]
         own = [c["val"].get("warm") or c["val"].get("cold") or A.zero() for c in cands]
         plain = [(c["val_if_uncached"] or c["val"]).get("cold") for c in cands]
-        step["cost"] = call_cost(step["gen"], own, t, prices)
-        step["cost_plain"] = None if any(v is None for v in plain) else call_cost(step["gen"], plain, t, prices)
+        cache = cache_split(self.steps[:-1], step, prices)
+        step["cost"] = call_cost(step["gen"], own, t, prices, cache)
+        step["cost_plain"] = None if any(v is None for v in plain) else \
+            call_cost(step["gen"], plain, t, prices, cache)

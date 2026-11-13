@@ -16,7 +16,10 @@ from . import audit as A
 from . import budget as B
 from . import config as C
 
-UNITS = ("usd", "tokens", "seconds", "cpu")
+# usd: every input token at the list price; usd_cached: with the prompt-cache
+# model of budget.cache_split. Conclusions are read from the one less
+# favourable to escalation.
+UNITS = ("usd", "usd_cached", "tokens", "seconds", "cpu")
 PARTS = ("G_cheap", "G_strong", "V_build", "V_start", "V_test")
 
 
@@ -119,7 +122,7 @@ def cost(sess, settings, unit, plain=False) -> float:
         total += start["wall"]
     elif unit == "cpu":
         total += start["cpu"]
-    elif unit == "usd":
+    elif unit in ("usd", "usd_cached"):
         total += start["cpu"] * settings["prices"]["usd_per_cpu_hour"] / 3600
     return total
 
@@ -196,7 +199,7 @@ def summary_row(name, sessions, settings, plain=False):
 
 
 SUMMARY_HEAD = ["policy", "sessions", "repair rate", "bugs repaired", "USD / repaired bug",
-                "tokens / repaired bug", "s / repaired bug", "CPU s / repaired bug"]
+                "USD / repaired bug, prompt cache", "tokens / repaired bug", "s / repaired bug", "CPU s / repaired bug"]
 
 
 # ---------------------------------------------------------------- E0 (RQ2)
@@ -293,12 +296,37 @@ def breakdown_rows(sessions, settings, unit, path):
     return tot, by_end, total
 
 
+def token_lines(runs, settings):
+    """Per tier: how the tokens of the recorded calls divide, and what the
+    provider's prompt cache reported against the cache model that is priced."""
+    out = []
+    for t in settings["tiers"]:
+        gens = {}
+        for ss in runs.values():
+            for x in ss:
+                for s in x["steps"]:
+                    if s["tier"] == t["name"]:
+                        gens[(x["bug"], x["session"], s["call"])] = s
+        if not gens:
+            continue
+        g = lambda k: sum((s["gen"] or {}).get(k, 0) for s in gens.values())  # noqa: E731
+        tin, tout = g("tok_in") or 1, g("tok_out") or 1
+        read = sum(s["cost"]["cache"]["read"] for s in gens.values())
+        write = sum(s["cost"]["cache"]["write"] for s in gens.values())
+        out.append(f"- {t['name']} tier, {len(gens)} calls: {tin:,} input and {tout:,} output tokens; "
+                   f"reasoning is {pct(g('tok_reason') / tout)} of the output; prompt cache as priced: "
+                   f"{pct(read / tin)} of the input read, {pct(write / tin)} written; as the provider "
+                   f"reported: {pct(g('tok_in_cached') / tin)} read, {pct(g('tok_in_write') / tin)} written")
+    return out + [""] if out else out
+
+
 def section_e1(bugs, settings):
     runs = load("e1", bugs)
     out = ["## E1: where the cost goes (RQ1)", ""]
     if not runs:
         return "\n".join(out + ["No E1 sessions yet.", ""])
     out += [table(SUMMARY_HEAD, [summary_row(k, v, settings) for k, v in sorted(runs.items())]), ""]
+    out += token_lines(runs, settings)
     has_cold = all(s["cost_plain"] is not None for v in runs.values() for x in v for s in x["steps"])
     for unit in ("usd", "seconds"):
         for path in ("warm", "cold") if has_cold else ("warm",):
